@@ -1,0 +1,19 @@
+{
+  "name": "ligature-ex",
+  "version": "0.1.0-SNAPSHOT",
+  "description": "An alternative implementation of Ligature written in TypeScript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/almibe/ligature-ex.git"
+  },
+  "author": "Alex Michael Berry",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/almibe/ligature-ex/issues"
+  },
+  "homepage": "https://github.com/almibe/ligature-ex#readme"
+}
