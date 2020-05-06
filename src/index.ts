@@ -2,95 +2,70 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- package org.libraryweasel.ligature
+type Entity = { id: String };
+type LangLiteral = { value: String, langTag: String };
+type StringLiteral = { value: String };
+type BooleanLiteral = { value: Boolean };
+type LongLiteral = { value: Number };
+type DoubleLiteral = { value: Number };
+type Literal = LangLiteral | StringLiteral | BooleanLiteral | LongLiteral | DoubleLiteral;
 
- import kotlinx.coroutines.flow.Flow
+const A: Entity = { id: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" };
+const DEFAULT: Entity = { id: "_" };
+
+type Statement = { subject: Entity, predicate: Entity, object: Literal | Entity, context: Entity = DEFAULT };
+
+type LangLiteralRange = { start: LangLiteral, end: LangLiteral };
+type StringLiteralRange = { start: String, end: String };
+type LongLiteralRange = { start: Number, end: Number };
+type DoubleLiteralRange = { start: Number, end: Number };
+type LiteralRange = LangLiteralRange | StringLiteralRange | LongLiteralRange | DoubleLiteralRange;
  
- sealed class Object
- data class Entity(val identifier: Long): Object()
- sealed class Literal: Object()
- data class LangLiteral(val value: String, val langTag: String): Literal() {
-     init {
-         require(validLangTag(langTag)) {
-             "Invalid lang tag: $langTag"
-         }
-     }
- }
- data class StringLiteral(val value: String): Literal()
- data class BooleanLiteral(val value: Boolean): Literal()
- data class LongLiteral(val value: Long): Literal()
- data class DoubleLiteral(val value: Double): Literal()
+type CollectionName = { name: String };
  
- data class Predicate(val identifier: String) {
-     init {
-         require(validPredicate(identifier)) {
-             "Invalid Predicate: $identifier"
-         }
-     }
- }
+interface LigatureStore {
+    readTx(): ReadTx;
+    writeTx(): WriteTx;
+    // compute<T>(fn: (readTx: ReadTx) => T): T {
+    //      let readTx = this.readTx()
+    //      try {
+    //          return fn(readTx)
+    //      } finally {
+    //          if (readTx.isOpen()) {
+    //              readTx.cancel()
+    //          }
+    //      }
+    //  }
  
- val a = Predicate("_a")
- val default = Entity(0)
- 
- data class Statement(val subject: Entity, val predicate: Predicate, val `object`: Object, val context: Entity = default)
- 
- sealed class Range<T>(open val start: T, open val end: T)
- data class LangLiteralRange(override val start: LangLiteral, override val end: LangLiteral): Range<LangLiteral>(start, end)
- data class StringLiteralRange(override val start: String, override val end: String): Range<String>(start, end)
- data class LongLiteralRange(override val start: Long, override val end: Long): Range<Long>(start, end)
- data class DoubleLiteralRange(override val start: Double, override val end: Double): Range<Double>(start, end)
- 
- data class CollectionName(val name: String) {
-     init {
-         require(validPredicate(name)) {
-             "Invalid Collection Name: $name"
-         }
-     }
- }
- 
- interface LigatureStore {
-     suspend fun readTx(): ReadTx
-     suspend fun writeTx(): WriteTx
-     suspend fun <T>compute(fn: suspend (ReadTx) -> T): T {
-         val readTx = this.readTx()
-         try {
-             return fn(readTx)
-         } finally {
-             if (readTx.isOpen()) {
-                 readTx.cancel()
-             }
-         }
-     }
- 
-     suspend fun write(fn: suspend (WriteTx) -> Unit) {
-         val writeTx = this.writeTx()
-         try {
-             return fn(writeTx)
-         } finally {
-             if (writeTx.isOpen()) {
-                 writeTx.commit()
-             }
-         }
-     }
+    //  suspend fun write(fn: suspend (WriteTx) -> Unit) {
+    //      val writeTx = this.writeTx()
+    //      try {
+    //          return fn(writeTx)
+    //      } finally {
+    //          if (writeTx.isOpen()) {
+    //              writeTx.commit()
+    //          }
+    //      }
+    //  }
  
      /**
       * Close connection with the Store.
       */
-     suspend fun close()
+    close(): void;
  
-     suspend fun isOpen(): Boolean
+    isOpen(): Boolean;
  }
  
  interface ReadTx {
      /**
       * Returns a Flow of all existing collections.
       */
-     suspend fun collections(): Flow<CollectionName>
+    collections(): Flow<CollectionName>
  
      /**
       * Returns a Flow of all existing collections that start with the given prefix.
       */
-     suspend fun collections(prefix: CollectionName): Flow<CollectionName>
+    collections(prefix: CollectionName): Flow<CollectionName>
  
      /**
       * Returns a Flow of all existing collections that are within the given range.
