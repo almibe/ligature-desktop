@@ -1,2 +1,2 @@
 # ligature-ex
-An alternative implementation of Ligature written in TypeScript.
+An alternative implementation of Ligature written in TypeScript using Deno.

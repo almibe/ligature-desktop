@@ -2,26 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-type Entity = { id: String };
-type LangLiteral = { value: String, langTag: String };
+type Dataset = { name: String }; //TODO needs validation
+type BlankNode = { id: bigint };
+type IRI = { id: String }; //TODO needs validation
+type DefaultGraph = "_"; //TODO this probably isn't the best way to do this
+type LangLiteral = { value: String, langTag: String }; //TODO needs validation -- should langTag be its own type?
 type StringLiteral = { value: String };
 type BooleanLiteral = { value: Boolean };
 type LongLiteral = { value: Number };
-type DoubleLiteral = { value: Number };
+type DoubleLiteral = { value: bigint };
 type Literal = LangLiteral | StringLiteral | BooleanLiteral | LongLiteral | DoubleLiteral;
 
-const A: Entity = { id: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" };
-const DEFAULT: Entity = { id: "_" };
+const A: IRI = { id: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" };
 
-type Statement = { subject: Entity, predicate: Entity, object: Literal | Entity, context: Entity = DEFAULT };
+type Subject = IRI | BlankNode | DefaultGraph;
+type Predicate = IRI;
+type Obj = IRI | BlankNode | DefaultGraph | Literal;
+type Graph = IRI | BlankNode | DefaultGraph;
+type Statement = { subject: Subject, predicate: Predicate, object: Obj, graph: Graph = "_" };
 
 type LangLiteralRange = { start: LangLiteral, end: LangLiteral };
 type StringLiteralRange = { start: String, end: String };
-type LongLiteralRange = { start: Number, end: Number };
+type LongLiteralRange = { start: bigint, end: bigint };
 type DoubleLiteralRange = { start: Number, end: Number };
 type LiteralRange = LangLiteralRange | StringLiteralRange | LongLiteralRange | DoubleLiteralRange;
- 
-type CollectionName = { name: String };
  
 interface LigatureStore {
     readTx(): ReadTx;
