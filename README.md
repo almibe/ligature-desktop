@@ -1,2 +1,3 @@
-# ligature-ex
-An alternative implementation of Ligature written in TypeScript using Deno.
+# ligature-js
+
+An implementation of Ligature targeting the JS ecosystem mostly written in TypeScript.
