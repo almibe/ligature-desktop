@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Observable } from "rxjs";
+
 type Dataset = { name: string }; //TODO needs validation
 type Entity = { id: string }; //TODO needs validation
 type Attribute = { name: string }; //TODO needs validation
@@ -19,10 +21,15 @@ type LongLiteralRange = { start: bigint, end: bigint };
 type DoubleLiteralRange = { start: number, end: number };
 type LiteralRange = StringLiteralRange | LongLiteralRange | DoubleLiteralRange;
 
-interface LigatureStore {
-    readTx(): ReadTx;
-    writeTx(): WriteTx;
-    // compute<T>(fn: (readTx: ReadTx) => T): T {
+interface Ligature {
+    allDatasets(): Observable<Dataset>;
+    datasetExists(dataset: Dataset): Observable<boolean>;
+    matchDatasetPrefix(prefix: string): Observable<Dataset>;
+    matchDatasetRange(start: string, end: string): Observable<Dataset>;
+    createDataset(dataset: Dataset): Observable<null>; //TODO shouldn't return null
+    deleteDataset(dataset: Dataset): Observable<null>; //TODO shouldn't return null
+    
+    // query<T>(fn: (readTx: ReadTx) => T): T {
     //      let readTx = this.readTx()
     //      try {
     //          return fn(readTx)
@@ -33,7 +40,7 @@ interface LigatureStore {
     //      }
     //  }
  
-    //  suspend fun write(fn: suspend (WriteTx) -> Unit) {
+    // write(fn: suspend (WriteTx) -> Unit) {
     //      val writeTx = this.writeTx()
     //      try {
     //          return fn(writeTx)
@@ -49,91 +56,50 @@ interface LigatureStore {
       */
     close(): void;
  
-    isOpen(): Boolean;
+    isOpen(): boolean;
 }
  
-interface ReadTx {
-    /**
-     * Returns a Flow of all existing collections.
-     */
-    collections(): Flow<CollectionName>
- 
-    /**
-     * Returns a Flow of all existing collections that start with the given prefix.
-     */
-    collections(prefix: CollectionName): Flow<CollectionName>
- 
-    /**
-     * Returns a Flow of all existing collections that are within the given range.
-     * `from` is inclusive and `to` is exclusive.
-     */
-    suspend fun collections(from: CollectionName, to: CollectionName): Flow<CollectionName>
- 
+interface ReadTx { 
     /**
      * Accepts nothing but returns a Flow of all Statements in the Collection.
      */
-    suspend fun allStatements(collection: CollectionName): Flow<Statement>
+    allStatements(): Observable<Statement>
  
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    suspend fun matchStatements(collection: CollectionName, subject: Entity? = null, predicate: Predicate? = null, `object`: Object? = null, context: Entity? = null): Flow<Statement>
+    matchStatements(entity: Entity | null, attribute: Attribute | null, object: Object | null, context: Entity | null): Observable<Statement>
  
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    suspend fun matchStatements(collection: CollectionName, subject: Entity? = null, predicate: Predicate? = null, range: Range<*>, context: Entity? = null): Flow<Statement>
- 
-    /**
-     * Cancels this transaction.
-     */
-    suspend fun cancel()
- 
-    suspend fun isOpen(): Boolean
+    matchStatements(entity: Entity | null, attribute: Attribute | null, range: LiteralRange, context: Entity | null): Observable<Statement>
 }
- 
+
 interface WriteTx {
-    /**
-     * Creates a collection with the given name or does nothing if the collection already exists.
-     * Only useful for creating an empty collection.
-     */
-    suspend fun createCollection(collection: CollectionName)
- 
-    /**
-     * Deletes the collection of the name given and does nothing if the collection doesn't exist.
-     */
-    suspend fun deleteCollection(collection: CollectionName)
- 
     /**
      * Returns a new, unique to this collection identifier in the form _:NUMBER
      */
-    suspend fun newEntity(collection: CollectionName): Entity
-    suspend fun addStatement(collection: CollectionName, statement: Statement)
-    suspend fun removeStatement(collection: CollectionName, statement: Statement)
- 
-    /**
-     * Commits this transaction.
-     */
-    suspend fun commit()
- 
+    generateEntity(prefix: Entity): Entity //TODO add default for prefix
+    addStatement(statement: Statement): any //TODO figure out return type
+    removeStatement(statement: Statement): any //TODO figure out return type
+
     /**
      * Cancels this transaction.
      */
-    suspend fun cancel()
- 
-    suspend fun isOpen(): Boolean
+    cancel(): any //TODO figure out return type
 }
  
-/**
- * Accepts a String representing an identifier and returns true or false depending on if it is valid.
- */
-fun validPredicate(identifier: String): Boolean {
-    return "[a-zA-Z_][^\\s\\(\\)\\[\\]\\{\\}'\"`<>\\\\]*".toRegex().matches(identifier)
-}
+// /**
+//  * Accepts a String representing an identifier and returns true or false depending on if it is valid.
+//  */
+// function validPredicate(identifier: String): Boolean {
+//     return "[a-zA-Z_][^\\s\\(\\)\\[\\]\\{\\}'\"`<>\\\\]*".toRegex().matches(identifier)
+// }
  
-/**
- * Accepts a String representing a lang tag and returns true or false depending on if it is valid.
- */
-fun validLangTag(langTag: String): Boolean {
-    return "[a-zA-Z]+(-[a-zA-Z0-9]+)*".toRegex().matches(langTag)
-}
+// /**
+//  * Accepts a String representing a lang tag and returns true or false depending on if it is valid.
+//  */
+// fun validLangTag(langTag: String): Boolean {
+//     return "[a-zA-Z]+(-[a-zA-Z0-9]+)*".toRegex().matches(langTag)
+// }

@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/almibe/ligature-js/issues"
   },
-  "homepage": "https://github.com/almibe/ligature-js#readme"
+  "homepage": "https://github.com/almibe/ligature-js#readme",
+  "dependencies": {
+    "rxjs": "^7.1.0"
+  }
 }
