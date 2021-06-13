@@ -18,5 +18,14 @@
   "homepage": "https://github.com/almibe/ligature-js#readme",
   "dependencies": {
     "rxjs": "^7.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.3",
+    "@babel/preset-env": "^7.14.4",
+    "@babel/preset-typescript": "^7.13.0",
+    "@types/jest": "^26.0.23",
+    "@types/rx": "^4.1.2",
+    "babel-jest": "^27.0.1",
+    "jest": "^27.0.1"
   }
 }

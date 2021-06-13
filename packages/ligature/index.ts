@@ -4,13 +4,13 @@
 
 import { Observable } from "rxjs";
 
-type Dataset = { name: string }; //TODO needs validation
-type Entity = { id: string }; //TODO needs validation
-type Attribute = { name: string }; //TODO needs validation
-type StringLiteral = { value: string };
-type BooleanLiteral = { value: boolean };
-type LongLiteral = { value: bigint };
-type DoubleLiteral = { value: number };
+type Dataset = string;
+type Entity = string;
+type Attribute = string;
+type StringLiteral = string;
+type BooleanLiteral = boolean;
+type LongLiteral = bigint;
+type DoubleLiteral = number;
 type Literal = StringLiteral | BooleanLiteral | LongLiteral | DoubleLiteral;
 
 type Value = Entity | Literal;
@@ -26,30 +26,12 @@ interface Ligature {
     datasetExists(dataset: Dataset): Observable<boolean>;
     matchDatasetPrefix(prefix: string): Observable<Dataset>;
     matchDatasetRange(start: string, end: string): Observable<Dataset>;
-    createDataset(dataset: Dataset): Observable<null>; //TODO shouldn't return null
-    deleteDataset(dataset: Dataset): Observable<null>; //TODO shouldn't return null
+    createDataset(dataset: Dataset): Observable<Dataset>;
+    deleteDataset(dataset: Dataset): Observable<Dataset>;
     
-    // query<T>(fn: (readTx: ReadTx) => T): T {
-    //      let readTx = this.readTx()
-    //      try {
-    //          return fn(readTx)
-    //      } finally {
-    //          if (readTx.isOpen()) {
-    //              readTx.cancel()
-    //          }
-    //      }
-    //  }
+    query<T>(fn: (readTx: ReadTx) => T): T;
  
-    // write(fn: suspend (WriteTx) -> Unit) {
-    //      val writeTx = this.writeTx()
-    //      try {
-    //          return fn(writeTx)
-    //      } finally {
-    //          if (writeTx.isOpen()) {
-    //              writeTx.commit()
-    //          }
-    //      }
-    //  }
+    write<T>(fn: (writeTx: WriteTx) => T): T;
  
      /**
       * Close connection with the Store.
@@ -89,17 +71,3 @@ interface WriteTx {
      */
     cancel(): any //TODO figure out return type
 }
- 
-// /**
-//  * Accepts a String representing an identifier and returns true or false depending on if it is valid.
-//  */
-// function validPredicate(identifier: String): Boolean {
-//     return "[a-zA-Z_][^\\s\\(\\)\\[\\]\\{\\}'\"`<>\\\\]*".toRegex().matches(identifier)
-// }
- 
-// /**
-//  * Accepts a String representing a lang tag and returns true or false depending on if it is valid.
-//  */
-// fun validLangTag(langTag: String): Boolean {
-//     return "[a-zA-Z]+(-[a-zA-Z0-9]+)*".toRegex().matches(langTag)
-// }

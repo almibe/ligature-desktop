@@ -1,0 +1,38 @@
+{
+  "name": "@ligature/ligature-in-memory",
+  "version": "0.1.0-SNAPSHOT",
+  "description": "An in-memory implementation of Ligature.",
+  "author": "berry3 <berry3@indiana.edu>",
+  "homepage": "https://github.com/almibe/ligature-js#readme",
+  "license": "MPL-2.0",
+  "main": "lib/ligature-in-memory.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/almibe/ligature-js.git"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "bugs": {
+    "url": "https://github.com/almibe/ligature-js/issues"
+  },
+  "dependencies": {
+    "@ligature/ligature": "^0.1.0-SNAPSHOT"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "jest": "^27.0.1",
+    "ts-jest": "^27.0.1",
+    "typescript": "^4.3.2"
+  }
+}
