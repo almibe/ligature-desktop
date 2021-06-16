@@ -4,24 +4,24 @@
 
 import { Observable } from "rxjs";
 
-type Dataset = string;
-type Entity = string;
-type Attribute = string;
-type StringLiteral = string;
-type BooleanLiteral = boolean;
-type LongLiteral = bigint;
-type DoubleLiteral = number;
-type Literal = StringLiteral | BooleanLiteral | LongLiteral | DoubleLiteral;
+export type Dataset = string;
+export type Entity = string;
+export type Attribute = string;
+export type StringLiteral = string;
+export type BooleanLiteral = boolean;
+export type LongLiteral = bigint;
+export type DoubleLiteral = number;
+export type Literal = StringLiteral | BooleanLiteral | LongLiteral | DoubleLiteral;
 
-type Value = Entity | Literal;
-type Statement = { entity: Entity, attribute: Attribute, value: Value, context: Entity };
+export type Value = Entity | Literal;
+export type Statement = { entity: Entity, attribute: Attribute, value: Value, context: Entity };
 
-type StringLiteralRange = { start: string, end: string };
-type LongLiteralRange = { start: bigint, end: bigint };
-type DoubleLiteralRange = { start: number, end: number };
-type LiteralRange = StringLiteralRange | LongLiteralRange | DoubleLiteralRange;
+export type StringLiteralRange = { start: string, end: string };
+export type LongLiteralRange = { start: bigint, end: bigint };
+export type DoubleLiteralRange = { start: number, end: number };
+export type LiteralRange = StringLiteralRange | LongLiteralRange | DoubleLiteralRange;
 
-interface Ligature {
+export interface Ligature {
     allDatasets(): Observable<Dataset>;
     datasetExists(dataset: Dataset): Observable<boolean>;
     matchDatasetPrefix(prefix: string): Observable<Dataset>;
@@ -40,8 +40,8 @@ interface Ligature {
  
     isOpen(): boolean;
 }
- 
-interface ReadTx { 
+
+export interface ReadTx { 
     /**
      * Accepts nothing but returns a Flow of all Statements in the Collection.
      */
@@ -50,7 +50,7 @@ interface ReadTx {
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, object: Object | null, context: Entity | null): Observable<Statement>
+    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null, context: Entity | null): Observable<Statement>
  
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
@@ -58,7 +58,7 @@ interface ReadTx {
     matchStatements(entity: Entity | null, attribute: Attribute | null, range: LiteralRange, context: Entity | null): Observable<Statement>
 }
 
-interface WriteTx {
+export interface WriteTx {
     /**
      * Returns a new, unique to this collection identifier in the form _:NUMBER
      */

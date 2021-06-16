@@ -27,7 +27,9 @@
     "url": "https://github.com/almibe/ligature-js/issues"
   },
   "dependencies": {
-    "@ligature/ligature": "^0.1.0-SNAPSHOT"
+    "@ligature/ligature": "^0.1.0-SNAPSHOT",
+    "immutable": "3.8.2",
+    "rxjs": "7.1.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
