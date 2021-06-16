@@ -1,11 +1,11 @@
 {
-  "name": "@ligature/ligature-in-memory",
+  "name": "@ligature/ligature-indexeddb",
   "version": "0.1.0-SNAPSHOT",
-  "description": "An in-memory implementation of Ligature.",
-  "author": "berry3 <berry3@indiana.edu>",
+  "description": "An implementation of Ligature using IndexedDB.",
+  "author": "Alex Michael Berry <alexmiberry@gmail.com>",
   "homepage": "https://github.com/almibe/ligature-js#readme",
   "license": "MPL-2.0",
-  "main": "lib/ligature-in-memory.ts",
+  "main": "lib/index.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@ligature/ligature": "^0.1.0-SNAPSHOT",
-    "immutable": "3.8.2",
+    "dexie": "^3.0.3",
     "rxjs": "7.1.0"
   },
   "devDependencies": {

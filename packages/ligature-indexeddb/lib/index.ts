@@ -3,25 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Observable } from "rxjs";
-import { Ligature, ReadTx, WriteTx } from "@ligature/ligature";
+import { Ligature, ReadTx, WriteTx, Dataset } from "@ligature/ligature";
 
 class InMemoryLigature implements Ligature {
-    allDatasets(): Observable<string> {
+    allDatasets(): Observable<Dataset> {
         throw new Error("Method not implemented.");
     }
-    datasetExists(dataset: string): Observable<boolean> {
+    datasetExists(dataset: Dataset): Observable<boolean> {
         throw new Error("Method not implemented.");
     }
-    matchDatasetPrefix(prefix: string): Observable<string> {
+    matchDatasetPrefix(prefix: Dataset): Observable<Dataset> {
         throw new Error("Method not implemented.");
     }
-    matchDatasetRange(start: string, end: string): Observable<string> {
+    matchDatasetRange(start: Dataset, end: Dataset): Observable<Dataset> {
         throw new Error("Method not implemented.");
     }
-    createDataset(dataset: string): Observable<string> {
+    createDataset(dataset: Dataset): Observable<Dataset> {
         throw new Error("Method not implemented.");
     }
-    deleteDataset(dataset: string): Observable<string> {
+    deleteDataset(dataset: Dataset): Observable<Dataset> {
         throw new Error("Method not implemented.");
     }
     query<T>(fn: (readTx: ReadTx) => T): T {

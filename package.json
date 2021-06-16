@@ -4,5 +4,9 @@
   "devDependencies": {
     "lerna": "^4.0.0",
     "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "@ligature/ligature": "file:packages/ligature",
+    "@ligature/ligature-indexeddb": "file:packages/ligature-indexeddb"
   }
 }

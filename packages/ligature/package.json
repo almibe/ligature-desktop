@@ -2,6 +2,9 @@
   "name": "@ligature/ligature",
   "version": "0.1.0-SNAPSHOT",
   "description": "The TypeScript datamodel and API for the Ligature knowledge graph.",
+  "author": "Alex Michael Berry <alexmiberry@gmail.com>",
+  "homepage": "https://github.com/almibe/ligature-js#readme",
+  "license": "MPL-2.0",
   "main": "index.ts",
   "scripts": {
     "test": "jest"
@@ -10,12 +13,9 @@
     "type": "git",
     "url": "git+https://github.com/almibe/ligature-js.git"
   },
-  "author": "Alex Michael Berry <alexmiberry@gmail.com>",
-  "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/almibe/ligature-js/issues"
   },
-  "homepage": "https://github.com/almibe/ligature-js#readme",
   "dependencies": {
     "rxjs": "^7.1.0"
   },
