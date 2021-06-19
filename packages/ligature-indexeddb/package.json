@@ -21,20 +21,20 @@
     "url": "git+https://github.com/almibe/ligature-js.git"
   },
   "scripts": {
-    "test": "jest"
+    "test-browser": "parcel __tests__/test.html"
   },
   "bugs": {
     "url": "https://github.com/almibe/ligature-js/issues"
   },
   "dependencies": {
-    "@ligature/ligature": "^0.1.0-SNAPSHOT",
+    "@ligature/ligature": "../ligature",
     "dexie": "^3.0.3",
     "rxjs": "7.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "jest": "^27.0.1",
-    "ts-jest": "^27.0.1",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.0",
+    "parcel-bundler": "^1.12.5",
     "typescript": "^4.3.2"
   }
 }
