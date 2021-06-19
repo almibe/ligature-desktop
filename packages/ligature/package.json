@@ -5,9 +5,13 @@
   "author": "Alex Michael Berry <alexmiberry@gmail.com>",
   "homepage": "https://github.com/almibe/ligature-js#readme",
   "license": "MPL-2.0",
-  "main": "index.ts",
+  "main": "lib/index.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
   "scripts": {
-    "test": "mocha -r ts-node/register *.spec.ts"
+    "test": "mocha -r ts-node/register test/**/*.spec.ts"
   },
   "repository": {
     "type": "git",

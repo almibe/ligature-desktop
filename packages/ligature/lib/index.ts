@@ -72,18 +72,25 @@ export interface WriteTx {
     cancel(): any //TODO figure out return type
 }
 
+export const datasetPattern = /.*/g;
+export const entityPattern = /.*/g;
+export const attributePattern = /.*/g;
+
 export function validateDataset(dataset: Dataset): boolean {
-    return false;
+    let res = dataset.match(datasetPattern);
+    if (res == null) return false;
+    else if (res.length == 1 && res[0].length == dataset.length) return true;
+    else return false;
 }
 
 export function validateEntity(entity: Entity): boolean {
-    return false;
+    throw Error("TODO");
 }
 
 export function validateAttribute(attribute: Attribute): boolean {
-    return false;
+    throw Error("TODO");
 }
 
 export function validateIntegerLiteral(literal: bigint): boolean {
-    return false;
+    throw Error("TODO");
 }
