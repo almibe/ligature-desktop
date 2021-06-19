@@ -71,3 +71,19 @@ export interface WriteTx {
      */
     cancel(): any //TODO figure out return type
 }
+
+export function validateDataset(dataset: Dataset): boolean {
+    return false;
+}
+
+export function validateEntity(entity: Entity): boolean {
+    return false;
+}
+
+export function validateAttribute(attribute: Attribute): boolean {
+    return false;
+}
+
+export function validateIntegerLiteral(literal: bigint): boolean {
+    return false;
+}
