@@ -2,44 +2,89 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { should } from 'chai';
 import { validateAttribute, validateDataset, validateEntity, validateIntegerLiteral, Entity, Attribute } from "../lib/index";
 
-describe("Attribute validation", () => {
-    it("check valid Attribute names", () => {
-        throw Error("TOOD");
+let okays = [
+    "test",
+    "test_test_test",
+    "test_test",
+    "this1_is2_a_test",
+    "_",
+    "_test",
+    "__test__",
+    "testTest",
+    "G",
+    "test!",
+    "test//test",
+    "HELLO"
+]
+
+let errs = [
+    "",
+    "2",
+    "5test",
+    "this is a test",
+    "/_/_",
+    "test test",
+    "test/ /test",
+    " test"
+];
+
+should();
+
+describe("Dataset validation", () => {
+    it("check valid Dataset names", () => {
+        okays.forEach((ok) => {
+            validateDataset(ok).should.be.true;
+        })
     })
 
-    it("check invalid Attribute names", () => {
-        throw Error("TOOD");
+    it("check invalid Dataset names", () => {
+        errs.forEach((err) => {
+            validateDataset(err).should.be.false;
+        })
     })
 })
 
 describe("Entity validation", () => {
     it("check valid Entity names", () => {
-        throw Error("TOOD");
+        okays.forEach((ok) => {
+            validateEntity(ok).should.be.true;
+        })
     })
 
     it("check invalid Entity names", () => {
-        throw Error("TOOD");
+        errs.forEach((err) => {
+            validateEntity(err).should.be.false;
+        })
     })
 })
 
-describe("Dataset validation", () => {
-    it("check valid Dataset names", () => {
-        throw Error("TOOD");
+describe("Attribute validation", () => {
+    it("check valid Attribute names", () => {
+        okays.forEach((ok) => {
+            validateAttribute(ok).should.be.true;
+        })
     })
 
-    it("check invalid Dataset names", () => {
-        throw Error("TOOD");
+    it("check invalid Attribute names", () => {
+        errs.forEach((err) => {
+            validateAttribute(err).should.be.false;
+        })
     })
 })
 
 describe("Integer Literal validation", () => {
     it("check valid Integer Literal values", () => {
-        throw Error("TOOD");
+        [0n, -9223372036854775808n, 9223372036854775807n].forEach((num) => {
+            validateIntegerLiteral(num).should.be.true
+        })
     })
 
     it("check invalid Integer Literal values", () => {
-        throw Error("TOOD");
+        [-9223372036854775809n, 9223372036854775808n].forEach((num) => {
+            validateIntegerLiteral(num).should.be.false
+        })
     })
 })

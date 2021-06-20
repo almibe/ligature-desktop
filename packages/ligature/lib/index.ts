@@ -72,25 +72,25 @@ export interface WriteTx {
     cancel(): any //TODO figure out return type
 }
 
-export const datasetPattern = /.*/g;
-export const entityPattern = /.*/g;
-export const attributePattern = /.*/g;
+export const datasetPatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
+export const entityPatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
+export const attributePatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
+export const datasetPattern = /[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
+export const entityPattern = /[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
+export const attributePattern = /[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
 
 export function validateDataset(dataset: Dataset): boolean {
-    let res = dataset.match(datasetPattern);
-    if (res == null) return false;
-    else if (res.length == 1 && res[0].length == dataset.length) return true;
-    else return false;
+    return datasetPatternFull.test(dataset);
 }
 
 export function validateEntity(entity: Entity): boolean {
-    throw Error("TODO");
+    return entityPatternFull.test(entity);
 }
 
 export function validateAttribute(attribute: Attribute): boolean {
-    throw Error("TODO");
+    return attributePatternFull.test(attribute);
 }
 
 export function validateIntegerLiteral(literal: bigint): boolean {
-    throw Error("TODO");
+    return literal >= -9223372036854775808n && literal <= 9223372036854775807n;
 }
