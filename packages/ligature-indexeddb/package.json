@@ -28,8 +28,10 @@
   },
   "dependencies": {
     "@ligature/ligature": "../ligature",
+    "@types/uuid": "^8.3.0",
     "dexie": "^3.0.3",
-    "rxjs": "7.1.0"
+    "rxjs": "7.1.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.18",

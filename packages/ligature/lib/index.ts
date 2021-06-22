@@ -40,7 +40,7 @@ export interface Ligature {
      /**
       * Close connection with the Store.
       */
-    close(): Promise<void>;
+    close(deleteDb: boolean): Promise<void>;
  
     isOpen(): boolean;
 }

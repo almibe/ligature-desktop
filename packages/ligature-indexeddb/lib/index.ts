@@ -50,10 +50,16 @@ export class InMemoryLigature implements Ligature {
         throw new Error("Method not implemented.");
     }
 
-    close(): Promise<void> {
-        return this.db.delete() //this is for testing not persistance, so I delete on close
-            .then(() => { this.db.close() })
-            .then(() => { this._isOpen = false });
+    close(deleteDb: boolean = false): Promise<void> {
+        if (deleteDb) {
+            return this.db.delete()
+                .then(() => { this.db.close() })
+                .then(() => { this._isOpen = false });
+        } else {
+            this.db.close();
+            this._isOpen = false;
+            return Promise.resolve();
+        }
     }
 
     isOpen(): boolean {
