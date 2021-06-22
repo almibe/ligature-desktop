@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Observable } from "rxjs";
-
 export type Dataset = string;
 export type Entity = string;
 export type Attribute = string;
+
 export type StringLiteral = string;
 export type BooleanLiteral = boolean;
 export type LongLiteral = bigint;
@@ -21,50 +20,59 @@ export type LongLiteralRange = { start: bigint, end: bigint };
 export type DoubleLiteralRange = { start: number, end: number };
 export type LiteralRange = StringLiteralRange | LongLiteralRange | DoubleLiteralRange;
 
+/**
+ * The main interface for interacting with Ligature.
+ * It allows for interacting with Datasets outside of transactions,
+ * and also allow for interacting with the contents of a specific Dataset inside of a transaction.
+ */
 export interface Ligature {
-    allDatasets(): Observable<Dataset>;
-    datasetExists(dataset: Dataset): Observable<boolean>;
-    matchDatasetPrefix(prefix: string): Observable<Dataset>;
-    matchDatasetRange(start: string, end: string): Observable<Dataset>;
-    createDataset(dataset: Dataset): Observable<Dataset>;
-    deleteDataset(dataset: Dataset): Observable<Dataset>;
+    allDatasets(): Promise<Array<Dataset>>;
+    datasetExists(dataset: Dataset): Promise<boolean>;
+    matchDatasetPrefix(prefix: string): Promise<Array<Dataset>>;
+    matchDatasetRange(start: string, end: string): Promise<Array<Dataset>>;
+    createDataset(dataset: Dataset): Promise<Dataset>;
+    deleteDataset(dataset: Dataset): Promise<Dataset>;
     
-    query<T>(fn: (readTx: ReadTx) => T): T;
+    query<T>(fn: (readTx: ReadTx) => T): Promise<T>;
  
-    write<T>(fn: (writeTx: WriteTx) => T): T;
+    write<T>(fn: (writeTx: WriteTx) => T): Promise<T>;
  
      /**
       * Close connection with the Store.
       */
-    close(): void;
+    close(): Promise<void>;
  
     isOpen(): boolean;
+}
+
+export interface LigatureCursor<T> {
+    
 }
 
 export interface ReadTx { 
     /**
      * Accepts nothing but returns a Flow of all Statements in the Collection.
      */
-    allStatements(): Observable<Statement>
+    allStatements(): Promise<Iterator<Statement>>
  
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null, context: Entity | null): Observable<Statement>
+    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null, context: Entity | null): Promise<Iterator<Statement>>
  
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, range: LiteralRange, context: Entity | null): Observable<Statement>
+    matchStatements(entity: Entity | null, attribute: Attribute | null, range: LiteralRange, context: Entity | null): Promise<Iterator<Statement>>
 }
 
 export interface WriteTx {
     /**
      * Returns a new, unique to this collection identifier in the form _:NUMBER
      */
-    generateEntity(prefix: Entity): Entity //TODO add default for prefix
-    addStatement(statement: Statement): any //TODO figure out return type
-    removeStatement(statement: Statement): any //TODO figure out return type
+    generateEntity(prefix: Entity): Promise<Entity>
+    addStatement(statement: Statement): Promise<Statement>
+    removeStatement(statement: Statement): Promise<Statement>
 
     /**
      * Cancels this transaction.
