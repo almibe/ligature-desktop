@@ -40,10 +40,24 @@ describe('Datasets Support', () => {
     it('should allow finding Datasets by prefix', async () => {
         let instance = new InMemoryLigature("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
+        await instance.createDataset("anewDataset");
         await instance.createDataset("newDataset");
+        await instance.createDataset("newDataset01");
+        await instance.createDataset("newDataset02");
+        await instance.createDataset("newDataset03");
+        await instance.createDataset("znewDataset");
 
-        //TODO add additional Datasets and test match function
-        expect("write actual test").to.be.true;
+        let res1 = (await instance.matchDatasetPrefix("n")).length;
+        let res2 = (await instance.matchDatasetPrefix("a")).length;
+        let res3 = (await instance.matchDatasetPrefix("s")).length;
+        let res4 = (await instance.matchDatasetPrefix("newDataset0")).length;
+        let res5 = (await instance.matchDatasetPrefix("newDataset01")).length;
+
+        expect(res1).to.be.equal(4);
+        expect(res2).to.be.equal(1);
+        expect(res3).to.be.equal(0);
+        expect(res4).to.be.equal(3);
+        expect(res5).to.be.equal(1);
 
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
@@ -52,10 +66,24 @@ describe('Datasets Support', () => {
     it('should allow finding Datasets by range', async () => {
         let instance = new InMemoryLigature("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
+        await instance.createDataset("anewDataset");
         await instance.createDataset("newDataset");
+        await instance.createDataset("newDataset01");
+        await instance.createDataset("newDataset02");
+        await instance.createDataset("newDataset03");
+        await instance.createDataset("znewDataset");
 
-        //TODO add additional Datasets and test match by range function
-        expect("write actual test").to.be.true;
+        let res1 = (await instance.matchDatasetRange("a","zz")).length;
+        let res2 = (await instance.matchDatasetRange("anew", "bnew")).length;
+        let res3 = (await instance.matchDatasetRange("anewE", "m")).length;
+        let res4 = (await instance.matchDatasetRange("newDataset", "newDataset02")).length;
+        let res5 = (await instance.matchDatasetRange("newDataset03", "zz")).length;
+
+        expect(res1).to.be.equal(6);
+        expect(res2).to.be.equal(1);
+        expect(res3).to.be.equal(0);
+        expect(res4).to.be.equal(3);
+        expect(res5).to.be.equal(2);
 
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
@@ -64,10 +92,19 @@ describe('Datasets Support', () => {
     it('should allow deleting a Dataset', async () => {
         let instance = new InMemoryLigature("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
+        await instance.createDataset("anewDataset");
         await instance.createDataset("newDataset");
+        await instance.createDataset("newDataset01");
+        await instance.createDataset("newDataset02");
+        await instance.createDataset("newDataset03");
+        await instance.createDataset("znewDataset");
 
-        //TODO add additional Datasets and test deleting
-        expect("write actual test").to.be.true;
+        await instance.deleteDataset("newDataset");
+        await instance.deleteDataset("newDataset02");
+        await instance.deleteDataset("zznewDataset");
+        let total = (await instance.allDatasets()).length;
+
+        expect(total).to.be.equal(4);
 
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
