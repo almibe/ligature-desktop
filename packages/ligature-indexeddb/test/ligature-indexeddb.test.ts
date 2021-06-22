@@ -82,7 +82,7 @@ describe('Datasets Support', () => {
         expect(res1).to.be.equal(6);
         expect(res2).to.be.equal(1);
         expect(res3).to.be.equal(0);
-        expect(res4).to.be.equal(3);
+        expect(res4).to.be.equal(2);
         expect(res5).to.be.equal(2);
 
         await instance.close(true);

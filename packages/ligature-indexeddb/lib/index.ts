@@ -35,11 +35,11 @@ export class InMemoryLigature implements Ligature {
     }
 
     matchDatasetPrefix(prefix: Dataset): Promise<Array<Dataset>> {
-        throw new Error("Method not implemented.");
+        return this.db.table("datasets").where("dataset").startsWith(prefix).toArray();
     }
 
     matchDatasetRange(start: Dataset, end: Dataset): Promise<Array<Dataset>> {
-        throw new Error("Method not implemented.");
+        return this.db.table("datasets").where("dataset").between(start, end).toArray();
     }
 
     query<T>(fn: (readTx: ReadTx) => T): Promise<T> {
