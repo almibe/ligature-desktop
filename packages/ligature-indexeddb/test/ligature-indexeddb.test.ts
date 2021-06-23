@@ -117,7 +117,12 @@ describe('Statement Support', () => {
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset("newDataset");
 
-        expect("write actual test").to.be.true;
+        let res = await instance.query("newDataset", (readTx) => {
+            return await readTx.allStatements().length()
+            //TODO finish
+        });
+
+        expect(res).to.be.equal(0);
 
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;

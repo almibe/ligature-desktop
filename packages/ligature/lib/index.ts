@@ -33,37 +33,40 @@ export interface Ligature {
     createDataset(dataset: Dataset): Promise<Dataset>;
     deleteDataset(dataset: Dataset): Promise<Dataset>;
     
-    query<T>(fn: (readTx: ReadTx) => T): Promise<T>;
+    query<T>(dataset: Dataset, fn: (readTx: ReadTx) => T): Promise<T>;
  
-    write<T>(fn: (writeTx: WriteTx) => T): Promise<T>;
+    write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => T): Promise<T>;
  
-     /**
-      * Close connection with the Store.
-      */
+    /**
+     * Close connection with the Store.
+     */
     close(deleteDb: boolean): Promise<void>;
  
     isOpen(): boolean;
 }
 
-export interface LigatureCursor<T> {
-    
+export interface LigatureCursor<T> { //TODO possibly replace Arrays used in ReadTx with this type, also should these return Promises?
+    reset(): void
+    next(): T | null
+    size(): number
+    toArray(): Array<T>
 }
 
 export interface ReadTx { 
     /**
      * Accepts nothing but returns a Flow of all Statements in the Collection.
      */
-    allStatements(): Promise<Iterator<Statement>>
+    allStatements(): Promise<Array<Statement>>
  
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null, context: Entity | null): Promise<Iterator<Statement>>
+    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null, context: Entity | null): Promise<Array<Statement>>
  
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, range: LiteralRange, context: Entity | null): Promise<Iterator<Statement>>
+    matchStatements(entity: Entity | null, attribute: Attribute | null, range: LiteralRange, context: Entity | null): Promise<Array<Statement>>
 }
 
 export interface WriteTx {

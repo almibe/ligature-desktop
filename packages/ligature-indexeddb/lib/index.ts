@@ -42,11 +42,14 @@ export class InMemoryLigature implements Ligature {
         return this.db.table("datasets").where("dataset").between(start, end).toArray();
     }
 
-    query<T>(fn: (readTx: ReadTx) => T): Promise<T> {
+    query<T>(dataset: Dataset, fn: (readTx: ReadTx) => T): Promise<T> {
+        this.db.transaction("r", this.db.table(dataset), tx => {
+            let tx = new IndexedDbReadTx
+        });
         throw new Error("Method not implemented.");
     }
 
-    write<T>(fn: (writeTx: WriteTx) => T): Promise<T> {
+    write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => T): Promise<T> {
         throw new Error("Method not implemented.");
     }
 

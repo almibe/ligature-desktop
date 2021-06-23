@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { WriteTx, Statement } from "@ligature/ligature";
+import { WriteTx, Statement, Entity } from "@ligature/ligature";
 
-class IndexeddbLigatureWriteTx implements WriteTx {
-    generateEntity(prefix: string): string {
+class LDWriteTx implements WriteTx {
+    generateEntity(prefix: string): Promise<Entity> {
         throw new Error("Method not implemented.");
     }
-    addStatement(statement: Statement) {
+    addStatement(statement: Statement): Promise<Statement> {
         throw new Error("Method not implemented.");
     }
-    removeStatement(statement: Statement) {
+    removeStatement(statement: Statement): Promise<Statement> {
         throw new Error("Method not implemented.");
     }
     cancel() {
