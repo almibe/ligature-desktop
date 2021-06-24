@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { should } from 'chai';
-import { validateAttribute, validateDataset, validateEntity, validateIntegerLiteral, Entity, Attribute } from "../lib/index";
+import { validateIntegerLiteral, Entity, Attribute, Dataset } from "../lib/index";
 
 let okays = [
     "test",
@@ -36,13 +36,13 @@ should();
 describe("Dataset validation", () => {
     it("check valid Dataset names", () => {
         okays.forEach((ok) => {
-            validateDataset(ok).should.be.true;
+            (new Dataset(ok)).isValid().should.be.true;
         })
     })
 
     it("check invalid Dataset names", () => {
         errs.forEach((err) => {
-            validateDataset(err).should.be.false;
+            (new Dataset(err)).isValid().should.be.false;
         })
     })
 })
@@ -50,13 +50,13 @@ describe("Dataset validation", () => {
 describe("Entity validation", () => {
     it("check valid Entity names", () => {
         okays.forEach((ok) => {
-            validateEntity(ok).should.be.true;
+            (new Entity(ok)).isValid().should.be.true;
         })
     })
 
     it("check invalid Entity names", () => {
         errs.forEach((err) => {
-            validateEntity(err).should.be.false;
+            (new Entity(err)).isValid().should.be.false;
         })
     })
 })
@@ -64,13 +64,13 @@ describe("Entity validation", () => {
 describe("Attribute validation", () => {
     it("check valid Attribute names", () => {
         okays.forEach((ok) => {
-            validateAttribute(ok).should.be.true;
+            (new Attribute(ok)).isValid().should.be.true;
         })
     })
 
     it("check invalid Attribute names", () => {
         errs.forEach((err) => {
-            validateAttribute(err).should.be.false;
+            (new Attribute(err)).isValid().should.be.false;
         })
     })
 })
