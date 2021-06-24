@@ -19,6 +19,10 @@ export class Dataset {
     isValid(): boolean {
         return identifierPatternFull.test(this.name);
     }
+
+    equals(other: Dataset): boolean {
+        return this.name === other.name;
+    }
 }
 
 export class Entity {
@@ -146,7 +150,7 @@ export interface WriteTx {
     /**
      * Returns a new, unique to this collection identifier in the form _:NUMBER
      */
-    generateEntity(prefix: Entity): Promise<Entity>
+    generateEntity(prefix: string): Promise<Entity>
     addStatement(statement: Statement): Promise<Statement>
     removeStatement(statement: Statement): Promise<Statement>
 

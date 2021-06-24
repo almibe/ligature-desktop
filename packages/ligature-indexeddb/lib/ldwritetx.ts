@@ -15,9 +15,9 @@ export class LDWriteTx implements WriteTx {
         this.ds = ds;
     }
 
-    generateEntity(prefix: Entity = "_:"): Promise<Entity> {
+    generateEntity(prefix: string): Promise<Entity> {
         //TODO assert that Entity doesn't exist
-        return Promise.resolve(prefix + uuidv4())
+        return Promise.resolve(new Entity(prefix + uuidv4()))
     }
 
     addStatement(statement: Statement): Promise<Statement> {

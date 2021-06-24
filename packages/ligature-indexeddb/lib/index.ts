@@ -21,27 +21,27 @@ export class InMemoryLigature implements Ligature {
     }
 
     allDatasets(): Promise<Array<Dataset>> {
-        return this.db.table("datasets").toArray();
+        return this.db.table("datasets").toArray().then(arr => arr.map(val => new Dataset(val.dataset))); //TODO map before toArray
     }
 
     createDataset(dataset: Dataset): Promise<Dataset> {
-        return this.db.table("datasets").put({dataset}).then(() => dataset);
+        return this.db.table("datasets").put({dataset: dataset.name}).then(() => dataset);
     }
 
     deleteDataset(dataset: Dataset): Promise<Dataset> {
-        return this.db.table("datasets").delete(dataset).then(() => dataset);
+        return this.db.table("datasets").delete(dataset.name).then(() => dataset);
     }
 
     datasetExists(dataset: Dataset): Promise<boolean> {
-        return this.db.table("datasets").get({dataset}).then(ds => ds !== undefined);
+        return this.db.table("datasets").get(dataset.name).then(ds => ds !== undefined);
     }
 
-    matchDatasetPrefix(prefix: Dataset): Promise<Array<Dataset>> {
-        return this.db.table("datasets").where("dataset").startsWith(prefix).toArray();
+    matchDatasetPrefix(prefix: string): Promise<Array<Dataset>> {
+        return this.db.table("datasets").where("dataset").startsWith(prefix).toArray().then(arr => arr.map(val => new Dataset(val))); //TODO map before toArray
     }
 
-    matchDatasetRange(start: Dataset, end: Dataset): Promise<Array<Dataset>> {
-        return this.db.table("datasets").where("dataset").between(start, end).toArray();
+    matchDatasetRange(start: string, end: string): Promise<Array<Dataset>> {
+        return this.db.table("datasets").where("dataset").between(start, end).toArray().then(arr => arr.map(val => new Dataset(val))); //TODO map before toArray
     }
 
     query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T> {
