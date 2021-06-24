@@ -2,18 +2,91 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export type Dataset = string; //TODO make class w/ validate method
-export type Entity = string; //TODO make class w/ validate method
-export type Attribute = string; //TODO make class w/ validate method
+export const identifierPatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
+export const identifierPattern =      /[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
+ 
+export function validateIntegerLiteral(literal: bigint): boolean {
+    return literal >= -9223372036854775808n && literal <= 9223372036854775807n;
+}
+
+export class Dataset {
+    readonly name: string;
+
+    constructor(name: string) {
+        this.name = name;
+    }
+
+    isValid(): boolean {
+        return identifierPatternFull.test(this.name);
+    }
+}
+
+export class Entity {
+    readonly id: string;
+
+    constructor(id: string) {
+        this.id = id;
+    }
+
+    isValid(): boolean {
+        return identifierPatternFull.test(this.id);
+    }
+}
+
+export class Attribute {
+    readonly name: string;
+
+    constructor(name: string) {
+        this.name = name;
+    }
+
+    isValid(): boolean {
+        return identifierPatternFull.test(this.name);
+    }
+}
 
 export type StringLiteral = string;
 export type BooleanLiteral = boolean;
-export type LongLiteral = bigint; //TODO make class w/ validate method
+export type LongLiteral = bigint;
 export type DoubleLiteral = number;
 export type Literal = StringLiteral | BooleanLiteral | LongLiteral | DoubleLiteral;
 
 export type Value = Entity | Literal;
-export type Statement = { entity: Entity, attribute: Attribute, value: Value, context: Entity }; //TODO make class w/ validate method
+
+export class Statement {
+    readonly entity: Entity;
+    readonly attribute: Attribute;
+    readonly value: Value;
+    readonly context: Entity;
+
+    constructor(entity: Entity, attribute: Attribute, value: Value, context: Entity) {
+        this.entity = entity;
+        this.attribute = attribute;
+        this.value = value;
+        this.context = context;
+    }
+
+    isValid(): {valid: boolean, invalidParts?: Set<'entity' | 'attribute' | 'value' | 'context'>} {
+        let invalidParts = new Set<'entity' | 'attribute' | 'value' | 'context'>();
+        if (!this.entity.isValid()) {
+            invalidParts.add('entity');
+        }
+        if (!this.attribute.isValid()) {
+            invalidParts.add('attribute');
+        }
+        if (typeof this.value == 'bigint' && !validateIntegerLiteral(this.value)) {
+            invalidParts.add('value');
+        }
+        if (!this.context.isValid()) {
+            invalidParts.add('context');
+        }
+        if (invalidParts.size === 0) {
+            return { valid: true };
+        } else {
+            return { valid: false, invalidParts};
+        }
+    }
+}
 
 export type StringLiteralRange = { start: string, end: string };
 export type LongLiteralRange = { start: bigint, end: bigint }; //TODO make class w/ validate method
@@ -81,28 +154,4 @@ export interface WriteTx {
      * Cancels this transaction.
      */
     cancel(): any //TODO figure out return type
-}
-
-//TODO move all the code below into classes mentioned above
-export const datasetPatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
-export const entityPatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
-export const attributePatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
-export const datasetPattern = /[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
-export const entityPattern = /[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
-export const attributePattern = /[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
-
-export function validateDataset(dataset: Dataset): boolean {
-    return datasetPatternFull.test(dataset);
-}
-
-export function validateEntity(entity: Entity): boolean {
-    return entityPatternFull.test(entity);
-}
-
-export function validateAttribute(attribute: Attribute): boolean {
-    return attributePatternFull.test(attribute);
-}
-
-export function validateIntegerLiteral(literal: bigint): boolean {
-    return literal >= -9223372036854775808n && literal <= 9223372036854775807n;
 }
