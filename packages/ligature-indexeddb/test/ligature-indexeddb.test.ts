@@ -118,12 +118,9 @@ describe('Statement Support', () => {
         await instance.createDataset("newDataset");
 
         let res = await instance.query("newDataset", (readTx) => {
-            return await readTx.allStatements().length()
-            //TODO finish
+            return readTx.allStatements()
         });
-
-        expect(res).to.be.equal(0);
-
+        expect(res.length).to.be.equal(0);
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
     });
@@ -133,13 +130,15 @@ describe('Statement Support', () => {
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset("newDataset");
 
-        expect("write actual test").to.be.true;
-
+        let entityRes = await instance.write("newDataset", (writeTx) => {
+            return writeTx.generateEntity("test");
+        });
+        expect(entityRes).to.match(/^test[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
     });
 
-    it('should alllow adding Statements to a Dataset', async () => {
+    it('should allow adding Statements to a Dataset', async () => {
         let instance = new InMemoryLigature("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset("newDataset");

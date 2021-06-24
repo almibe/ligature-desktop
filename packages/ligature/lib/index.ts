@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export type Dataset = string;
-export type Entity = string;
-export type Attribute = string;
+export type Dataset = string; //TODO make class w/ validate method
+export type Entity = string; //TODO make class w/ validate method
+export type Attribute = string; //TODO make class w/ validate method
 
 export type StringLiteral = string;
 export type BooleanLiteral = boolean;
-export type LongLiteral = bigint;
+export type LongLiteral = bigint; //TODO make class w/ validate method
 export type DoubleLiteral = number;
 export type Literal = StringLiteral | BooleanLiteral | LongLiteral | DoubleLiteral;
 
 export type Value = Entity | Literal;
-export type Statement = { entity: Entity, attribute: Attribute, value: Value, context: Entity };
+export type Statement = { entity: Entity, attribute: Attribute, value: Value, context: Entity }; //TODO make class w/ validate method
 
 export type StringLiteralRange = { start: string, end: string };
-export type LongLiteralRange = { start: bigint, end: bigint };
+export type LongLiteralRange = { start: bigint, end: bigint }; //TODO make class w/ validate method
 export type DoubleLiteralRange = { start: number, end: number };
 export type LiteralRange = StringLiteralRange | LongLiteralRange | DoubleLiteralRange;
 
@@ -33,9 +33,9 @@ export interface Ligature {
     createDataset(dataset: Dataset): Promise<Dataset>;
     deleteDataset(dataset: Dataset): Promise<Dataset>;
     
-    query<T>(dataset: Dataset, fn: (readTx: ReadTx) => T): Promise<T>;
+    query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T>;
  
-    write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => T): Promise<T>;
+    write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T>;
  
     /**
      * Close connection with the Store.
@@ -83,6 +83,7 @@ export interface WriteTx {
     cancel(): any //TODO figure out return type
 }
 
+//TODO move all the code below into classes mentioned above
 export const datasetPatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
 export const entityPatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
 export const attributePatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;

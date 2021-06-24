@@ -4,6 +4,8 @@
 
 import { Ligature, ReadTx, WriteTx, Dataset } from "@ligature/ligature";
 import { Dexie } from "dexie";
+import { LDReadTx } from './ldreadtx';
+import { LDWriteTx } from './ldwritetx';
 
 export class InMemoryLigature implements Ligature {
     private db: Dexie;
@@ -42,15 +44,18 @@ export class InMemoryLigature implements Ligature {
         return this.db.table("datasets").where("dataset").between(start, end).toArray();
     }
 
-    query<T>(dataset: Dataset, fn: (readTx: ReadTx) => T): Promise<T> {
-        this.db.transaction("r", this.db.table(dataset), tx => {
-            let tx = new IndexedDbReadTx
+    query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T> {
+        return this.db.transaction("r", this.db.table("statements"), tx => {
+            let readtx = new LDReadTx(tx, dataset);
+            return fn(readtx);
         });
-        throw new Error("Method not implemented.");
     }
 
-    write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => T): Promise<T> {
-        throw new Error("Method not implemented.");
+    write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T> {
+        return this.db.transaction("rw", this.db.table("statements"), tx => {
+            let writetx = new LDWriteTx(tx, dataset);
+            return fn(writetx);
+        });
     }
 
     close(deleteDb: boolean = false): Promise<void> {
