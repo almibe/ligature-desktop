@@ -35,6 +35,10 @@ export class Entity {
     isValid(): boolean {
         return identifierPatternFull.test(this.id);
     }
+
+    equals(other: Entity): boolean {
+        return this.id === other.id;
+    }
 }
 
 export class Attribute {
@@ -46,6 +50,10 @@ export class Attribute {
 
     isValid(): boolean {
         return identifierPatternFull.test(this.name);
+    }
+
+    equals(other: Attribute): boolean {
+        return this.name === other.name;
     }
 }
 
@@ -89,6 +97,21 @@ export class Statement {
         } else {
             return { valid: false, invalidParts};
         }
+    }
+
+    private valuesEqual(value: Value): boolean {
+        if (this.value instanceof Entity && value instanceof Entity) {
+            return this.value.equals(value);
+        } else {
+            return value === this.value
+        }
+    }
+
+    equals(statement: Statement): boolean {
+        return this.entity.equals(statement.entity) &&
+            this.attribute.equals(statement.attribute) &&
+            this.valuesEqual(statement.value) &&
+            this.context.equals(statement.context);
     }
 }
 

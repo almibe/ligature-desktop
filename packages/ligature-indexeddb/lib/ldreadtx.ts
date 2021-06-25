@@ -15,7 +15,7 @@ export class LDReadTx implements ReadTx {
     }
 
     allStatements(): Promise<Array<Statement>> {
-        return Promise.resolve(new Array());
+        return this.tx.table("statements").toArray();
     }
 
     matchStatements(entity: Entity | null, 

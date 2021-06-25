@@ -21,11 +21,11 @@ export class LDWriteTx implements WriteTx {
     }
 
     addStatement(statement: Statement): Promise<Statement> {
-        throw new Error("Method not implemented.");
+        return this.tx.table("statements").add(statement);//.then(() => statement);
     }
 
     removeStatement(statement: Statement): Promise<Statement> {
-        throw new Error("Method not implemented.");
+        return this.tx.table("statements").delete(statement).then(() => statement);
     }
 
     cancel() {

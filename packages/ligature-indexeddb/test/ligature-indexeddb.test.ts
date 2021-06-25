@@ -3,11 +3,11 @@
 import { InMemoryLigature } from '../lib';
 import { expect } from 'chai';
 import { v4 as uuidv4 } from 'uuid';
-import { Dataset, Entity, Attribute } from '../../ligature/lib';
+import { Dataset, Entity, Attribute, Statement } from '../../ligature/lib';
+
+let newDataset = new Dataset("newDataset");
 
 describe('Datasets Support', () => {
-    let newDataset = new Dataset("newDataset");
-
     it('should open and close cleanly', async () => {
         let instance = new InMemoryLigature("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
@@ -136,7 +136,7 @@ describe('Statement Support', () => {
         let entityRes = await instance.write(newDataset, (writeTx) => {
             return writeTx.generateEntity("test");
         });
-        expect(entityRes).to.match(/^test[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+        expect(entityRes.id).to.match(/^test[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
     });
@@ -146,8 +146,17 @@ describe('Statement Support', () => {
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
-        expect("write actual test").to.be.true;
-
+        let statement = new Statement(new Entity("e"), new Attribute("a"), "value", new Entity("c"));
+        await instance.write(newDataset, (writeTx) => {
+            writeTx.addStatement(statement);
+            return Promise.resolve(); //TODO should find a way to remove this
+        });
+        let res = await instance.query(newDataset, (readTx) => {
+            return readTx.allStatements()
+        });
+        expect(res.length).to.be.equal(1);
+        let statementFromStore = res[0];
+        expect(statement.equals(statementFromStore)).to.be.true;
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
     });
@@ -157,8 +166,24 @@ describe('Statement Support', () => {
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
-        expect("write actual test").to.be.true;
-
+        let statement = new Statement(new Entity("e"), new Attribute("a"), "value", new Entity("c"));
+        let statement2 = new Statement(new Entity("e2"), new Attribute("a2"), new Entity("__"), new Entity("c2"));
+        await instance.write(newDataset, (writeTx) => {
+            writeTx.addStatement(statement);
+            writeTx.addStatement(statement2);
+            return Promise.resolve(); //TODO should find a way to remove this
+        });
+        await instance.write(newDataset, (writeTx) => {
+            writeTx.removeStatement(statement2);
+            writeTx.removeStatement(new Statement(new Entity("e2"), new Attribute("a"), "value", new Entity("c")));
+            return Promise.resolve(); //TODO should find a way to remove this
+        });
+        let res = await instance.query(newDataset, (readTx) => {
+            return readTx.allStatements()
+        });
+        expect(res.length).to.be.equal(1);
+        let statementFromStore = res[0];
+        expect(statement.equals(statementFromStore)).to.be.true;
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
     });
