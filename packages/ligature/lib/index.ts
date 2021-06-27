@@ -58,10 +58,10 @@ export class Attribute {
 }
 
 export type StringLiteral = string;
-export type BooleanLiteral = boolean;
 export type LongLiteral = bigint;
 export type DoubleLiteral = number;
-export type Literal = StringLiteral | BooleanLiteral | LongLiteral | DoubleLiteral;
+export type BytesLiteral = Uint8Array;
+export type Literal = StringLiteral | BytesLiteral | LongLiteral | DoubleLiteral;
 
 export type Value = Entity | Literal;
 
@@ -118,7 +118,8 @@ export class Statement {
 export type StringLiteralRange = { start: string, end: string };
 export type LongLiteralRange = { start: bigint, end: bigint }; //TODO make class w/ validate method
 export type DoubleLiteralRange = { start: number, end: number };
-export type LiteralRange = StringLiteralRange | LongLiteralRange | DoubleLiteralRange;
+export type BytesLiteralRange = { start: BytesLiteral, end: BytesLiteral };
+export type LiteralRange = StringLiteralRange | BytesLiteralRange | LongLiteralRange | DoubleLiteralRange;
 
 /**
  * The main interface for interacting with Ligature.
