@@ -29,7 +29,7 @@
     }
 
     onMount(async () => {
-        let bs = await import("../../../node_modules/bootstrap/dist/js/bootstrap.bundle");
+        let bs = await import("../../../node_modules/bootstrap/dist/js/bootstrap.esm");
         let modalEl = document.getElementById('newDatasetModal');
     	newDatasetModal = new bs.Modal(modalEl, {});
 

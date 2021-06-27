@@ -24,7 +24,7 @@
     }
 
     onMount(async () => {
-        let bs = await import("../../../node_modules/bootstrap/dist/js/bootstrap.bundle");
+        let bs = await import("../../../node_modules/bootstrap/dist/js/bootstrap.esm");
         let modalEl = document.getElementById('removeDatasetModal');
     	removeDatasetModal = new bs.Modal(modalEl, {});
 
