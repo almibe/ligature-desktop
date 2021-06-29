@@ -13,7 +13,3 @@
 <div class="row">
     <div class="col-sm"><button type="button" class="btn btn-outline-dark" on:click={() => addStatement()}>Add Statement</button></div>
 </div>
-<div class="row">
-    <div class="col-sm"><button type="button" class="btn btn-outline-dark" on:click={() => editDataset(dataset)}>Add Statement</button></div>
-    <div class="col-sm"><button type="button" class="btn btn-outline-dark" on:click={() => editDataset(dataset)}>Add Statement</button></div>
-</div>

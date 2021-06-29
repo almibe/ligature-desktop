@@ -30,6 +30,8 @@
   },
   "type": "module",
   "dependencies": {
+    "@ligature/ligature": "../ligature",    
+    "@ligature/ligature-indexeddb": "../ligature-indexeddb",
     "bootstrap": "^5.0.2"
   }
 }
