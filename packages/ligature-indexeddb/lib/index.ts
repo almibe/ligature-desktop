@@ -7,7 +7,7 @@ import { Dexie } from "dexie";
 import { LDReadTx } from './ldreadtx';
 import { LDWriteTx } from './ldwritetx';
 
-export class InMemoryLigature implements Ligature {
+export class LigatureDexie implements Ligature {
     private db: Dexie;
     private _isOpen = true;
 
