@@ -2,15 +2,22 @@
     import DatasetModal from "./modals/DatasetModal.svelte";
     import DatasetList from "./DatasetList.svelte";
     import { store } from '../store/store';
-    import { modalState } from '../store/modalState';
     import { onMount } from 'svelte';
 
     onMount(() => {
         store.initialLoad();
     })
 
+    const modalProperties = {
+        show: false,
+        title: "",
+        datasetName: ""
+    }
+
     let addDataset = () => {
-        modalState.showNewDatasetModal()
+        modalProperties.title = "Add new Dataset";
+        modalProperties.show = true;
+        modalProperties.datasetName = "";
     }
 </script>
 
@@ -24,4 +31,4 @@
 </div>
 
 <DatasetList />
-<DatasetModal />
+<DatasetModal {...modalProperties} />

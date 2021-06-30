@@ -1,21 +1,28 @@
 <script lang="typescript">
     import { onMount } from 'svelte';
     import { store, Dataset } from "../../store/store";
-    import { modalState } from '../../store/modalState';
 
-    export let errorMessages = [];
+    export let show: boolean;
+    export let title: string;
+    export let datasetName: string;
 
+    let errorMessages = [];
     let showModal = (dataset: null | Dataset) => {}
-    let title: String = ""
-    let submitButton: String = ""
+    let submitButton: String = "Add"
 
-	const unsubscribe = modalState.subscribe(modalState => {
-        if (modalState.show) {
-            title = modalState.title
-            submitButton = modalState.dataset ? "Edit" : "Add"
-            showModal(modalState.dataset)
+    $: {
+        if (show) {
+            showModal(null);
         }
-	});
+    }
+
+	// const unsubscribe = modalState.subscribe(modalState => {
+    //     if (modalState.show) {
+    //         title = modalState.title
+    //         submitButton = modalState.dataset ? "Edit" : "Add"
+    //         showModal(modalState.dataset)
+    //     }
+	// });
 
     let newDatasetModal;
 
@@ -35,17 +42,17 @@
 
         showModal = (dataset: null | Dataset) => {
             (document.getElementById('datasetName') as any).value = dataset ? dataset.name : '';
-            (document.getElementById('datasetUrl') as any).value = dataset ? dataset.url : '';
-            (document.getElementById('ligatureEndpoint') as any).checked = dataset ? dataset.type == "Ligature" : false;
-            (document.getElementById('sparqlEndpoint') as any).checked = dataset ? dataset.type == "SPARQL" : false;
+            //(document.getElementById('datasetUrl') as any).value = dataset ? dataset.url : '';
+            //(document.getElementById('ligatureEndpoint') as any).checked = dataset ? dataset.type == "Ligature" : false;
+            //(document.getElementById('sparqlEndpoint') as any).checked = dataset ? dataset.type == "SPARQL" : false;
 	        newDatasetModal.show()
             window.addEventListener("keydown", enterKeyListener);
         }
 
         modalEl.addEventListener('hide.bs.modal', function (event) {
+            show = false;
             errorMessages.length = 0;
             window.removeEventListener("keydown", enterKeyListener)
-            modalState.hide();
         })
 
         //handle focus
@@ -57,13 +64,13 @@
         });
     })
 
-    function addNewDataset() {
+    async function addNewDataset() {
         errorMessages.length = 0;
         let name = (document.getElementById('datasetName') as any).value.trim();
-        let url = (document.getElementById('datasetUrl') as any).value.trim();
-        let ligatureEndpoint = (document.getElementById('ligatureEndpoint') as any).checked;
-        let sparqlEndpoint = (document.getElementById('sparqlEndpoint') as any).checked;
-        let type: "Ligature" | "SPARQL"
+        //let url = (document.getElementById('datasetUrl') as any).value.trim();
+        //let ligatureEndpoint = (document.getElementById('ligatureEndpoint') as any).checked;
+        //let sparqlEndpoint = (document.getElementById('sparqlEndpoint') as any).checked;
+        let type: "Ligature" | "SPARQL" = "Ligature"
         let valid = true;
 
         if (name.length == 0) {
@@ -72,39 +79,44 @@
             valid = false;
         }
 
-        if ((modalState.dataset() == null || name != modalState.dataset().name) && store.isDuplicate(name)) {
-            errorMessages.push("Dataset name already exists.");
-            errorMessages = errorMessages;
-            valid = false;
-        }
+        // if ((modalState.dataset() == null || name != modalState.dataset().name) && store.isDuplicate(name)) {
+        //     errorMessages.push("Dataset name already exists.");
+        //     errorMessages = errorMessages;
+        //     valid = false;
+        // }
 
-        if (ligatureEndpoint) {
-            type = "Ligature";
-        } else if (sparqlEndpoint) {
-            type = "SPARQL";
-        } else {
-            errorMessages.push("Must set Endpoint tpye.");
-            errorMessages = errorMessages;
-            valid = false;
-        }
+        // if (ligatureEndpoint) {
+        //     type = "Ligature";
+        // } else if (sparqlEndpoint) {
+        //     type = "SPARQL";
+        // } else {
+        //     errorMessages.push("Must set Endpoint tpye.");
+        //     errorMessages = errorMessages;
+        //     valid = false;
+        // }
 
-        if (url.length == 0) {
-            errorMessages.push("URL is required.");
-            errorMessages = errorMessages;
-            valid = false;
-        }
+        // if (url.length == 0) {
+        //     errorMessages.push("URL is required.");
+        //     errorMessages = errorMessages;
+        //     valid = false;
+        // }
 
-        if (!validURL(url)) {
-            errorMessages.push("URL is invalid.");
+        // if (!validURL(url)) {
+        //     errorMessages.push("URL is invalid.");
+        //     errorMessages = errorMessages;
+        //     valid = false;
+        // }
+
+        let dataset: Dataset = new Dataset(name);
+
+        if (!dataset.isValid()) {
+            errorMessages.push("Invalid Dataset name.");
             errorMessages = errorMessages;
             valid = false;
         }
 
         if (valid) {
-            if (modalState.dataset() != null) {
-                store.removeDataset(modalState.dataset())
-            }
-            store.addDataset({name: name, url: url, type: type})
+            await store.addDataset(dataset); //TODO handle error from Promise
             newDatasetModal.hide()
         }
     }
@@ -138,26 +150,6 @@
                     <label for="datasetName" class="label">Name</label>
                     <div class="control">
                         <input id="datasetName" class="input" type="text">
-                    </div>
-                </div>
-
-                <div class="field">
-                    <div class="control">
-                        <label class="radio">
-                            <input type="radio" name="endpoint" id="ligatureEndpoint">
-                            Ligature Endpoint
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="endpoint" id="sparqlEndpoint">
-                            SPARQL Endpoint
-                        </label>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="label" for="datasetUrl">URL</label>
-                    <div class="control">
-                        <input class="input" type="text" id="datasetUrl">
                     </div>
                 </div>
             </div>

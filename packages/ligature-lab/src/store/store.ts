@@ -1,55 +1,61 @@
 import { writable } from 'svelte/store';
+import { LigatureDexie } from '@ligature/ligature-indexeddb';
+import { Dataset } from '@ligature/ligature';
+export { Dataset };
 
 class Model {
     public datasets: Array<Dataset> = new Array();
+    private storage: LigatureDexie
 
-    private storage: Storage
-
-    public initialLoad(): Model {
-        this.storage = window.localStorage;
-        if (this.storage.getItem("datasets") != null) {
-            const datasets = JSON.parse(this.storage.getItem("datasets"))
-            this.datasets = datasets    
-        }
+    public async initialLoad(): Promise<Model> {
+        this.storage = new LigatureDexie("ligature-lab");
+        // if (this.storage.getItem("datasets") != null) {
+        //     const datasets = JSON.parse(this.storage.getItem("datasets"))
+        //     this.datasets = datasets    
+        // }
+        await this.reloadDatasets()
         return this;
     }
 
-    public addDataset(dataset: Dataset): Model {
-        this.datasets.push(dataset);
-        this.datasets.sort((a,b) => a.name.localeCompare(b.name.toString()))
-        this.storage.setItem("datasets", JSON.stringify(this.datasets))
+    private async reloadDatasets() {
+        this.datasets = await this.storage.allDatasets() //TODO might need to remove all old ds/add new ones
+    }
+
+    public async addDataset(dataset: Dataset): Promise<Model> {
+        console.log("a")
+        await this.storage.createDataset(dataset);
+        console.log("b")
+        await this.reloadDatasets();
+        console.log("c")
         return this;
     }
 
-    public removeDataset(dataset: Dataset): Model {
-        const index = this.datasets.findIndex(d => dataset.name === d.name);
-        if (index > -1) {
-           this.datasets.splice(index, 1);
-        }
-        this.storage.setItem("datasets", JSON.stringify(this.datasets))
+    public async removeDataset(dataset: Dataset): Promise<Model> {
+        await this.storage.deleteDataset(dataset);
+        await this.reloadDatasets();
         return this;
     }
 
-    public clear(): Model {
-        this.datasets.length = 0;
-        this.storage.setItem("datasets", JSON.stringify(this.datasets))
-        return this;
-    }
+    // public clear(): Model {
+    //     this.datasets.length = 0;
+    //     this.storage.setItem("datasets", JSON.stringify(this.datasets))
+    //     return this;
+    // }
 
-    public lookup(datasetName: String): Dataset {
-        return this.datasets.find((v) => v.name == datasetName)
-    }
+    // public lookup(datasetName: String): Dataset {
+    //     return this.datasets.find((v) => v.name == datasetName)
+    // }
 
-    public isDuplicate(datasetName: String): Boolean {
-        return this.datasets.some((v) => v.name == datasetName)
-    }
+    // public isDuplicate(datasetName: String): Boolean {
+    //     return this.datasets.some((v) => v.name == datasetName)
+    // }
 }
 
-export class Dataset {
-    name: String;
-    type: "Ligature" | "SPARQL";
-    url: String;
-}
+// export class Dataset {
+//     name: String;
+//     type: "Ligature" | "SPARQL";
+//     url: String;
+// }
 
 function createModel() {
     const model = new Model()
@@ -57,12 +63,21 @@ function createModel() {
 
     return {
         subscribe,
-        addDataset: (dataset: Dataset) => update(m => m.addDataset(dataset)),
-        removeDataset: (dataset: Dataset) => update(m => m.removeDataset(dataset)),
-        clear: () => update(m => m.clear()),
-        isDuplicate: (datasetName: String) => model.isDuplicate(datasetName),
-        lookup: (datasetName: String) => model.lookup(datasetName),
-        initialLoad: () => update(m => model.initialLoad())
+        addDataset: async (dataset: Dataset) => {
+            await model.addDataset(dataset)
+            update(m => m) //TODO this probably isn't right
+        },
+        removeDataset: async (dataset: Dataset) => {
+            await model.removeDataset(dataset);
+            update(m => m) //TODO this probably isn't right
+        },
+        //clear: () => update(m => m.clear()),
+        //isDuplicate: (datasetName: String) => model.isDuplicate(datasetName),
+        //lookup: (datasetName: String) => model.lookup(datasetName),
+        initialLoad: async () => {
+            await model.initialLoad()
+            update(m => m) //TODO this is probably wrong
+        }
     };
 }
 
