@@ -11,8 +11,20 @@ This project uses lerna so to run all the unit test suites issue the following c
 To run browser based tests issue the following command:
 
 ```
-cd ligature-indexeddb
+cd packages/ligature-indexeddb
 npm run test-browser
 ```
 
 and then go to https://localhost:1234
+
+## Running Ligature-Lab
+
+Ligature-Lab is a simple SvelteKit based web app that let's you experiment with Ligature locally.
+To run Ligature-Lab:
+
+```
+cd packages/ligature-lab
+npm run dev
+```
+
+and then go to https://localhost:3000
