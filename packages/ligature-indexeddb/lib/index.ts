@@ -12,7 +12,6 @@ export class LigatureDexie implements Ligature {
     private _isOpen = true;
 
     constructor(name: string) {
-        new Dexie(name).delete();
         this.db = new Dexie(name);
         this.db.version(1).stores({
             datasets: 'dataset',
