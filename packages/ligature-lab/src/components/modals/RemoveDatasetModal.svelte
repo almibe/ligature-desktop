@@ -1,6 +1,6 @@
 <script lang="typescript">
     import { onMount } from 'svelte';
-    import { Dataset, store } from "../../store/store";
+    import { ligature } from "../../store/store";
 
     export let removeModalState;
 

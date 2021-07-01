@@ -1,6 +1,7 @@
 <script lang="typescript">
     import { onMount } from 'svelte';
-    import { store, Dataset } from "../../store/store";
+    import { Dataset } from '@ligature/ligature';
+    import { ligature } from "../../store/store";
 
     export let show: boolean;
     export let title: string;
@@ -116,7 +117,7 @@
         }
 
         if (valid) {
-            await store.addDataset(dataset); //TODO handle error from Promise
+            await $ligature.createDataset(dataset); //TODO handle error from Promise
             newDatasetModal.hide()
         }
     }

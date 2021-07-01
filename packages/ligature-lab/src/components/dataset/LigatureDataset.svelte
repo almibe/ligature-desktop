@@ -1,5 +1,5 @@
 <script lang="typescript">
-    import type { Dataset } from "../../store/store";
+    import type { Dataset } from "@ligature/ligature";
 
     export let dataset: Dataset
 

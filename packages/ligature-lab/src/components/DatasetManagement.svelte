@@ -1,11 +1,11 @@
 <script lang="typescript">
     import DatasetModal from "./modals/DatasetModal.svelte";
     import DatasetList from "./DatasetList.svelte";
-    import { store } from '../store/store';
+    import { ligature } from '../store/store';
     import { onMount } from 'svelte';
 
     onMount(() => {
-        store.initialLoad();
+        //store.initialLoad();
     })
 
     const modalProperties = {

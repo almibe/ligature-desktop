@@ -1,13 +1,13 @@
 <script lang="typescript">
-    import { store, Dataset } from "../store/store";
+    import { ligature } from "../store/store";
     import RemoveDatasetModal from "./modals/RemoveDatasetModal.svelte";
 
-    let datasets: Array<Dataset>;
+    let datasets: Array<Dataset> = [];
     let removeModalState = {show: false, dataset: null};
 
-    const unsubscribe = store.subscribe(value => {
-        datasets = value.datasets;
-    });
+    // const unsubscribe = store.subscribe(value => {
+    //     datasets = value.datasets;
+    // });
 
 //    let editDataset = (dataset: Dataset) => {
 //        modalState.showEditDatasetModal(dataset)
