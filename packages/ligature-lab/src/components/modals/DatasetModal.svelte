@@ -1,5 +1,5 @@
 <script lang="typescript">
-    import { onMount } from 'svelte';
+    import { createEventDispatcher, onMount } from 'svelte';
     import { Dataset } from '@ligature/ligature';
     import { ligature } from "../../store/store";
 
@@ -7,6 +7,7 @@
     export let title: string;
     export let datasetName: string;
 
+    let dispatch = createEventDispatcher();
     let errorMessages = [];
     let showModal = (dataset: null | Dataset) => {}
     let submitButton: String = "Add"
@@ -54,6 +55,7 @@
             show = false;
             errorMessages.length = 0;
             window.removeEventListener("keydown", enterKeyListener)
+            dispatch('updateDatasets');
         })
 
         //handle focus

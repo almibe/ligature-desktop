@@ -1,10 +1,12 @@
 <script lang="typescript">
-    import { onMount } from 'svelte';
+    import { createEventDispatcher, onMount } from 'svelte';
     import { ligature } from "../../store/store";
+    import { Dataset } from "@ligature/ligature";
 
     export let removeModalState;
 
-    let showModal = () => {}
+    let dispatch = createEventDispatcher();
+    let showModal = () => {};
 
     $: {
         if (removeModalState.show) {
@@ -19,7 +21,7 @@
             return;
         }
         if (event.code === "Enter") {
-            removeDataset()
+            removeDataset();
         }
     }
 
@@ -29,19 +31,20 @@
     	removeDatasetModal = new bs.Modal(modalEl, {});
 
         showModal = () => {
-	        removeDatasetModal.show()
+	        removeDatasetModal.show();
             removeModalState.show = true;
-            window.addEventListener("keypress", enterKeyListener)
+            window.addEventListener("keypress", enterKeyListener);
         }
 
         modalEl.addEventListener('hide.bs.modal', function (event) {
-            window.removeEventListener("keypress", enterKeyListener)
+            window.removeEventListener("keypress", enterKeyListener);
             removeModalState.show = false;
+            dispatch('updateDatasets');
         })
     })
 
-    function removeDataset() {
-        store.removeDataset({name: removeModalState.dataset.name, url: removeModalState.dataset.url, type: removeModalState.dataset.type})
+    async function removeDataset() {
+        await $ligature.deleteDataset(new Dataset(removeModalState.dataset.name)); //TODO handle errors
         removeDatasetModal.hide();
     }
 

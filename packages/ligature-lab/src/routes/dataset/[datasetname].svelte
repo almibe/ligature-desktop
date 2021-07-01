@@ -16,10 +16,10 @@
     let errorMessage: String = ""
     
     onMount(() => {
-        dataset = store.lookup(datasetname)
-        if (dataset == null) {
-            errorMessage = datasetname + " doesn't exist."
-        }
+        // dataset = store.lookup(datasetname)
+        // if (dataset == null) {
+        //     errorMessage = datasetname + " doesn't exist."
+        // }
     })
 </script>
 
