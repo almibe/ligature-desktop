@@ -1,38 +1,30 @@
 <script lang="typescript">
+    import AddStatementsPanel from "./AddStatementsPanel.svelte";
+    import QueryStatementsPanel from "./QueryStatementsPanel.svelte";
+    import WanderPanel from "./WanderPanel.svelte";
+    import { onMount } from "svelte";
     import type { Dataset } from "@ligature/ligature";
 
     export let dataset: Dataset
 
-    function addStatement() {
-        //TODO
-    }
-
-    function queryStatements() {
-        //TODO
-    }
+    onMount(async () => {
+        await import("../../../node_modules/bootstrap/dist/js/bootstrap.esm");
+    });
 </script>
 
-<div class="row">
-    <div class="col-sm"><button type="button" class="btn btn-outline-dark" on:click={() => addStatement()}>Add Statement</button></div>
-</div>
-<div class="row align-items-center">
-    <div class="col">
-        <label for="entityQueryInput" class="form-label">Entity</label>
-        <input type="email" class="form-control" id="entityQueryInput" placeholder="Entity">
-    </div>
-    <div class="col">
-        <label for="attributeQueryInput" class="form-label">Attribute</label>
-        <input type="email" class="form-control" id="attributeQueryInput" placeholder="Attribute">
-    </div>
-    <div class="col">
-        <label for="valueQueryInput" class="form-label">Value ?</label>
-        <input type="email" class="form-control" id="valueQueryInput" placeholder="Value">
-    </div>
-    <div class="col">
-        <label for="contextQueryInput" class="form-label">Context</label>
-        <input type="email" class="form-control" id="contextQueryInput" placeholder="Context">
-    </div>
-    <div class="col">
-        <button type="button" class="btn btn-outline-dark" on:click={() => queryStatements()}>Query Statements</button>
-    </div>
+<ul class="nav nav-tabs" id="datasetTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="add-statements-tab" data-bs-toggle="tab" data-bs-target="#addStatements" type="button" role="tab" aria-controls="addStatements" aria-selected="true">Add</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="query-statements-tab" data-bs-toggle="tab" data-bs-target="#queryStatements" type="button" role="tab" aria-controls="queryStatements" aria-selected="false">Query</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#wander" type="button" role="tab" aria-controls="wander" aria-selected="false">Wander</button>
+    </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="addStatements" role="tabpanel" aria-labelledby="add-statements-tab"><AddStatementsPanel /></div>
+    <div class="tab-pane fade" id="queryStatements" role="tabpanel" aria-labelledby="query-statements-tab"><QueryStatementsPanel /></div>
+    <div class="tab-pane fade" id="wander" role="tabpanel" aria-labelledby="wander-tab"><WanderPanel /></div>
 </div>

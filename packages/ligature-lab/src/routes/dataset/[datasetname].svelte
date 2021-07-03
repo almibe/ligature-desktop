@@ -22,9 +22,11 @@
             let datasetExists = await $ligature.datasetExists(dataset);
             console.log(datasetExists);
             if (!datasetExists) {
+                dataset = null;
                 errorMessage = datasetname + " doesn't exist."
             }
         } else {
+            dataset = null;
             errorMessage = "Invalid Dataset name.";
         }
     })
@@ -41,7 +43,8 @@
             {#if dataset != null }
                 <LigatureDataset dataset={ dataset }/>
             {:else}
-                {errorMessage}
+                <p>{errorMessage}</p>
+                <p><a href="../..">Go back</a></p>
             {/if}
         </div>
     </div>
