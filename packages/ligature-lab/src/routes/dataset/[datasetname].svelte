@@ -1,7 +1,6 @@
 <script context="module">
-	export async function preload(page, session) {
-		const { datasetname } = page.params;
-		return { datasetname };
+	export async function load({page}) {
+        return { props: { datasetname: page.params.datasetname } };
 	}
 </script>
 
@@ -9,17 +8,25 @@
     import { onMount } from "svelte";
     import LigatureDataset from "../../components/dataset/LigatureDataset.svelte";
     import { ligature } from "../../store/store";
+    import { Dataset } from "@ligature/ligature";
     
     export let datasetname;
 
-    let dataset: Dataset
+    let dataset: Dataset | null = null
     let errorMessage: String = ""
     
-    onMount(() => {
-        // dataset = store.lookup(datasetname)
-        // if (dataset == null) {
-        //     errorMessage = datasetname + " doesn't exist."
-        // }
+    onMount(async () => {
+        dataset = new Dataset(datasetname);
+
+        if(dataset.isValid()) {
+            let datasetExists = await $ligature.datasetExists(dataset);
+            console.log(datasetExists);
+            if (!datasetExists) {
+                errorMessage = datasetname + " doesn't exist."
+            }
+        } else {
+            errorMessage = "Invalid Dataset name.";
+        }
     })
 </script>
 
@@ -31,7 +38,7 @@
     <div class="row p-4">
         <div class="col-sm-auto">
             <h1>Ligature Lab/{datasetname}</h1>
-            {#if dataset != null && dataset.type == "Ligature"}
+            {#if dataset != null }
                 <LigatureDataset dataset={ dataset }/>
             {:else}
                 {errorMessage}
