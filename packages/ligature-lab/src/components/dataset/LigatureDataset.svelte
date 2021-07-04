@@ -24,7 +24,7 @@
     </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="addStatements" role="tabpanel" aria-labelledby="add-statements-tab"><AddStatementsPanel /></div>
-    <div class="tab-pane fade" id="queryStatements" role="tabpanel" aria-labelledby="query-statements-tab"><QueryStatementsPanel /></div>
+    <div class="tab-pane fade show active" id="addStatements" role="tabpanel" aria-labelledby="add-statements-tab"><AddStatementsPanel dataset= { dataset } /></div>
+    <div class="tab-pane fade" id="queryStatements" role="tabpanel" aria-labelledby="query-statements-tab"><QueryStatementsPanel dataset= { dataset } /></div>
     <div class="tab-pane fade" id="wander" role="tabpanel" aria-labelledby="wander-tab"><WanderPanel /></div>
 </div>
