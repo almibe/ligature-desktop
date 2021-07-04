@@ -1,10 +1,57 @@
 <script lang="typescript">
-    import type { Dataset } from "@ligature/ligature";
+    import { Attribute, Dataset, Entity, Value, Statement, identifierPatternFull } from "@ligature/ligature";
+    import { ligature } from '../../store/store';
 
     export let dataset: Dataset
 
-    function addStatement() {
-        //TODO
+    let integerPattern = /^[1-9][0-9]*$/
+    let floatPattern = /^[1-9][0-9]*.[0-9]*$/
+    let stringPattern = /^"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)"$/
+
+    async function addStatement() {
+        let valid = true;
+        let entityValue = document.getElementById("entityQueryInput").value.trim();
+        let attributeValue = document.getElementById("attributeQueryInput").value.trim();
+        let valueValue = document.getElementById("valueQueryInput").value.trim();
+        let contextValue = document.getElementById("contextQueryInput").value.trim();
+
+        let entity = new Entity(entityValue);
+        if (!entity.isValid()) {
+            valid = false;
+            //TODO add error
+        }
+        let attribute = new Attribute(attributeValue);
+        if (!attribute.isValid()) {
+            valid = false;
+            //TODO add error
+        }
+        let value: Value;
+        if (valueValue.length == 0) {
+            valid = false;
+            //TODO add error
+        } else if (stringPattern.test(valueValue)) {
+            value = valueValue.substring(1, valueValue.length-1);
+        } else if (integerPattern.test(valueValue)) {
+            value = BigInt(valueValue);
+            //TODO check value range to make sure it's valid
+        } else if (floatPattern.test(valueValue)) {
+            value = Number(valueValue);
+        } else if (identifierPatternFull.test(valueValue)) { //handle entity
+            value = new Entity(valueValue);
+        } else {
+            valid = false;
+            //TODO add error
+        }
+        let context = new Entity(contextValue);
+        if (!context.isValid()) {
+            valid = false;
+            //TODO add error
+        }
+
+        if (valid) {
+            let statement = new Statement(entity, attribute, value, context);
+            //TODO call addStatement
+        }
     }
 </script>
 <div class="row align-items-center">
