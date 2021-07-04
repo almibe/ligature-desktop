@@ -40,12 +40,16 @@
     <div class="row p-4">
         <div class="col-sm-auto">
             <h1>Ligature Lab/{datasetname}</h1>
-            {#if dataset != null }
-                <LigatureDataset dataset={ dataset }/>
-            {:else}
-                <p>{errorMessage}</p>
-                <p><a href="../..">Go back</a></p>
-            {/if}
         </div>
+        <div class="col-sm-auto">
+            <p style="float:right"><a href="../..">Back</a></p>
+        </div>
+    </div>
+    <div class="row">
+        {#if dataset != null }
+            <LigatureDataset dataset={ dataset }/>
+        {:else}
+            <p>{errorMessage}</p>
+        {/if}
     </div>
 </div>
