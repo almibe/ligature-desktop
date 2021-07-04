@@ -193,8 +193,18 @@ describe('Statement Support', () => {
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
-        expect("write actual test").to.be.true;
-
+        let statement = new Statement(new Entity("e"), new Attribute("a"), "value", new Entity("c"));
+        let statement2 = new Statement(new Entity("e2"), new Attribute("a2"), new Entity("__"), new Entity("c2"));
+        await instance.write(newDataset, (writeTx) => {
+            writeTx.addStatement(statement);
+            writeTx.addStatement(statement2);
+            writeTx.cancel();
+            return Promise.resolve(); //TODO should find a way to remove this
+        });
+        let res = await instance.query(newDataset, (readTx) => {
+            return readTx.allStatements()
+        });
+        expect(res.length).to.be.equal(0);
         await instance.close(true);
         expect(instance.isOpen()).to.be.false;
     });
