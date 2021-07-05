@@ -17,7 +17,7 @@
         messages = [...messages, message];
     }
 
-    function queryStatements() {
+    async function queryStatements() {
         errors = [];
         messages = [];
 
@@ -33,7 +33,7 @@
             entity = new Entity(entityValue);
             if (!entity.isValid()) {
                 valid = false;
-                errors.push("Invalid Entity.");
+                addError("Invalid Entity.");
             }
         }
 
@@ -42,7 +42,7 @@
             attribute = new Attribute(attributeValue);
             if (!attribute.isValid()) {
                 valid = false;
-                errors.push("Invalid Attribute.");
+                addError("Invalid Attribute.");
             }
         }
 
@@ -55,12 +55,12 @@
             context = new Entity(contextValue);
             if (!context.isValid()) {
                 valid = false;
-                errors.push("Invalid Context.")
+                addError("Invalid Context.")
             }
         }
 
         if (valid) {
-            $ligature.query(dataset, async (tx) => {
+            await $ligature.query(dataset, async (tx) => {
                 let res = null;
                 if (stopValue != null) {
                     let range: LiteralRange | null = makeLiteralRange(startValue, stopValue);
@@ -73,7 +73,7 @@
                     res = await tx.matchStatements(entity, attribute, startValue, context); //TODO handle errors
                 }
                 if (res != null) {
-                    messages.push("Found" + res); //TODO pretty print Statement (probably using lig)
+                    addMessage("Found" + res); //TODO pretty print Statement (probably using lig)
                 }
             })
         }
@@ -115,4 +115,12 @@
     <div class="col">
         <button type="button" class="btn btn-outline-dark" on:click={() => queryStatements()}>Query</button>
     </div>
+</div>
+<div class="row">
+    {#each errors as error}
+        <p>Error: {error}</p>
+    {/each}
+    {#each messages as message}
+         <p>{message}</p>
+    {/each}
 </div>

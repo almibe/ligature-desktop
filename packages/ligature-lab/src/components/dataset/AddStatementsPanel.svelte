@@ -22,10 +22,10 @@
         messages = [];
 
         let valid = true;
-        let entityValue = document.getElementById("entityQueryInput").value.trim();
-        let attributeValue = document.getElementById("attributeQueryInput").value.trim();
-        let valueValue = document.getElementById("valueQueryInput").value.trim();
-        let contextValue = document.getElementById("contextQueryInput").value.trim();
+        let entityValue = document.getElementById("entityInput").value.trim();
+        let attributeValue = document.getElementById("attributeInput").value.trim();
+        let valueValue = document.getElementById("valueInput").value.trim();
+        let contextValue = document.getElementById("contextInput").value.trim();
 
         let entity = new Entity(entityValue);
         if (!entity.isValid()) {
@@ -61,20 +61,20 @@
 </script>
 <div class="row align-items-center">
     <div class="col">
-        <label for="entityQueryInput" class="form-label">Entity</label>
-        <input type="text" class="form-control" id="entityQueryInput" placeholder="Entity">
+        <label for="entityInput" class="form-label">Entity</label>
+        <input type="text" class="form-control" id="entityInput" placeholder="Entity">
     </div>
     <div class="col">
-        <label for="attributeQueryInput" class="form-label">Attribute</label>
-        <input type="text" class="form-control" id="attributeQueryInput" placeholder="Attribute">
+        <label for="attributeInput" class="form-label">Attribute</label>
+        <input type="text" class="form-control" id="attributeInput" placeholder="Attribute">
     </div>
     <div class="col">
-        <label for="valueQueryInput" class="form-label">Value ?</label>
-        <input type="text" class="form-control" id="valueQueryInput" placeholder="Value">
+        <label for="valueInput" class="form-label">Value ?</label>
+        <input type="text" class="form-control" id="valueInput" placeholder="Value">
     </div>
     <div class="col">
-        <label for="contextQueryInput" class="form-label">Context</label>
-        <input type="text" class="form-control" id="contextQueryInput" placeholder="Context">
+        <label for="contextInput" class="form-label">Context</label>
+        <input type="text" class="form-control" id="contextInput" placeholder="Context">
     </div>
     <div class="col">
         <button type="button" class="btn btn-outline-dark" on:click={() => addStatement()}>Add</button>
