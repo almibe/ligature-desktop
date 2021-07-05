@@ -1,16 +1,21 @@
 <script lang="typescript">
-    import { Attribute, Dataset, Entity, Statement, identifierPatternFull } from "@ligature/ligature";
+    import { Attribute, Dataset, Entity, Statement } from "@ligature/ligature";
     import type { Value } from "@ligature/ligature";
     import { ligature } from '../../store/store';
+    import { checkValue } from './dataset';
 
     export let dataset: Dataset
 
-    let integerPattern = /^[1-9][0-9]*$/
-    let floatPattern = /^[1-9][0-9]*.[0-9]*$/
-    let stringPattern = /^"(([^\x00-\x1F\"\\]|\\[\"\\/bfnrt]|\\u[0-9a-fA-F]{4})*)"$/
-
     let errors: string[] = [];
     let messages: string[] = [];
+
+    function addError(error: string) {
+        errors = [...errors, error];
+    }
+
+    function addMessage(message: string) {
+        messages = [...messages, message];
+    }
 
     async function addStatement() {
         errors = [];
@@ -25,42 +30,30 @@
         let entity = new Entity(entityValue);
         if (!entity.isValid()) {
             valid = false;
-            errors.push("Invalid Entity.");
+            addError("Invalid Entity.");
         }
         let attribute = new Attribute(attributeValue);
         if (!attribute.isValid()) {
             valid = false;
-            errors.push("Invalid Attribute.");
+            addError("Invalid Attribute.");
         }
-        let value: Value;
-        if (valueValue.length == 0) {
+        let value: Value | null = checkValue(valueValue, false, addError);
+        if (value == null) {
             valid = false;
-            errors.push("Value can't be empty.");
-        } else if (stringPattern.test(valueValue)) {
-            value = valueValue.substring(1, valueValue.length-1);
-        } else if (integerPattern.test(valueValue)) {
-            value = BigInt(valueValue);
-            //TODO check value range to make sure it's valid
-        } else if (floatPattern.test(valueValue)) {
-            value = Number(valueValue);
-        } else if (identifierPatternFull.test(valueValue)) { //handle entity
-            value = new Entity(valueValue);
-        } else {
-            valid = false;
-            errors.push("Invalad Value.");
         }
         let context = new Entity(contextValue);
         if (!context.isValid()) {
             valid = false;
-            errors.push("Invalid Context.")
+            addError("Invalid Context.")
         }
 
         if (valid) {
             let statement = new Statement(entity, attribute, value, context);
-            $ligature.write(dataset, async (tx) => {
+            await $ligature.write(dataset, async (tx) => {
                 let res = await tx.addStatement(statement); //TODO handle errors
+                console.log(res);
                 if (res != null) {
-                    messages.push("Added " + statement); //TODO pretty print Statement (probably using lig)
+                    addMessage("Added " + statement); //TODO pretty print Statement (probably using lig)
                 }
             })
         }
