@@ -162,17 +162,12 @@ export interface ReadTx {
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null, context: Entity | null): Promise<Array<Statement>>
- 
-    /**
-     * Is passed a pattern and returns a seq with all matching Statements.
-     */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, range: LiteralRange, context: Entity | null): Promise<Array<Statement>>
+    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null | LiteralRange, context: Entity | null): Promise<Array<Statement>>
 }
 
 export interface WriteTx {
     /**
-     * Returns a new, unique to this collection identifier in the form _:NUMBER
+     * Returns a new, unique to this collection identifier in the form _:UUID
      */
     generateEntity(prefix: string): Promise<Entity>
     addStatement(statement: Statement): Promise<Statement>
