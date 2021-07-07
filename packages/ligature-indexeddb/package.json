@@ -30,6 +30,7 @@
     "@ligature/ligature": "../ligature",
     "@types/uuid": "^8.3.0",
     "dexie": "^3.0.3",
+    "idb": "^6.1.2",
     "rxjs": "7.1.0",
     "uuid": "^8.3.2"
   },
