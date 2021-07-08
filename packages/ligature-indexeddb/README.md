@@ -1,11 +1,2 @@
-# `@ligature/ligature-in-memory`
+# @ligature/ligature-indexeddb
 
-> TODO: description
-
-## Usage
-
-```
-const ligatureInMemory = require('@ligature/ligature-in-memory');
-
-// TODO: DEMONSTRATE API
-```

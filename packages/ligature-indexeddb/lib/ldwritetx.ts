@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { WriteTx, Statement, Entity, Dataset } from "@ligature/ligature";
-import { Transaction } from "dexie";
 import { v4 as uuidv4 } from 'uuid';
+import { IDBPTransaction } from "idb";
 
 export class LDWriteTx implements WriteTx {
-    private tx: Transaction;
+    private tx: IDBPTransaction;
     private ds: Dataset;
 
-    constructor(tx: Transaction, ds: Dataset) {
+    constructor(tx: IDBPTransaction, ds: Dataset) {
         this.tx = tx;
         this.ds = ds;
     }
@@ -21,11 +21,16 @@ export class LDWriteTx implements WriteTx {
     }
 
     addStatement(statement: Statement): Promise<Statement> {
-        return this.tx.table("statements").add(statement);//.then(() => statement);
+        throw new Error("Not Implemented.");
+        //return this.tx.table("statements").add(this.flattenStatement(statement));
     }
 
-    removeStatement(statement: Statement): Promise<Statement> {
-        return this.tx.table("statements").delete(statement).then(() => statement);
+    async removeStatement(statement: Statement): Promise<Statement> {
+        throw new Error("Not Implemented.");
+        // let id = await this.tx.table("statements").where(this.flattenStatement(statement)).first();
+        // console.log("xx")
+        // console.log(id)
+        // return this.tx.table("statements").delete(id.id).then(() => statement);
     }
 
     cancel() {
