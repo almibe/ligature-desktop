@@ -4,6 +4,7 @@ import { openLigature } from '../lib';
 import { expect } from 'chai';
 import { v4 as uuidv4 } from 'uuid';
 import { Dataset, Entity, Attribute, Statement } from '../../ligature/lib';
+import 'regenerator-runtime/runtime';
 
 let newDataset = new Dataset("newDataset");
 
