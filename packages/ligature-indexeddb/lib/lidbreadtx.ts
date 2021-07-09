@@ -5,7 +5,7 @@
 import { ReadTx, Entity, Attribute, Value, LiteralRange, Statement, Dataset } from "@ligature/ligature";
 import { IDBPTransaction } from "idb";
 
-export class LDReadTx implements ReadTx {
+export class LIDBReadTx implements ReadTx {
     private tx: IDBPTransaction;
     private ds: Dataset;
 

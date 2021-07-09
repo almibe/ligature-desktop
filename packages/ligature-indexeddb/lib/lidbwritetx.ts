@@ -6,7 +6,7 @@ import { WriteTx, Statement, Entity, Dataset } from "@ligature/ligature";
 import { v4 as uuidv4 } from 'uuid';
 import { IDBPTransaction } from "idb";
 
-export class LDWriteTx implements WriteTx {
+export class LIDBWriteTx implements WriteTx {
     private tx: IDBPTransaction;
     private ds: Dataset;
 

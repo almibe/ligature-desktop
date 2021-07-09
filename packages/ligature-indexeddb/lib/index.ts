@@ -4,8 +4,8 @@
 
 import { Ligature, ReadTx, WriteTx, Dataset } from "@ligature/ligature";
 import { openDB, deleteDB, wrap, unwrap, IDBPDatabase } from "idb";
-import { LDReadTx } from './ldreadtx';
-import { LDWriteTx } from './ldwritetx';
+import { LIDBReadTx } from './lidbreadtx';
+import { LIDBWriteTx } from './lidbwritetx';
 
 export async function openLigature(name: string) {
     let db = await openDB(name);
