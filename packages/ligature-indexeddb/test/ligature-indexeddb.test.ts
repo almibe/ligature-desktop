@@ -1,6 +1,6 @@
 'use strict';
 
-import { openLigature } from '../lib';
+import { openLigatureIndexedDB } from '../lib';
 import { expect } from 'chai';
 import { v4 as uuidv4 } from 'uuid';
 import { Dataset, Entity, Attribute, Statement } from '../../ligature/lib';
@@ -10,7 +10,7 @@ let newDataset = new Dataset("newDataset");
 
 describe('Datasets Support', () => {
     it('should open and close cleanly', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         let ds = await instance.allDatasets();
         expect(ds.length).to.be.equal(0);
@@ -19,7 +19,7 @@ describe('Datasets Support', () => {
     });
 
     it('should allow creating new datasets', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
         let datasets = await instance.allDatasets();
@@ -30,7 +30,7 @@ describe('Datasets Support', () => {
     });
 
     it('should allow checking if dataset exists', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
         let testExists = await instance.datasetExists(new Dataset("test"))
@@ -42,7 +42,7 @@ describe('Datasets Support', () => {
     });
 
     it('should allow finding Datasets by prefix', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(new Dataset("anewDataset"));
         await instance.createDataset(newDataset);
@@ -68,7 +68,7 @@ describe('Datasets Support', () => {
     });
 
     it('should allow finding Datasets by range', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(new Dataset("anewDataset"));
         await instance.createDataset(newDataset);
@@ -94,7 +94,7 @@ describe('Datasets Support', () => {
     });
 
     it('should allow deleting a Dataset', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(new Dataset("anewDataset"));
         await instance.createDataset(newDataset);
@@ -117,7 +117,7 @@ describe('Datasets Support', () => {
 
 describe('Statement Support', () => {
     it('should create new Datasets with zero Statements', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
@@ -130,7 +130,7 @@ describe('Statement Support', () => {
     });
 
     it('should allow generating new Entities that are prefixed UUIDs', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
@@ -143,7 +143,7 @@ describe('Statement Support', () => {
     });
 
     it('should allow adding Statements to a Dataset', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
@@ -163,7 +163,7 @@ describe('Statement Support', () => {
     });
 
     it('should allow removing Statements from a Dataset', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
@@ -190,7 +190,7 @@ describe('Statement Support', () => {
     });
 
     it('should allow canceling a WriteTx', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
@@ -211,7 +211,7 @@ describe('Statement Support', () => {
     });
 
     it('should allow getting a Statement from a given Context', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
@@ -222,7 +222,7 @@ describe('Statement Support', () => {
     });
 
     it('should allow matching Statements in a Dataset', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 
@@ -233,7 +233,7 @@ describe('Statement Support', () => {
     });
 
     it('should allow matching Statements with Literals and LiteralRanges in Datasets', async () => {
-        let instance = await openLigature("test-" + uuidv4());
+        let instance = await openLigatureIndexedDB("test-" + uuidv4());
         expect(instance.isOpen()).to.be.true;
         await instance.createDataset(newDataset);
 

@@ -7,12 +7,31 @@ import { openDB, deleteDB, wrap, unwrap, IDBPDatabase } from "idb";
 import { LIDBReadTx } from './lidbreadtx';
 import { LIDBWriteTx } from './lidbwritetx';
 
-export async function openLigature(name: string) {
-    let db = await openDB(name);
+export async function openLigatureIndexedDB(name: string): Promise<Ligature> {
+    let db = await openDB(name, 1, {
+        upgrade: (db) => {
+            db.createObjectStore('datasets', {
+                autoIncrement: true
+            }).createIndex("name", "name", { unique: true });
+            db.createObjectStore('statements');
+            db.createObjectStore('entities', {
+                autoIncrement: true
+            }).createIndex("id", "id", { unique: true });
+            db.createObjectStore('attributes', {
+                autoIncrement: true
+            }).createIndex("name", "name", { unique: true });
+            db.createObjectStore('stringValues', {
+                autoIncrement: true
+            }).createIndex("value", "value", { unique: true });
+            db.createObjectStore('byteArrayValues', {
+                autoIncrement: true
+            }).createIndex("value", "value", { unique: true });        
+        }
+    });
     return new LigatureIndexedDB(db);
 }
 
-export class LigatureIndexedDB implements Ligature {
+class LigatureIndexedDB implements Ligature {
     private db: IDBPDatabase;
     private _isOpen = true;
 
