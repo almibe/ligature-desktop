@@ -7,23 +7,31 @@ import { openDB, deleteDB, wrap, unwrap, IDBPDatabase } from "idb";
 import { LIDBReadTx } from './lidbreadtx';
 import { LIDBWriteTx } from './lidbwritetx';
 
+const datasets = 'datasets';
+const statements = 'statements';
+const entities = 'entities';
+const attributes = 'attributes';
+const stringValues = 'stringValues'
+const byteArrayValues = 'byteArrayValues'
+const objectStores = [datasets, statements, entities, attributes, stringValues, byteArrayValues];
+
 export async function openLigatureIndexedDB(name: string): Promise<Ligature> {
     let db = await openDB(name, 1, {
         upgrade: (db) => {
-            db.createObjectStore('datasets', {
+            db.createObjectStore(datasets, {
                 autoIncrement: true
             }).createIndex("name", "name", { unique: true });
-            db.createObjectStore('statements');
-            db.createObjectStore('entities', {
+            db.createObjectStore(statements);
+            db.createObjectStore(entities, {
                 autoIncrement: true
             }).createIndex("id", "id", { unique: true });
-            db.createObjectStore('attributes', {
+            db.createObjectStore(attributes, {
                 autoIncrement: true
             }).createIndex("name", "name", { unique: true });
-            db.createObjectStore('stringValues', {
+            db.createObjectStore(stringValues, {
                 autoIncrement: true
             }).createIndex("value", "value", { unique: true });
-            db.createObjectStore('byteArrayValues', {
+            db.createObjectStore(byteArrayValues, {
                 autoIncrement: true
             }).createIndex("value", "value", { unique: true });        
         }
@@ -39,9 +47,10 @@ class LigatureIndexedDB implements Ligature {
         this.db = db;
     }
 
-    allDatasets(): Promise<Array<Dataset>> {
-        throw new Error('Not implemented');
-        //return this.db.table("datasets").toArray().then(arr => arr.map(val => new Dataset(val.dataset))); //TODO map before toArray
+    async allDatasets(): Promise<Array<Dataset>> {
+        let res = Array<Dataset>();
+        await (await this.db.getAll("datasets")).forEach(d => res.push(d));
+        return res;
     }
 
     createDataset(dataset: Dataset): Promise<Dataset> {
@@ -85,17 +94,19 @@ class LigatureIndexedDB implements Ligature {
         // });
     }
 
-    close(deleteDb: boolean = false): Promise<void> {
-        throw new Error('Not implemented');
-        // if (deleteDb) {
-        //     return this.db.delete()
-        //         .then(() => { this.db.close() })
-        //         .then(() => { this._isOpen = false });
-        // } else {
-        //     this.db.close();
-        //     this._isOpen = false;
-        //     return Promise.resolve();
-        // }
+    close(deleteDb: boolean = false): Promise<void> { //TODO needs error handling
+        if (deleteDb) {
+            objectStores.forEach(os => {
+                //TODO delete all entries in os
+            });
+            this.db.close();
+            this._isOpen = false;
+            return Promise.resolve();
+        } else {
+            this.db.close();
+            this._isOpen = false;
+            return Promise.resolve();
+        }
     }
 
     isOpen(): boolean {

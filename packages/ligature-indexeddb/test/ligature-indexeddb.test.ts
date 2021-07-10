@@ -4,7 +4,6 @@ import { openLigatureIndexedDB } from '../lib';
 import { expect } from 'chai';
 import { v4 as uuidv4 } from 'uuid';
 import { Dataset, Entity, Attribute, Statement } from '../../ligature/lib';
-import 'regenerator-runtime/runtime';
 
 let newDataset = new Dataset("newDataset");
 
@@ -168,7 +167,7 @@ describe('Statement Support', () => {
         await instance.createDataset(newDataset);
 
         let statement = new Statement(new Entity("e"), new Attribute("a"), "value", new Entity("c"));
-        let statement2 = new Statement(new Entity("e2"), new Attribute("a2"), 65n, new Entity("c2"));
+        let statement2 = new Statement(new Entity("e2"), new Attribute("a2"), BigInt(65), new Entity("c2"));
         await instance.write(newDataset, (writeTx) => {
             writeTx.addStatement(statement);
             writeTx.addStatement(statement2);

@@ -23,6 +23,9 @@
   "scripts": {
     "test-browser": "parcel test/test.html"
   },
+  "browserslist": [
+    "last 1 Chrome version"
+  ],
   "bugs": {
     "url": "https://github.com/almibe/ligature-js/issues"
   },
