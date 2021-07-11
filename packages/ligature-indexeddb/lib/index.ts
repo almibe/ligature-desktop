@@ -82,15 +82,22 @@ class LigatureIndexedDB implements Ligature {
         }
     }
 
-    deleteDataset(dataset: Dataset): Promise<Dataset> {
-        //TODO start readwrite tx
-        //TODO check if Dataset exists
-        //TODO return if not
-        //TODO delete Dataset from datasets store
-        //TODO get id for removed Dataset
-        //TODO remove all entries involving the given Dataset from
-        throw new Error('Not implemented');
-        //return this.db.table("datasets").delete(dataset.name).then(() => dataset);
+    async deleteDataset(dataset: Dataset): Promise<Dataset> {
+        let tx = this.db.transaction(objectStores, "readwrite", { durability: "strict" });
+        let dStore = tx.objectStore(datasets)
+        let dsKey = await dStore.index('name').getKey(dataset.name);
+        if (dsKey == null) {
+            await tx.done;
+            return Promise.resolve(dataset);
+        } else {
+            dStore.delete(dsKey);
+            //TODO remove all entries involving the given Dataset from entities, attributes, string values, and byte array values object stores
+            //TODO Lookup in datasets index for entities object store for matches of dsKey, remove entry from array if array length > 1, others delete entry
+            //TODO Lookup in datasets index for attributes object store for matches of dsKey, remove entry from array if array length > 1, others delete entry
+            //TODO Lookup in datasets index for string values object store for matches of dsKey, remove entry from array if array length > 1, others delete entry
+            //TODO Lookup in datasets index for byte array values object store for matches of dsKey, remove entry from array if array length > 1, others delete entry
+            return Promise.resolve(dataset);
+        }
     }
 
     async datasetExists(dataset: Dataset): Promise<boolean> {
