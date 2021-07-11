@@ -21,19 +21,32 @@ export async function openLigatureIndexedDB(name: string): Promise<Ligature> {
             db.createObjectStore(datasets, {
                 autoIncrement: true
             }).createIndex("name", "name", { unique: true });
+
             db.createObjectStore(statements);
-            db.createObjectStore(entities, {
+
+            let entitiesOS = db.createObjectStore(entities, {
                 autoIncrement: true
-            }).createIndex("id", "id", { unique: true });
-            db.createObjectStore(attributes, {
+            })
+            entitiesOS.createIndex("id", "id", { unique: true });
+            entitiesOS.createIndex("datasets", "datasets", { multiEntry: true });
+
+            let attributesOS = db.createObjectStore(attributes, {
                 autoIncrement: true
-            }).createIndex("name", "name", { unique: true });
-            db.createObjectStore(stringValues, {
+            })
+            attributesOS.createIndex("name", "name", { unique: true });
+            attributesOS.createIndex("datasets", "datasets", { multiEntry: true });
+
+            let stringValuesOS = db.createObjectStore(stringValues, {
                 autoIncrement: true
-            }).createIndex("value", "value", { unique: true });
-            db.createObjectStore(byteArrayValues, {
+            })
+            stringValuesOS.createIndex("value", "value", { unique: true });
+            stringValuesOS.createIndex("datasets", "datasets", { multiEntry: true });
+
+            let byteArrayValuesOS = db.createObjectStore(byteArrayValues, {
                 autoIncrement: true
-            }).createIndex("value", "value", { unique: true });        
+            })
+            byteArrayValuesOS.createIndex("value", "value", { unique: true });
+            byteArrayValuesOS.createIndex("datasets", "datasets", { multiEntry: true });        
         }
     });
     return new LigatureIndexedDB(db);
@@ -70,6 +83,12 @@ class LigatureIndexedDB implements Ligature {
     }
 
     deleteDataset(dataset: Dataset): Promise<Dataset> {
+        //TODO start readwrite tx
+        //TODO check if Dataset exists
+        //TODO return if not
+        //TODO delete Dataset from datasets store
+        //TODO get id for removed Dataset
+        //TODO remove all entries involving the given Dataset from
         throw new Error('Not implemented');
         //return this.db.table("datasets").delete(dataset.name).then(() => dataset);
     }
