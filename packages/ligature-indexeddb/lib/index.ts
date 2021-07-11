@@ -42,20 +42,31 @@ export async function openLigatureIndexedDB(name: string): Promise<Ligature> {
 class LigatureIndexedDB implements Ligature {
     private db: IDBPDatabase;
     private _isOpen = true;
+    private name: string;
 
     constructor(db: IDBPDatabase) {
         this.db = db;
+        this.name = db.name;
     }
 
     async allDatasets(): Promise<Array<Dataset>> {
         let res = Array<Dataset>();
-        await (await this.db.getAll("datasets")).forEach(d => res.push(d));
+        await (await this.db.getAll("datasets")).forEach(d => res.push(new Dataset(d.name)));
         return res;
     }
 
-    createDataset(dataset: Dataset): Promise<Dataset> {
-        throw new Error('Not implemented');
-        //return this.db.table("datasets").put({dataset: dataset.name}).then(() => dataset);
+    async createDataset(dataset: Dataset): Promise<Dataset> {
+        let tx = this.db.transaction(datasets, "readwrite", {durability: 'strict'});
+        let dStore = tx.store;
+        let res = await dStore.index('name').get(dataset.name);
+        if (res == null) {
+            await dStore.add({name: dataset.name});
+            await tx.done;
+            return Promise.resolve(dataset);
+        } else {
+            await tx.done;
+            return Promise.resolve(dataset);
+        }
     }
 
     deleteDataset(dataset: Dataset): Promise<Dataset> {
@@ -63,19 +74,39 @@ class LigatureIndexedDB implements Ligature {
         //return this.db.table("datasets").delete(dataset.name).then(() => dataset);
     }
 
-    datasetExists(dataset: Dataset): Promise<boolean> {
-        throw new Error('Not implemented');
-        //return this.db.table("datasets").get(dataset.name).then(ds => ds !== undefined);
+    async datasetExists(dataset: Dataset): Promise<boolean> {
+        let tx = this.db.transaction(datasets, "readonly");
+        let dStore = tx.store;
+        let res = await dStore.index('name').get(dataset.name);
+        if (res == null) {
+            await tx.done;
+            return Promise.resolve(false);
+        } else {
+            await tx.done;
+            return Promise.resolve(true);
+        }
     }
 
-    matchDatasetPrefix(prefix: string): Promise<Array<Dataset>> {
-        throw new Error('Not implemented');
-        //return this.db.table("datasets").where("dataset").startsWith(prefix).toArray().then(arr => arr.map(val => new Dataset(val))); //TODO map before toArray
+    async matchDatasetPrefix(prefix: string): Promise<Array<Dataset>> {
+        let tx = this.db.transaction(datasets, "readonly");
+        let dStore = tx.store;
+        let endLen = prefix.length-1;
+        let prefixEnd = prefix.slice(0, endLen) + String.fromCharCode(prefix.charCodeAt(endLen)+1);
+        let arr = Array<Dataset>();
+        (await dStore.index('name').getAll(IDBKeyRange.bound(prefix, prefixEnd, false, true))).forEach((name: { name: string; }) => {
+            arr.push(new Dataset(name.name));
+        });
+        return arr;
     }
 
-    matchDatasetRange(start: string, end: string): Promise<Array<Dataset>> {
-        throw new Error('Not implemented');
-        //return this.db.table("datasets").where("dataset").between(start, end).toArray().then(arr => arr.map(val => new Dataset(val))); //TODO map before toArray
+    async matchDatasetRange(start: string, end: string): Promise<Array<Dataset>> {
+        let tx = this.db.transaction(datasets, "readonly");
+        let dStore = tx.store;
+        let arr = Array<Dataset>();
+        (await dStore.index('name').getAll(IDBKeyRange.bound(start, end, false, true))).forEach((name: { name: string; }) => {
+            arr.push(new Dataset(name.name));
+        });
+        return arr;
     }
 
     query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T> {
@@ -96,11 +127,9 @@ class LigatureIndexedDB implements Ligature {
 
     close(deleteDb: boolean = false): Promise<void> { //TODO needs error handling
         if (deleteDb) {
-            objectStores.forEach(os => {
-                //TODO delete all entries in os
-            });
             this.db.close();
             this._isOpen = false;
+            deleteDB(this.name);
             return Promise.resolve();
         } else {
             this.db.close();
