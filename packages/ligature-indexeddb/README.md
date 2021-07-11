@@ -14,14 +14,14 @@ I plan on changing this eventually and will begin to handle versioning correctly
 Currently this project uses six object stores and all Datasets share them.
 Below is an explanation of the stores created/used.
 
-| Object Store      | Key  | Value                                 | Indexes |
-| ----------------- | ---- | ------------------------------------- | ------- |
-| datasets          | auto | { name: string }                      | name    |
-| statements        | u8[] | -                                     | -       |
-| entities          | auto | { id: string, datasets: number[] }    | id      |
-| attributes        | auto | { name: string, datasets: number[] }  | name    |
-| string values     | auto | { value: string, datasets: number[] } | value   |
-| byte array values | auto | { value: u8[], datasets: number[] }   | value   |
+| Object Store      | Key  | Value                                 | Indexes          |
+| ----------------- | ---- | ------------------------------------- | ---------------- |
+| datasets          | auto | { name: string }                      | name             |
+| statements        | u8[] | -                                     | -                |
+| entities          | auto | { id: string, datasets: number[] }    | id, datasets*    |
+| attributes        | auto | { name: string, datasets: number[] }  | name, datasets*  |
+| string values     | auto | { value: string, datasets: number[] } | value, datasets* |
+| byte array values | auto | { value: u8[], datasets: number[] }   | value, datasets* |
 
 ### How the Statements Object Store works
 
