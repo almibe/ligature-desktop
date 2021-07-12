@@ -7,20 +7,27 @@ import { v4 as uuidv4 } from 'uuid';
 import { IDBPTransaction } from "idb";
 
 export class LIDBWriteTx implements WriteTx {
-    private tx: IDBPTransaction;
+    private tx: IDBPTransaction<unknown, string[], "readwrite">;
     private ds: Dataset;
+    private dsId: number;
 
-    constructor(tx: IDBPTransaction, ds: Dataset) {
+    constructor(tx: IDBPTransaction<unknown, string[], "readwrite">, ds: Dataset, dsId: number) {
         this.tx = tx;
         this.ds = ds;
+        this.dsId = dsId;
     }
 
-    generateEntity(prefix: string): Promise<Entity> {
-        //TODO assert that Entity doesn't exist
-        return Promise.resolve(new Entity(prefix + uuidv4()))
+    async generateEntity(prefix: string = '_:'): Promise<Entity> {
+        //TODO assert that Entity doesn't exist, and generate new one if it does
+        let entity = new Entity(prefix + uuidv4());
+        if (entity.isValid()) {
+            return Promise.resolve(entity);
+        } else {
+            throw new Error("Invalid Entity prefix '" + prefix + "'.");
+        }
     }
 
-    addStatement(statement: Statement): Promise<Statement> {
+    async addStatement(statement: Statement): Promise<Statement> {
         throw new Error("Not Implemented.");
         //return this.tx.table("statements").add(this.flattenStatement(statement));
     }
@@ -34,6 +41,6 @@ export class LIDBWriteTx implements WriteTx {
     }
 
     cancel() {
-        throw new Error("Method not implemented.");
+        this.tx.abort();
     }
 }

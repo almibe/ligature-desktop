@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Ligature, ReadTx, WriteTx, Dataset } from "@ligature/ligature";
-import { openDB, deleteDB, wrap, unwrap, IDBPDatabase } from "idb";
+import { openDB, deleteDB, IDBPDatabase } from "idb";
 import { LIDBReadTx } from './lidbreadtx';
 import { LIDBWriteTx } from './lidbwritetx';
 
@@ -135,20 +135,26 @@ class LigatureIndexedDB implements Ligature {
         return arr;
     }
 
-    query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T> {
-        throw new Error('Not implemented');
-        // return this.db.transaction("r", this.db.table("statements"), tx => {
-        //     let readtx = new LDReadTx(tx, dataset);
-        //     return fn(readtx);
-        // });
+    async query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T> {
+        let tx = this.db.transaction(objectStores, "readonly");
+        let key = await tx.objectStore(datasets).index('name').getKey(dataset.name);
+        if (key == undefined) {
+            throw new Error("Dataset '" + dataset.name + "' doesn't exist.");
+        } else {
+            let readTx = new LIDBReadTx(tx, dataset, key.valueOf() as number);
+            return fn(readTx);    
+        }
     }
 
-    write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T> {
-        throw new Error('Not implemented');
-        // return this.db.transaction("rw", this.db.table("statements"), tx => {
-        //     let writetx = new LDWriteTx(tx, dataset);
-        //     return fn(writetx);
-        // });
+    async write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T> {
+        let tx = this.db.transaction(objectStores, "readwrite", { durability: "strict" });
+        let key = await tx.objectStore(datasets).index('name').getKey(dataset.name);
+        if (key == undefined) {
+            throw new Error("Dataset '" + dataset.name + "' doesn't exist.");
+        } else {
+            let writeTx = new LIDBWriteTx(tx, dataset, key.valueOf() as number);
+            return fn(writeTx);
+        }
     }
 
     close(deleteDb: boolean = false): Promise<void> { //TODO needs error handling

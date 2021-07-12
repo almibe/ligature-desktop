@@ -8,52 +8,39 @@ import { IDBPTransaction } from "idb";
 export class LIDBReadTx implements ReadTx {
     private tx: IDBPTransaction;
     private ds: Dataset;
+    private dsId: number;
 
-    constructor(tx: IDBPTransaction, ds: Dataset) {
+    constructor(tx: IDBPTransaction, ds: Dataset, dsId: number) {
         this.tx = tx;
         this.ds = ds;
+        this.dsId = dsId;
     }
 
     async allStatements(): Promise<Array<Statement>> {
-        throw new Error("Not Implemented.");
-        // return (await this.tx.table("statements").toArray()).map(res => {
-        //     return this.makeStatement(res)
-        // });
+        let os = this.tx.objectStore('statements');
+        let start = undefined;
+        let stop = undefined;
+        let arr = Array<Statement>();
+        let res = await os.getAll(IDBKeyRange.bound(start, stop, false, true));
+        return Promise.resolve(arr);
     }
 
     async matchStatements(entity: Entity | null, 
             attribute: Attribute | null, 
             value: Value | LiteralRange | null, 
             context: Entity | null): Promise<Array<Statement>> {
-        throw new Error("Not Implemented.");
-        // let query: any = {};
-        // if (entity != null) {
-        //     query['entity'] = entity.id;
-        // }
-        // if (attribute != null) {
-        //     query['attribute'] = attribute.name;
-        // }
-        // //TODO handle values
-        // if (context != null) {
-        //     query['context'] = context.id;
-        // }
-        // console.log("query")
-        // console.log(query);
-        // return (await (this.tx.table("statements").where(query) as unknown as Collection).toArray()).map(res => {
-        //     return this.makeStatement(res);
-        // });
-    }
-
-    private makeStatement(input: any): Statement {
-        let entity = new Entity(input.entity);
-        let attribute = new Attribute(input.attribute);
-        let value: Value;
-        if (input.valueType == 'entity') {
-            value = new Entity(input.value);
-        } else {
-            value = input.value;
+        let query: any = {};
+        let arr = Array<Statement>();
+        if (entity != null) {
+            query['entity'] = entity.id;
         }
-        let context = new Entity(input.context);
-        return new Statement(entity, attribute, value, context);
+        if (attribute != null) {
+            query['attribute'] = attribute.name;
+        }
+        //TODO handle values
+        if (context != null) {
+            query['context'] = context.id;
+        }
+        return Promise.resolve(arr);
     }
 }
