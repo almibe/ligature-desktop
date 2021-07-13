@@ -1,13 +1,59 @@
 'use strict';
 
-import { openLigatureIndexedDB } from '../lib';
+import { openLigatureIndexedDB } from '../lib/kv';
+import { openLigatureSimpleIndexedDB } from '../lib/simple/index'
 import { expect } from 'chai';
 import { v4 as uuidv4 } from 'uuid';
-import { Dataset, Entity, Attribute, Statement, Ligature } from '../../ligature/lib';
+import { Dataset, Entity, Attribute, Statement, Ligature } from '@ligature/ligature';
+import type { Value } from '@ligature/ligature';
+import { valueType, encodeInteger, decodeInteger } from '../lib/util';
 
 let newDataset = new Dataset("newDataset");
 
-runTests("IndexedDB", openLigatureIndexedDB);
+runTests("KV", openLigatureIndexedDB);
+runTests("Simple", openLigatureSimpleIndexedDB);
+
+describe("Utility functions", () => {
+    it("Should allow encoding a Value's type for storage", () => {
+        let values: Array<Value> = [new Entity("test"), 1234n, 3.14, "Hello", new Uint8Array([2, 123, 42])];
+        let expected: Array<number> = [0, 1, 2, 3, 4];
+        let results = values.map(v => valueType(v));
+        expect(results).to.be.eql(expected);
+    });
+
+    it("should allow encoding integers to byte arrays", () => {
+        let smallest = -9223372036854775808n
+        let largest  =  9223372036854775807n
+        let tooSmall = smallest - 1n;
+        let tooLarge = largest + 1n;
+
+        expect(encodeInteger(smallest)).to.be.eql(new Uint8Array([0,0,0,0,0,0,0,0]));
+        expect(encodeInteger(largest)).to.be.eql(new Uint8Array([255,255,255,255,255,255,255,255]));
+        expect(() => encodeInteger(tooSmall)).to.throw(/out of range/);
+        expect(() => encodeInteger(tooLarge)).to.throw(/out of range/);
+    });
+
+    it("should allow decoding integers for storage", () => {
+        let smallest = new Uint8Array([0,0,0,0,0,0,0,0]);
+        let largest = new Uint8Array([255,255,255,255,255,255,255,255]);
+        let tooSmall = new Uint8Array([0,0,0,0,0,0,0]);
+        let tooLarge = new Uint8Array([0,0,0,0,0,0,0,0,0]);
+
+        expect(decodeInteger(smallest)).to.be.equal(-9223372036854775808n);
+        expect(decodeInteger(largest)).to.be.equal(9223372036854775807n);
+        expect(() => decodeInteger(tooSmall)).to.throw(/64bit/);
+        expect(() => decodeInteger(tooLarge)).to.throw(/64bit/);
+    });
+
+    it("should allow encoding and decoding integers for storage", () => {
+        for(let x = 0; x < 100; x++) {
+            let input = BigInt(Math.floor(Math.random() * (2000001) + -1000000));
+            let encoded = encodeInteger(input);
+            let decoded = decodeInteger(encoded);
+            expect(decoded).to.be.equal(input);
+        }
+    });
+});
 
 function runTests(name: string, create: (name: string) => Promise<Ligature>) {
     describe('Datasets Support for ' + name, () => {
@@ -198,9 +244,9 @@ function runTests(name: string, create: (name: string) => Promise<Ligature>) {
     
             let statement = new Statement(new Entity("e"), new Attribute("a"), "value", new Entity("c"));
             let statement2 = new Statement(new Entity("e2"), new Attribute("a2"), new Entity("__"), new Entity("c2"));
-            await instance.write(newDataset, (writeTx) => {
-                writeTx.addStatement(statement);
-                writeTx.addStatement(statement2);
+            await instance.write(newDataset, async (writeTx) => {
+                await writeTx.addStatement(statement);
+                await writeTx.addStatement(statement2);
                 writeTx.cancel();
                 return Promise.resolve(); //TODO should find a way to remove this
             });
