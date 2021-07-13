@@ -9,13 +9,9 @@ import { SimpleWriteTx } from './simplewritetx';
 
 const datasets = 'datasets';
 const statements = 'statements';
-const entities = 'entities';
-const attributes = 'attributes';
-const stringValues = 'stringValues'
-const byteArrayValues = 'byteArrayValues'
-const objectStores = [datasets, statements, entities, attributes, stringValues, byteArrayValues];
+const objectStores = [datasets, statements];
 
-export async function openLigatureIndexedDB(name: string): Promise<Ligature> {
+export async function openLigatureSimpleIndexedDB(name: string): Promise<Ligature> {
     let db = await openDB(name, 1, {
         upgrade: (db) => {
             db.createObjectStore(datasets, {
@@ -23,7 +19,12 @@ export async function openLigatureIndexedDB(name: string): Promise<Ligature> {
             }).createIndex("name", "name", { unique: true });
 
             let statementsOS = db.createObjectStore(statements, { autoIncrement: true } );
-            
+            statementsOS.createIndex("dataset", "dataset", { unique: false } ); //maybe this should be prepended to all other indexes?
+            statementsOS.createIndex("entity", "entity", { unique: false } );
+            statementsOS.createIndex("attribute", "attribute", { unique: false } );
+            statementsOS.createIndex("value", ["valueType", "valueValue"], { unique: false } );
+            statementsOS.createIndex("context", "context", { unique: true } );
+            statementsOS.createIndex("statement", ["dataset", "entity", "attribute", "valueType", "valueValue", "context"], { unique: true });
         }
     });
     return new LigatureIndexedDB(db);
@@ -68,11 +69,7 @@ class LigatureIndexedDB implements Ligature {
             return Promise.resolve(dataset);
         } else {
             dStore.delete(dsKey);
-            //TODO remove all entries involving the given Dataset from entities, attributes, string values, and byte array values object stores
-            //TODO Lookup in datasets index for entities object store for matches of dsKey, remove entry from array if array length > 1, others delete entry
-            //TODO Lookup in datasets index for attributes object store for matches of dsKey, remove entry from array if array length > 1, others delete entry
-            //TODO Lookup in datasets index for string values object store for matches of dsKey, remove entry from array if array length > 1, others delete entry
-            //TODO Lookup in datasets index for byte array values object store for matches of dsKey, remove entry from array if array length > 1, others delete entry
+            //TODO remove all Statements involving the given Dataset from the statements object stores
             return Promise.resolve(dataset);
         }
     }
@@ -118,7 +115,7 @@ class LigatureIndexedDB implements Ligature {
         if (key == undefined) {
             throw new Error("Dataset '" + dataset.name + "' doesn't exist.");
         } else {
-            let readTx = new LIDBReadTx(tx, dataset, key.valueOf() as number);
+            let readTx = new SimpleReadTx(tx, dataset, key.valueOf() as number);
             return fn(readTx);    
         }
     }
@@ -129,7 +126,7 @@ class LigatureIndexedDB implements Ligature {
         if (key == undefined) {
             throw new Error("Dataset '" + dataset.name + "' doesn't exist.");
         } else {
-            let writeTx = new LIDBWriteTx(tx, dataset, key.valueOf() as number);
+            let writeTx = new SimpleWriteTx(tx, dataset, key.valueOf() as number);
             return fn(writeTx);
         }
     }
