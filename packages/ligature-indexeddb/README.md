@@ -2,7 +2,7 @@
 
 This project stores Ligature data in IndexedDB.
 
-## Storage
+## KV Storage
 
 ```
 *Note*: this project currently isn't managing IndexedDB versions like you would for a production system.
@@ -11,6 +11,7 @@ It's expected that most usage is deleting DBs between uses or manually tracking 
 I plan on changing this eventually and will begin to handle versioning correctly.
 ```
 
+KV is a storage project for Ligature that treats IndexedDB similar to a key-value store like LMDB or RocksDB.
 Currently this project uses six object stores and all Datasets share them.
 Below is an explanation of the stores created/used.
 
@@ -49,3 +50,34 @@ Value Type ID is represented as follows:
 | Float      | 2  | f64                 |
 | String     | 3  | String Value ID     |
 | Byte Array | 4  | Byte Array Value ID |
+
+## Simple Storage
+
+Simple storage is simpler implementation of Ligature that is stored inside IndexedDB.
+It mainly exists for prototyping and as a benchmark.
+It contains only two Object Stores.
+The first `datasets` is the same as above.
+The second `statements` contains all the parts of a statement and uses IndexedDB indexes for access.
+
+| Object Store      | Key  | Value             | Indexes          |
+| ----------------- | ---- | ----------------- | ---------------- |
+| datasets          | auto | { name: string }  | name             |
+| statements        | auto | see below         | see below        |
+
+| Field       | Types                    |
+| ----------- | ------------------------ |
+| dataset     | string                   |
+| entity      | string                   |
+| attribute   | string                   |
+| value type  | number                   |
+| value value | string number Uint8Array |
+| context     | string                   |
+
+| Index Name | Key Paths                                                    | Unique? |
+| ---------- | ------------------------------------------------------------ | ------- |
+| dataset    | dataset                                                      | false   |
+| entity     | entity                                                       | false   |
+| attribute  | attribute                                                    | false   |
+| value      | [valueType, valueValue]                                      | false   |
+| context    | context                                                      | true    |
+| statement  | [dataset, entity, attribute, valueType, valueValue, context] | true    |
