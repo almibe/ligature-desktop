@@ -46,9 +46,9 @@ Value Type ID is represented as follows:
 | Name       | ID | Value               |
 | ---------- | -- | ------------------- |
 | Entity     | 0  | Entity ID           |
-| Integer    | 1  | i64                 |
-| Float      | 2  | f64                 |
-| String     | 3  | String Value ID     |
+| String     | 1  | String Value ID     |
+| Integer    | 2  | i64                 |
+| Float      | 3  | f64                 |
 | Byte Array | 4  | Byte Array Value ID |
 
 ## Simple Storage

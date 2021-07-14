@@ -4,25 +4,31 @@
 
 import { Value, Entity, validateIntegerLiteral } from "@ligature/ligature";
 
+export const ENTITY_VALUE_TYPE = 0;
+export const STRING_VALUE_TYPE = 1;
+export const INTEGER_VALUE_TYPE = 2;
+export const FLOAT_VALUE_TYPE = 3;
+export const BYTES_VALUE_TYPE = 4;
+
 /**
  * Encodes the type of a Value that is used for storing.
  * Entity     - 0
- * Integer    - 1
- * Float      - 2
- * String     - 3
+ * String     - 1
+ * Integer    - 2
+ * Float      - 3
  * Byte Array - 4
  */
 export function valueType(value: Value): number {
     if (value instanceof Entity) {
-        return 0;
-    } else if (typeof value == 'bigint') {
-        return 1;
-    } else if (typeof value == 'number') {
-        return 2;
+        return ENTITY_VALUE_TYPE;
     } else if (typeof value == 'string') {
-        return 3;
+        return STRING_VALUE_TYPE;
+    } else if (typeof value == 'bigint') {
+        return INTEGER_VALUE_TYPE;
+    } else if (typeof value == 'number') {
+        return FLOAT_VALUE_TYPE;
     } else if (value instanceof Uint8Array) {
-        return 4;
+        return BYTES_VALUE_TYPE;
     } else {
         throw new Error("Invalid Value " + value);
     }
