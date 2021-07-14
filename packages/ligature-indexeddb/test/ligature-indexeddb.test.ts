@@ -6,7 +6,7 @@ import { expect } from 'chai';
 import { v4 as uuidv4 } from 'uuid';
 import { Dataset, Entity, Attribute, Statement, Ligature } from '@ligature/ligature';
 import type { Value } from '@ligature/ligature';
-import { valueType, encodeInteger, decodeInteger } from '../lib/util';
+import { valueType, encodeInteger, decodeInteger, ENTITY_VALUE_TYPE, STRING_VALUE_TYPE, INTEGER_VALUE_TYPE, FLOAT_VALUE_TYPE, BYTES_VALUE_TYPE } from '../lib/util';
 
 let newDataset = new Dataset("newDataset");
 
@@ -15,8 +15,8 @@ runTests("Simple", openLigatureSimpleIndexedDB);
 
 describe("Utility functions", () => {
     it("Should allow encoding a Value's type for storage", () => {
-        let values: Array<Value> = [new Entity("test"), 1234n, 3.14, "Hello", new Uint8Array([2, 123, 42])];
-        let expected: Array<number> = [0, 1, 2, 3, 4];
+        let values: Array<Value> = [new Entity("test"), "Hello", 1234n, 3.14, new Uint8Array([2, 123, 42])];
+        let expected: Array<number> = [ENTITY_VALUE_TYPE, STRING_VALUE_TYPE, INTEGER_VALUE_TYPE, FLOAT_VALUE_TYPE, BYTES_VALUE_TYPE];
         let results = values.map(v => valueType(v));
         expect(results).to.be.eql(expected);
     });
@@ -258,7 +258,7 @@ function runTests(name: string, create: (name: string) => Promise<Ligature>) {
             expect(instance.isOpen()).to.be.false;
         });
     
-        it('should allow getting a Statement from a given Context', async () => {
+        it('should allow matching Statements from a Dataset', async () => {
             let instance = await create("test-" + uuidv4());
             expect(instance.isOpen()).to.be.true;
             await instance.createDataset(newDataset);
@@ -271,21 +271,14 @@ function runTests(name: string, create: (name: string) => Promise<Ligature>) {
                 return Promise.resolve(); //TODO should find a way to remove this
             });
             let res = await instance.query(newDataset, (readTx) => {
-                return readTx.matchStatements(null, null, null, new Entity("c2"));
+                return readTx.matchStatements(new Entity("e2"), new Attribute("a2"), new Entity("__"), new Entity("c2"));
+            });
+            let res2 = await instance.query(newDataset, (readTx) => {
+                return readTx.matchStatements(null, null, null, null);
             });
             expect(res.length).to.be.equal(1);
-            expect(res[0]).to.be.eql(statement2); //not sure eql will work correctly here, might need equals method
-            await instance.close(true);
-            expect(instance.isOpen()).to.be.false;
-        });
-    
-        it('should allow matching Statements in a Dataset', async () => {
-            let instance = await create("test-" + uuidv4());
-            expect(instance.isOpen()).to.be.true;
-            await instance.createDataset(newDataset);
-    
-            expect("write actual test").to.be.true;
-    
+            expect(res2.length).to.be.equal(2);
+            expect(res[0]).to.be.eql(statement2);
             await instance.close(true);
             expect(instance.isOpen()).to.be.false;
         });
@@ -295,8 +288,24 @@ function runTests(name: string, create: (name: string) => Promise<Ligature>) {
             expect(instance.isOpen()).to.be.true;
             await instance.createDataset(newDataset);
     
-            expect("write actual test").to.be.true;
-    
+            let statement = new Statement(new Entity("e"), new Attribute("a"), 1, new Entity("c"));
+            let statement2 = new Statement(new Entity("e2"), new Attribute("a2"), 1.1, new Entity("c2"));
+            let statement3 = new Statement(new Entity("e"), new Attribute("a"), 1.5, new Entity("c3"));
+            let statement4 = new Statement(new Entity("e2"), new Attribute("a2"), 1.9, new Entity("c4"));
+            await instance.write(newDataset, async (writeTx) => {
+                await writeTx.addStatement(statement);
+                await writeTx.addStatement(statement2);
+                await writeTx.addStatement(statement3);
+                await writeTx.addStatement(statement4);
+                return Promise.resolve(); //TODO should find a way to remove this
+            });
+            let res = await instance.query(newDataset, (readTx) => {
+                return readTx.matchStatements(null, null, {start: 1, end: 1.9}, null);
+            });
+            expect(res.length).to.be.equal(3);
+            expect(res[0]).to.be.eql(statement);
+            expect(res[1]).to.be.eql(statement2);
+            expect(res[2]).to.be.eql(statement3);
             await instance.close(true);
             expect(instance.isOpen()).to.be.false;
         });
