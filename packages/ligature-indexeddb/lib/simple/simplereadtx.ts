@@ -98,13 +98,13 @@ export class SimpleReadTx implements ReadTx {
         } else if (value instanceof Uint8Array) {
             query = [this.ds.name, BYTES_VALUE_TYPE, value];
         } else if (typeof value['start'] == 'number' && typeof value['end'] == 'number') {
-            throw new Error("Not implemented.");
+            query = IDBKeyRange.bound([this.ds.name, FLOAT_VALUE_TYPE, value.start], [this.ds.name, FLOAT_VALUE_TYPE, value.end], false, true);
         } else if (typeof value['start'] == 'string' && typeof value['end'] == 'string') {
-            throw new Error("Not implemented.");
+            query = IDBKeyRange.bound([this.ds.name, STRING_VALUE_TYPE, value.start], [this.ds.name, STRING_VALUE_TYPE, value.end], false, true);
         } else if (typeof value['start'] == 'bigint' && typeof value['end'] == 'bigint') {
-            throw new Error("Not implemented.");
+            query = IDBKeyRange.bound([this.ds.name, INTEGER_VALUE_TYPE, encodeInteger(value.start)], [this.ds.name, INTEGER_VALUE_TYPE, encodeInteger(value.end)], false, true);
         } else if (value['start'] instanceof Uint8Array && value['end'] instanceof Uint8Array) {
-            throw new Error("Not implemented.");
+            query = IDBKeyRange.bound([this.ds.name, BYTES_VALUE_TYPE, value.start], [this.ds.name, BYTES_VALUE_TYPE, value.end], false, true);
         } else {
             throw new Error("Unsupported value in query - " + value);
         }
