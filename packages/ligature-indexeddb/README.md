@@ -76,8 +76,8 @@ The second `statements` contains all the parts of a statement and uses IndexedDB
 | Index Name | Key Paths                                                    | Unique? |
 | ---------- | ------------------------------------------------------------ | ------- |
 | dataset    | dataset                                                      | false   |
-| entity     | entity                                                       | false   |
-| attribute  | attribute                                                    | false   |
-| value      | [valueType, valueValue]                                      | false   |
-| context    | context                                                      | true    |
+| entity     | [dataset, entity]                                            | false   |
+| attribute  | [dataset, attribute]                                         | false   |
+| value      | [dataset, valueType, valueValue]                             | false   |
+| context    | [dataset, context]                                           | true    |
 | statement  | [dataset, entity, attribute, valueType, valueValue, context] | true    |

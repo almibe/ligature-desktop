@@ -6,7 +6,7 @@ import { WriteTx, Statement, Entity, Dataset, Attribute } from "@ligature/ligatu
 import type { Value } from "@ligature/ligature";
 import { v4 as uuidv4 } from 'uuid';
 import { IDBPTransaction } from "idb";
-import { valueType } from '../util';
+import { encodeInteger, valueType } from '../util';
 import type { StatementRecord } from './util';
 
 export class SimpleWriteTx implements WriteTx {
@@ -38,7 +38,8 @@ export class SimpleWriteTx implements WriteTx {
 
     async removeStatement(statement: Statement): Promise<Statement> {
         let record = this.createStatementRecord(statement)
-        let idx = this.tx.objectStore("statements").index("statement").getKey([
+        let os = this.tx.objectStore("statements");
+        let id = await os.index("statement").getKey([
             record.dataset,
             record.entity,
             record.attribute,
@@ -46,17 +47,15 @@ export class SimpleWriteTx implements WriteTx {
             record.valueValue,
             record.context
         ]);
-        //TODO lookup id
-        //TODO remove statement
-        return Promise.resolve(statement);
-        // let id = await this.tx.table("statements").where(this.flattenStatement(statement)).first();
-        // console.log("xx")
-        // console.log(id)
-        // return this.tx.table("statements").delete(id.id).then(() => statement);
+        if (id === undefined) {
+            return Promise.resolve(statement);
+        } else {
+            await os.delete(id);
+            return Promise.resolve(statement);
+        }
     }
 
     cancel() {
-        this.tx.onabort(() => {});
         this.tx.abort();
     }
 
@@ -71,9 +70,11 @@ export class SimpleWriteTx implements WriteTx {
         }
     }
 
-    valueValue(value: Value): string | bigint | Uint8Array | number {
+    valueValue(value: Value): string | Uint8Array | number {
         if (value instanceof Entity) {
             return value.id
+        } else if (typeof value == 'bigint') {
+            return encodeInteger(value)
         } else {
             return value;
         }

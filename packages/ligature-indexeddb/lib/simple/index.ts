@@ -19,11 +19,11 @@ export async function openLigatureSimpleIndexedDB(name: string): Promise<Ligatur
             }).createIndex("name", "name", { unique: true });
 
             let statementsOS = db.createObjectStore(statements, { autoIncrement: true } );
-            statementsOS.createIndex("dataset", "dataset", { unique: false } ); //maybe this should be prepended to all other indexes?
-            statementsOS.createIndex("entity", "entity", { unique: false } );
-            statementsOS.createIndex("attribute", "attribute", { unique: false } );
-            statementsOS.createIndex("value", ["valueType", "valueValue"], { unique: false } );
-            statementsOS.createIndex("context", "context", { unique: true } );
+            statementsOS.createIndex("dataset", "dataset", { unique: false } );
+            statementsOS.createIndex("entity", ["dataset", "entity"], { unique: false } );
+            statementsOS.createIndex("attribute", ["dataset", "attribute"], { unique: false } );
+            statementsOS.createIndex("value", ["dataset", "valueType", "valueValue"], { unique: false } );
+            statementsOS.createIndex("context", ["dataset", "context"], { unique: true } );
             statementsOS.createIndex("statement", ["dataset", "entity", "attribute", "valueType", "valueValue", "context"], { unique: true });
         }
     });

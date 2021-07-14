@@ -7,6 +7,6 @@ export type StatementRecord = {
     entity: string,
     attribute: string,
     valueType: number,
-    valueValue: string | bigint | Uint8Array | number,
+    valueValue: string | Uint8Array | number,
     context: string
 };

@@ -5,6 +5,7 @@
 import { ReadTx, Entity, Attribute, Value, LiteralRange, Statement, Dataset } from "@ligature/ligature";
 import { IDBPTransaction } from "idb";
 import type { StatementRecord } from './util';
+import { decodeInteger } from "../util";
 
 export class SimpleReadTx implements ReadTx {
     private tx: IDBPTransaction;
@@ -54,8 +55,8 @@ export class SimpleReadTx implements ReadTx {
     createValue(valueType: number, valueValue: string | bigint | number | Uint8Array): Value {
         if (valueType == 0 && typeof valueValue == 'string') {
             return new Entity(valueValue);
-        } else if (valueType == 1 && typeof valueValue == 'bigint') {
-            return valueValue;
+        } else if (valueType == 1 && valueValue instanceof Uint8Array) {
+            return decodeInteger(valueValue);
         } else if (valueType == 2 && typeof valueValue == 'number') {
             return valueValue;
         } else if (valueType == 3 && typeof valueValue == 'string') {

@@ -263,8 +263,18 @@ function runTests(name: string, create: (name: string) => Promise<Ligature>) {
             expect(instance.isOpen()).to.be.true;
             await instance.createDataset(newDataset);
     
-            expect("write actual test").to.be.true;
-    
+            let statement = new Statement(new Entity("e"), new Attribute("a"), "value", new Entity("c"));
+            let statement2 = new Statement(new Entity("e2"), new Attribute("a2"), new Entity("__"), new Entity("c2"));
+            await instance.write(newDataset, async (writeTx) => {
+                await writeTx.addStatement(statement);
+                await writeTx.addStatement(statement2);
+                return Promise.resolve(); //TODO should find a way to remove this
+            });
+            let res = await instance.query(newDataset, (readTx) => {
+                return readTx.matchStatements(null, null, null, new Entity("c2"));
+            });
+            expect(res.length).to.be.equal(1);
+            expect(res[0]).to.be.eql(statement2); //not sure eql will work correctly here, might need equals method
             await instance.close(true);
             expect(instance.isOpen()).to.be.false;
         });
