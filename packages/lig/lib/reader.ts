@@ -2,8 +2,72 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Statement, Entity, Attribute } from "@ligature/ligature";
+import { Statement, Entity, Attribute, identifierPattern } from "@ligature/ligature";
 import type { Value } from '@ligature/ligature';
+import { createToken, CstParser, Lexer } from 'chevrotain';
+
+const WHITE_SPACE = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
+const ANGLE_START = createToken({name: "AngleStart", pattern: /</});
+const ATTRIBUTE_START = createToken({name: "AttributeStart", pattern: /@</});
+const ANGLE_END = createToken({name: "AngleEnd", pattern: />/});
+const IDENTIFIER = createToken({name: "Identifier", pattern: identifierPattern});
+const STRING = createToken({name: "String", pattern: /"[a-zA-Z 0-9]"/}); //TODO fix pattern
+const FLOAT = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
+const INTEGER = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
+const BYTES = createToken({name: "Bytes", pattern: /0x[0-9A-Fa-f]+/});
+
+let allTokens = [
+    WHITE_SPACE,
+    ANGLE_START,
+    ATTRIBUTE_START,
+    ANGLE_END,
+    IDENTIFIER,
+    STRING,
+    FLOAT,
+    INTEGER,
+    BYTES
+];
+
+let ligLexer = new Lexer(allTokens);
+
+class LigParser extends CstParser {
+    constructor() {
+        super(allTokens);
+
+        const $ = this;
+
+        $.RULE("entity", () => {
+            $.CONSUME(ANGLE_START);
+            $.CONSUME(IDENTIFIER);
+            $.CONSUME(ANGLE_END);
+        });
+
+        $.RULE("attribute", () => {
+            $.CONSUME(ATTRIBUTE_START);
+            $.CONSUME(IDENTIFIER);
+            $.CONSUME(ANGLE_END);
+        });
+
+        $.RULE("value", () => {
+            $.OR([
+                { ALT: () => $.SUBRULE($.entity) },
+                { ALT: () => $.CONSUME(STRING) },
+                { ALT: () => $.CONSUME(FLOAT) },
+                { ALT: () => $.CONSUME(INTEGER) },
+                { ALT: () => $.CONSUME(BYTES) }
+            ])
+        });
+
+        $.RULE("statement", () => {
+            $.SUBRULE($.entity)
+            $.SUBRULE($.attribute)
+            $.SUBRULE($.value)
+            $.SUBRULE($.entity)
+        });
+
+        this.performSelfAnalysis();
+    }
+}
 
 export function read(input: string): Array<Statement> {
     throw new Error("Not implemented.");
