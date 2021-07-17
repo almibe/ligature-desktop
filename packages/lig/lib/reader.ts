@@ -28,8 +28,6 @@ let allTokens = [
     BYTES
 ];
 
-let ligLexer = new Lexer(allTokens);
-
 class LigParser extends CstParser {
     constructor() {
         super(allTokens);
@@ -59,7 +57,7 @@ class LigParser extends CstParser {
         });
 
         $.RULE("statement", () => {
-            $.SUBRULE($.entity)
+            $.SUBRULE2($.entity)
             $.SUBRULE($.attribute)
             $.SUBRULE($.value)
             $.SUBRULE($.entity)
@@ -73,6 +71,36 @@ class LigParser extends CstParser {
     attribute: any;
     value: any;
 }
+
+let ligLexer = new Lexer(allTokens);
+let ligParser = new LigParser();
+
+const LigatureCtsVisitor = ligParser.getBaseCstVisitorConstructor();
+
+class LigatureInterpreter extends LigatureCtsVisitor {
+    constructor() {
+        super();
+        this.validateVisitor();
+    }
+
+    entity(ctx: any) {
+        throw new Error("Not implemented.")
+    }
+
+    attribute(ctx: any) {
+        throw new Error("Not implemented.")
+    }
+
+    value(ctx: any) {
+        throw new Error("Not implemented.")
+    }
+
+    statement(ctx: any) {
+        throw new Error("Not implemented.")
+    }
+}
+
+const interpreter = new LigatureInterpreter();
 
 export function read(input: string): Array<Statement> {
     throw new Error("Not implemented.");

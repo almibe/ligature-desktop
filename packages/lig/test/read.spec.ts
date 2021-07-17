@@ -40,7 +40,7 @@ describe("Reading Lig", () => {
     });
 
     it("Read Set of Statements", () => {
-        let s = "<e> <a> 123 <c>\n<e2> <a> <e> <c2>";
+        let s = "<e> <a> 123 <c>\n<e2> <a> <e> <c2>\n";
         let expected = [
             new Statement(new Entity("e"), new Attribute("a"), 123n, new Entity("c")),
             new Statement(new Entity("e2"), new Attribute("a"), new Entity("e"), new Entity("c2"))
