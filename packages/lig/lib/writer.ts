@@ -32,6 +32,8 @@ export function writeValue(value: Value): string {
         return value.toString(); //probably need to append .0 if it's a whole number
     } else if (value instanceof Uint8Array) {
         throw new Error("Not implemented.");
+    } else {
+        throw new Error("Could not write invalid value - " + value);
     }
 }
 

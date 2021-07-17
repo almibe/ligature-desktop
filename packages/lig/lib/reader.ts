@@ -67,6 +67,11 @@ class LigParser extends CstParser {
 
         this.performSelfAnalysis();
     }
+
+    //properties below just exist to make TS happy
+    entity: any;
+    attribute: any;
+    value: any;
 }
 
 export function read(input: string): Array<Statement> {

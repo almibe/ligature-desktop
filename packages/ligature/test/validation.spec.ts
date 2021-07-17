@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { should } from 'chai';
 import { validateIntegerLiteral, Entity, Attribute, Dataset } from "../lib/index";
+import { should } from 'chai';
+
+should()
 
 let okays = [
     "test",
@@ -30,8 +32,6 @@ let errs = [
     "test/ /test",
     " test"
 ];
-
-should();
 
 describe("Dataset validation", () => {
     it("check valid Dataset names", () => {
