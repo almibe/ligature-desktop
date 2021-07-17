@@ -11,10 +11,10 @@ const ANGLE_START = createToken({name: "AngleStart", pattern: /</});
 const ATTRIBUTE_START = createToken({name: "AttributeStart", pattern: /@</});
 const ANGLE_END = createToken({name: "AngleEnd", pattern: />/});
 const IDENTIFIER = createToken({name: "Identifier", pattern: identifierPattern});
-const STRING = createToken({name: "String", pattern: /"[a-zA-Z 0-9]"/}); //TODO fix pattern
+const STRING = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
 const FLOAT = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
 const INTEGER = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
-const BYTES = createToken({name: "Bytes", pattern: /0x[0-9A-Fa-f]+/});
+const BYTES = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2})+/});
 
 let allTokens = [
     WHITE_SPACE,
@@ -23,9 +23,9 @@ let allTokens = [
     ANGLE_END,
     IDENTIFIER,
     STRING,
+    BYTES,
     FLOAT,
-    INTEGER,
-    BYTES
+    INTEGER
 ];
 
 class LigParser extends CstParser {
@@ -33,6 +33,17 @@ class LigParser extends CstParser {
         super(allTokens);
 
         const $ = this;
+
+        $.RULE("statements", () => {
+            $.MANY($.statement);
+        });
+
+        $.RULE("statement", () => {
+            $.SUBRULE($.entity);
+            $.SUBRULE($.attribute);
+            $.SUBRULE($.value);
+            $.SUBRULE2($.entity);
+        });
 
         $.RULE("entity", () => {
             $.CONSUME(ANGLE_START);
@@ -56,17 +67,6 @@ class LigParser extends CstParser {
             ])
         });
 
-        $.RULE("statement", () => {
-            $.SUBRULE2($.entity);
-            $.SUBRULE($.attribute);
-            $.SUBRULE($.value);
-            $.SUBRULE($.entity);
-        });
-
-        $.RULE("statements", () => {
-            $.MANY($.statement);
-        });
-
         this.performSelfAnalysis();
     }
 
@@ -75,6 +75,7 @@ class LigParser extends CstParser {
     attribute: any;
     value: any;
     statement: any;
+    statements: any;
 }
 
 let ligLexer = new Lexer(allTokens);
@@ -112,10 +113,9 @@ class LigatureInterpreter extends LigatureCtsVisitor {
 const interpreter = new LigatureInterpreter();
 
 export function read(input: string): Array<Statement> {
-    throw new Error("Not implemented.");
-}
-
-export function readStatement(input: string): Statement {
+    const lexResult = ligLexer.tokenize(input);
+    ligParser.input = lexResult.tokens;
+    let res = ligParser.statements();
     throw new Error("Not implemented.");
 }
 
@@ -142,5 +142,30 @@ export function readAttribute(input: string): Attribute {
 }
 
 export function readValue(input: string): Value {
-    throw new Error("Not implemented.");
+    const lexResult = ligLexer.tokenize(input);
+    ligParser.input = lexResult.tokens;
+    let res = ligParser.value();
+    if (res == undefined) {
+        throw new Error("Could not read Value from - " + input);
+    } else {
+        if (res.children.String != undefined) {
+            res = res.children.String[0].image;
+            return res.substring(1,res.length-1); //remove quotes
+        } else if (res.children.Integer != undefined) {
+            res = res.children.Integer[0].image;
+            return BigInt(res);
+        } else if (res.children.Float != undefined) {
+            res = res.children.Float[0].image;
+            return Number(res);
+        } else if (res.children.Bytes != undefined) {
+            res = res.children.Bytes[0].image;
+            res = res.substring(2, res.length); //remove 0x
+            let chunks = res.match(/.{1,2}/g).map((v: string) => parseInt(v, 16));
+            let result = new Uint8Array(chunks);
+            return result;
+        } else {
+            console.log(res.children);
+            throw new Error("Could not read Value from - " + input);
+        }
+    }
 }

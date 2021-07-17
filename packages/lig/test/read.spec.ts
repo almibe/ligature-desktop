@@ -36,7 +36,7 @@ describe("Reading Lig", () => {
 
     it("Read Byte Arrays Literals", () => {
         let b = "0x00ff";
-        readValue(b).should.be.equal(new Uint8Array([0, 255]));
+        readValue(b).should.be.eql(new Uint8Array([0, 255]));
     });
 
     it("Read Set of Statements", () => {
