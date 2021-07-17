@@ -57,10 +57,14 @@ class LigParser extends CstParser {
         });
 
         $.RULE("statement", () => {
-            $.SUBRULE2($.entity)
-            $.SUBRULE($.attribute)
-            $.SUBRULE($.value)
-            $.SUBRULE($.entity)
+            $.SUBRULE2($.entity);
+            $.SUBRULE($.attribute);
+            $.SUBRULE($.value);
+            $.SUBRULE($.entity);
+        });
+
+        $.RULE("statements", () => {
+            $.MANY($.statement);
         });
 
         this.performSelfAnalysis();
@@ -70,6 +74,7 @@ class LigParser extends CstParser {
     entity: any;
     attribute: any;
     value: any;
+    statement: any;
 }
 
 let ligLexer = new Lexer(allTokens);
@@ -83,19 +88,23 @@ class LigatureInterpreter extends LigatureCtsVisitor {
         this.validateVisitor();
     }
 
-    entity(ctx: any) {
+    entity(ctx: any): Entity {
         throw new Error("Not implemented.")
     }
 
-    attribute(ctx: any) {
+    attribute(ctx: any): Attribute {
         throw new Error("Not implemented.")
     }
 
-    value(ctx: any) {
+    value(ctx: any): Value {
         throw new Error("Not implemented.")
     }
 
-    statement(ctx: any) {
+    statement(ctx: any): Statement {
+        throw new Error("Not implemented.")
+    }
+
+    statements(ctx: any): Array<Statement> {
         throw new Error("Not implemented.")
     }
 }
@@ -111,11 +120,25 @@ export function readStatement(input: string): Statement {
 }
 
 export function readEntity(input: string): Entity {
-    throw new Error("Not implemented.");
+    const lexResult = ligLexer.tokenize(input);
+    ligParser.input = lexResult.tokens;
+    let res = ligParser.entity();
+    if (res == undefined) {
+        throw new Error("Could not read Entity from - " + input);
+    } else {
+        return new Entity(res.children.Identifier[0].image);
+    }
 }
 
 export function readAttribute(input: string): Attribute {
-    throw new Error("Not implemented.");
+    const lexResult = ligLexer.tokenize(input);
+    ligParser.input = lexResult.tokens;
+    let res = ligParser.attribute();
+    if (res == undefined) {
+        throw new Error("Could not read Attribute from - " + input);
+    } else {
+        return new Attribute(res.children.Identifier[0].image);
+    }
 }
 
 export function readValue(input: string): Value {
