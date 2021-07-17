@@ -29,9 +29,21 @@ export function writeValue(value: Value): string {
     } else if (typeof value == 'bigint') {
         return value.toString();
     } else if (typeof value == 'number') {
-        return value.toString(); //probably need to append .0 if it's a whole number
+        let res = value.toString();
+        if (!res.includes(".")) {
+            res = res + ".0";
+        }
+        return res;
     } else if (value instanceof Uint8Array) {
-        throw new Error("Not implemented.");
+        let res = "0x";
+        for (let byte of value) {
+            let bstr = byte.toString(16);
+            if (bstr.length == 1) {
+                bstr = "0" + bstr;
+            }
+            res = res + bstr;
+        }
+        return res;
     } else {
         throw new Error("Could not write invalid value - " + value);
     }

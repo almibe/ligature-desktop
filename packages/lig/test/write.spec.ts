@@ -41,7 +41,7 @@ describe("Writing Lig", () => {
             new Statement(new Entity("e"), new Attribute("a"), 234n, new Entity("c")),
             new Statement(new Entity("e"), new Attribute("a2"), "test", new Entity("c2"))
         ]
-        let expected = "<e> @<a> 234 <c>\n<e> @<a2> \"test\" <c2>";
+        let expected = "<e> @<a> 234 <c>\n<e> @<a2> \"test\" <c2>\n";
         write(statements).should.be.equal(expected)
     });
 });
