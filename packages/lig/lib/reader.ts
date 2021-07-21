@@ -35,7 +35,9 @@ class LigParser extends CstParser {
         const $ = this;
 
         $.RULE("statements", () => {
-            $.MANY($.statement);
+            $.MANY(() => {
+                $.SUBRULE($.statement);
+            })
         });
 
         $.RULE("statement", () => {
@@ -81,42 +83,24 @@ class LigParser extends CstParser {
 let ligLexer = new Lexer(allTokens);
 let ligParser = new LigParser();
 
-const LigatureCtsVisitor = ligParser.getBaseCstVisitorConstructor();
-
-class LigatureInterpreter extends LigatureCtsVisitor {
-    constructor() {
-        super();
-        this.validateVisitor();
-    }
-
-    entity(ctx: any): Entity {
-        throw new Error("Not implemented.")
-    }
-
-    attribute(ctx: any): Attribute {
-        throw new Error("Not implemented.")
-    }
-
-    value(ctx: any): Value {
-        throw new Error("Not implemented.")
-    }
-
-    statement(ctx: any): Statement {
-        throw new Error("Not implemented.")
-    }
-
-    statements(ctx: any): Array<Statement> {
-        throw new Error("Not implemented.")
-    }
-}
-
-const interpreter = new LigatureInterpreter();
-
 export function read(input: string): Array<Statement> {
     const lexResult = ligLexer.tokenize(input);
     ligParser.input = lexResult.tokens;
-    let res = ligParser.statements();
-    throw new Error("Not implemented.");
+    let res = ligParser.statements().children;
+    let statements = Array<Statement>();
+    if (res.statement == undefined) {
+        return statements;
+    }
+    res = res.statement;
+    for (let s of res) {
+        let statement = s.children;
+        let entity = new Entity(statement.entity[0].children.Identifier[0].image);
+        let attribute = new Attribute(statement.attribute[0].children.Identifier[0].image);
+        let value = processValue(statement.value[0]);
+        let context = new Entity(statement.entity[1].children.Identifier[0].image);
+        statements.push(new Statement(entity, attribute, value, context));
+    }
+    return statements;
 }
 
 export function readEntity(input: string): Entity {
@@ -145,27 +129,30 @@ export function readValue(input: string): Value {
     const lexResult = ligLexer.tokenize(input);
     ligParser.input = lexResult.tokens;
     let res = ligParser.value();
-    if (res == undefined) {
-        throw new Error("Could not read Value from - " + input);
+    return processValue(res);
+}
+
+function processValue(value: any): Value {
+    if (value == undefined) {
+        throw new Error("Could not read Value from - " + value);
     } else {
-        if (res.children.String != undefined) {
-            res = res.children.String[0].image;
-            return res.substring(1,res.length-1); //remove quotes
-        } else if (res.children.Integer != undefined) {
-            res = res.children.Integer[0].image;
-            return BigInt(res);
-        } else if (res.children.Float != undefined) {
-            res = res.children.Float[0].image;
-            return Number(res);
-        } else if (res.children.Bytes != undefined) {
-            res = res.children.Bytes[0].image;
-            res = res.substring(2, res.length); //remove 0x
-            let chunks = res.match(/.{1,2}/g).map((v: string) => parseInt(v, 16));
+        if (value.children.String != undefined) {
+            value = value.children.String[0].image;
+            return value.substring(1,value.length-1); //remove quotes
+        } else if (value.children.Integer != undefined) {
+            value = value.children.Integer[0].image;
+            return BigInt(value);
+        } else if (value.children.Float != undefined) {
+            value = value.children.Float[0].image;
+            return Number(value);
+        } else if (value.children.Bytes != undefined) {
+            value = value.children.Bytes[0].image;
+            value = value.substring(2, value.length); //remove 0x
+            let chunks = value.match(/.{1,2}/g).map((v: string) => parseInt(v, 16));
             let result = new Uint8Array(chunks);
             return result;
         } else {
-            console.log(res.children);
-            throw new Error("Could not read Value from - " + input);
+            throw new Error("Could not read Value from " + value);
         }
     }
 }

@@ -39,12 +39,23 @@ describe("Reading Lig", () => {
         readValue(b).should.be.eql(new Uint8Array([0, 255]));
     });
 
+    it("Read Entity as Value", () => {
+        let e = "<test>";
+        readValue(e).should.be.eql(new Entity("test"));
+    })
+
+    it("Read Empty Set of Statements", () => {
+        let s = "";
+        let expected: Array<Statement> = [];
+        read(s).should.be.eql(expected);
+    });
+
     it("Read Set of Statements", () => {
-        let s = "<e> <a> 123 <c>\n<e2> <a> <e> <c2>\n";
+        let s = "<e> @<a> 123 <c>\n<e2> @<a> <e> <c2>\n";
         let expected = [
             new Statement(new Entity("e"), new Attribute("a"), 123n, new Entity("c")),
             new Statement(new Entity("e2"), new Attribute("a"), new Entity("e"), new Entity("c2"))
         ];
-        read(s).should.be.equal(expected);
+        read(s).should.be.eql(expected);
     });
 });
