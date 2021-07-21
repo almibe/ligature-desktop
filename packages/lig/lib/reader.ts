@@ -136,7 +136,9 @@ function processValue(value: any): Value {
     if (value == undefined) {
         throw new Error("Could not read Value from - " + value);
     } else {
-        if (value.children.String != undefined) {
+        if (value.children.entity != undefined) {
+            return new Entity(value.children.entity[0].children.Identifier[0].image);
+        } else if (value.children.String != undefined) {
             value = value.children.String[0].image;
             return value.substring(1,value.length-1); //remove quotes
         } else if (value.children.Integer != undefined) {
