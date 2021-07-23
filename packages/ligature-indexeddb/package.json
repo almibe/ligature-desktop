@@ -21,6 +21,7 @@
     "url": "git+https://github.com/almibe/ligature-js.git"
   },
   "scripts": {
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "test-browser": "parcel test/test.html"
   },
   "browserslist": [
@@ -39,6 +40,7 @@
     "@types/chai": "^4.2.18",
     "@types/mocha": "^8.2.2",
     "chai": "^4.3.4",
+    "fake-indexeddb": "^3.1.3",
     "mocha": "^9.0.0",
     "parcel-bundler": "^1.12.5",
     "typescript": "^4.3.2"

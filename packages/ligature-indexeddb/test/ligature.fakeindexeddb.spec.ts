@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import "fake-indexeddb/auto";
 import { openLigatureIndexedDB } from '../lib/kv';
-import { openLigatureSimpleIndexedDB } from '../lib/simple/index'
-import { commonTests, runTests } from './common';
+import { openLigatureSimpleIndexedDB } from '../lib/simple/index';
+import { runTests, commonTests } from "./common";
 
 commonTests();
 runTests("KV", openLigatureIndexedDB);
