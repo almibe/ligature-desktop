@@ -17,13 +17,27 @@ import { WHITE_SPACE_T,
 const COMMENT_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
 const LET_T = createToken({ name: "Let", pattern: /let/ }); //TODO update so letter doesn't match (see chevrotain docs)
 const EQUALS_T = createToken({ name: "Equals", pattern: /=/ });
-const BOOLEAN_T = createToken({ name: "Boolean", pattern: /(true)|(false)/});
+const BOOLEAN_T = createToken({ name: "Boolean", pattern: /(true)|(false)/ });
+const WHEN_T = createToken({ name: "when", pattern: /when/ });
+const BRACE_LEFT_T = createToken({ name: "braceLeft", pattern: /\{/ });
+const BRACE_RIGHT_T = createToken({ name: "braceRight", pattern: /\}/ });
+const PAREN_LEFT_T = createToken({ name: "parenLeft", pattern: /\(/ });
+const PAREN_RIGHT_T = createToken({ name: "parenRight", pattern: /\)/ });
+const ARROW_T = createToken({ name:'arrow', pattern: /->/ });
+const DOT_T = createToken({ name: "dot", pattern: /\./ });
 
 const allTokens = [
     COMMENT_T,
     WHITE_SPACE_T,
     LET_T,
     BOOLEAN_T,
+    DOT_T,
+    WHEN_T,
+    PAREN_LEFT_T,
+    PAREN_RIGHT_T,
+    ARROW_T,
+    BRACE_LEFT_T,
+    BRACE_RIGHT_T,
     EQUALS_T,
     ANGLE_START_T,
     ATTRIBUTE_START_T,
@@ -37,7 +51,7 @@ const allTokens = [
 
 class WanderParser extends CstParser {
     constructor() {
-        super(allTokens);
+        super(allTokens, {maxLookahead: 4});
 
         const $ = this;
 
@@ -65,18 +79,34 @@ class WanderParser extends CstParser {
         });
 
         $.RULE('wanderValue', () => {
-            //TODO
+            $.OR([
+                { ALT: () => $.SUBRULE($.statement) },
+                { ALT: () => $.SUBRULE($.value) },
+                { ALT: () => $.SUBRULE($.attribute) },
+                { ALT: () => $.SUBRULE($.functionDefinition) },
+                { ALT: () => $.CONSUME(BOOLEAN_T) }
+            ])
         });
 
+        $.RULE('functionDefinition', () => {
+            $.CONSUME(PAREN_LEFT_T);
+            //TODO
+        })
+
         $.RULE('whenExpression', () => {
+            $.CONSUME(WHEN_T);
             //TODO
         });
 
         $.RULE('functionCall', () => {
+            $.CONSUME(IDENTIFIER_T);
+            $.CONSUME(PAREN_LEFT_T);
             //TODO
         });
 
         $.RULE('methodCall', () => {
+            $.CONSUME(IDENTIFIER_T);
+            $.CONSUME(DOT_T);
             //TODO
         })
 
@@ -122,6 +152,7 @@ class WanderParser extends CstParser {
     expression: any;
     wanderValue: any;
     functionCall: any;
+    functionDefinition: any;
     methodCall: any;
     whenExpression: any;
     entity: any;
