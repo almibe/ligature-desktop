@@ -6,26 +6,26 @@ import { Statement, Entity, Attribute, identifierPattern } from "@ligature/ligat
 import type { Value } from '@ligature/ligature';
 import { createToken, CstParser, Lexer } from 'chevrotain';
 
-const WHITE_SPACE = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
-const ANGLE_START = createToken({name: "AngleStart", pattern: /</});
-const ATTRIBUTE_START = createToken({name: "AttributeStart", pattern: /@</});
-const ANGLE_END = createToken({name: "AngleEnd", pattern: />/});
-const IDENTIFIER = createToken({name: "Identifier", pattern: identifierPattern});
-const STRING = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
-const FLOAT = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
-const INTEGER = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
-const BYTES = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2})+/});
+export const WHITE_SPACE_T = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
+export const ANGLE_START_T = createToken({name: "AngleStart", pattern: /</});
+export const ATTRIBUTE_START_T = createToken({name: "AttributeStart", pattern: /@</});
+export const ANGLE_END_T = createToken({name: "AngleEnd", pattern: />/});
+export const IDENTIFIER_T = createToken({name: "Identifier", pattern: identifierPattern});
+export const STRING_T = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
+export const FLOAT_T = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
+export const INTEGER_T = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
+export const BYTES_T = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2})+/});
 
 let allTokens = [
-    WHITE_SPACE,
-    ANGLE_START,
-    ATTRIBUTE_START,
-    ANGLE_END,
-    IDENTIFIER,
-    STRING,
-    BYTES,
-    FLOAT,
-    INTEGER
+    WHITE_SPACE_T,
+    ANGLE_START_T,
+    ATTRIBUTE_START_T,
+    ANGLE_END_T,
+    IDENTIFIER_T,
+    STRING_T,
+    BYTES_T,
+    FLOAT_T,
+    INTEGER_T
 ];
 
 class LigParser extends CstParser {
@@ -48,24 +48,24 @@ class LigParser extends CstParser {
         });
 
         $.RULE("entity", () => {
-            $.CONSUME(ANGLE_START);
-            $.CONSUME(IDENTIFIER);
-            $.CONSUME(ANGLE_END);
+            $.CONSUME(ANGLE_START_T);
+            $.CONSUME(IDENTIFIER_T);
+            $.CONSUME(ANGLE_END_T);
         });
 
         $.RULE("attribute", () => {
-            $.CONSUME(ATTRIBUTE_START);
-            $.CONSUME(IDENTIFIER);
-            $.CONSUME(ANGLE_END);
+            $.CONSUME(ATTRIBUTE_START_T);
+            $.CONSUME(IDENTIFIER_T);
+            $.CONSUME(ANGLE_END_T);
         });
 
         $.RULE("value", () => {
             $.OR([
                 { ALT: () => $.SUBRULE($.entity) },
-                { ALT: () => $.CONSUME(STRING) },
-                { ALT: () => $.CONSUME(FLOAT) },
-                { ALT: () => $.CONSUME(INTEGER) },
-                { ALT: () => $.CONSUME(BYTES) }
+                { ALT: () => $.CONSUME(STRING_T) },
+                { ALT: () => $.CONSUME(FLOAT_T) },
+                { ALT: () => $.CONSUME(INTEGER_T) },
+                { ALT: () => $.CONSUME(BYTES_T) }
             ])
         });
 
