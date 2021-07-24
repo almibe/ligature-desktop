@@ -15,10 +15,16 @@ import { WHITE_SPACE_T,
 } from '@ligature/lig';
 
 const COMMENT_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
+const LET_T = createToken({ name: "Let", pattern: /let/ }); //TODO update so letter doesn't match (see chevrotain docs)
+const EQUALS_T = createToken({ name: "Equals", pattern: /=/ });
+const BOOLEAN_T = createToken({ name: "Boolean", pattern: /(true)|(false)/});
 
 const allTokens = [
     COMMENT_T,
     WHITE_SPACE_T,
+    LET_T,
+    BOOLEAN_T,
+    EQUALS_T,
     ANGLE_START_T,
     ATTRIBUTE_START_T,
     ANGLE_END_T,
@@ -34,6 +40,45 @@ class WanderParser extends CstParser {
         super(allTokens);
 
         const $ = this;
+
+        $.RULE('topLevel', () => {
+            $.OR([
+                { ALT: () => $.CONSUME(COMMENT_T) },
+                { ALT: () => $.SUBRULE($.expression) },
+                { ALT: () => $.SUBRULE($.letStatement) }
+            ])
+        })
+
+        $.RULE('letStatement', () => {
+            $.CONSUME(LET_T);
+            $.CONSUME(EQUALS_T);
+            $.SUBRULE($.expression);
+        });
+
+        $.RULE('expression', () => {
+            $.OR([
+                { ALT: () => $.SUBRULE($.wanderValue) },
+                { ALT: () => $.SUBRULE($.whenExpression) },
+                { ALT: () => $.SUBRULE($.functionCall) },
+                { ALT: () => $.SUBRULE($.methodCall) }
+            ])
+        });
+
+        $.RULE('wanderValue', () => {
+            //TODO
+        });
+
+        $.RULE('whenExpression', () => {
+            //TODO
+        });
+
+        $.RULE('functionCall', () => {
+            //TODO
+        });
+
+        $.RULE('methodCall', () => {
+            //TODO
+        })
 
         $.RULE("statements", () => {
             $.MANY(() => {
@@ -74,11 +119,17 @@ class WanderParser extends CstParser {
     }
 
     //properties below just exist to make TS happy
+    expression: any;
+    wanderValue: any;
+    functionCall: any;
+    methodCall: any;
+    whenExpression: any;
     entity: any;
     attribute: any;
     value: any;
     statement: any;
     statements: any;
+    letStatement: any;
 }
 
 let wanderLexer = new Lexer(allTokens);
