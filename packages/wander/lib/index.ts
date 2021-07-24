@@ -55,13 +55,19 @@ class WanderParser extends CstParser {
 
         const $ = this;
 
+        $.RULE('script', () => {
+            $.MANY(() => {
+                $.SUBRULE($.topLevel);
+            });
+        });
+
         $.RULE('topLevel', () => {
             $.OR([
                 { ALT: () => $.CONSUME(COMMENT_T) },
                 { ALT: () => $.SUBRULE($.expression) },
                 { ALT: () => $.SUBRULE($.letStatement) }
-            ])
-        })
+            ]);
+        });
 
         $.RULE('letStatement', () => {
             $.CONSUME(LET_T);
@@ -113,7 +119,7 @@ class WanderParser extends CstParser {
         $.RULE("statements", () => {
             $.MANY(() => {
                 $.SUBRULE($.statement);
-            })
+            });
         });
 
         $.RULE("statement", () => {
@@ -149,6 +155,8 @@ class WanderParser extends CstParser {
     }
 
     //properties below just exist to make TS happy
+    script: any;
+    topLevel: any;
     expression: any;
     wanderValue: any;
     functionCall: any;
@@ -163,11 +171,80 @@ class WanderParser extends CstParser {
     letStatement: any;
 }
 
-let wanderLexer = new Lexer(allTokens);
-let wanderParser = new WanderParser();
+const wanderLexer = new Lexer(allTokens);
+const wanderParser = new WanderParser();
+const BaseWanderVisitor = wanderParser.getBaseCstVisitorConstructor();
+
+class WanderVisitor extends BaseWanderVisitor {
+    constructor() {
+        super();
+        this.validateVisitor();
+    }
+
+    script() {
+        throw new Error("Not implemented.");
+    }
+
+    topLevel() {
+        throw new Error("Not implemented.");
+    }
+
+    letStatement() {
+        throw new Error("Not implemented.");
+    }
+
+    expression() {
+        throw new Error("Not implemented.");
+    }
+
+    wanderValue() {
+        throw new Error("Not implemented.");
+    }
+
+    functionDefinition() {
+        throw new Error("Not implemented.");
+    }
+
+    whenExpression() {
+        throw new Error("Not implemented.");
+    }
+
+    functionCall() {
+        throw new Error("Not implemented.");
+    }
+
+    methodCall() {
+        throw new Error("Not implemented.");
+    }
+
+    statements() {
+        throw new Error("Not implemented.");
+    }
+
+    statement() {
+        throw new Error("Not implemented.");
+    }
+
+    entity() {
+        throw new Error("Not implemented.");
+    }
+
+    attribute() {
+        throw new Error("Not implemented.");
+    }
+
+    value() {
+        throw new Error("Not implemented.");
+    }
+}
+
+const wanderVisitor = new WanderVisitor();
 
 export class WanderInterpreter {
     run(script: string): any {
+        const lexResult = wanderLexer.tokenize(script);
+        wanderParser.input = lexResult.tokens;
+        wanderVisitor.visit(wanderParser.script()); //TODO not sure if this is the correct method call (visit vs visitScript???)
         return "nothing";
     }
 }
