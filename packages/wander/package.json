@@ -21,6 +21,7 @@
     "url": "https://github.com/almibe/ligature-js/issues"
   },
   "dependencies": {
+    "@ligature/lig": "../lig",
     "chevrotain": "^9.0.2"
   },
   "devDependencies": {
