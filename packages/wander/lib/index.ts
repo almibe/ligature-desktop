@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createToken, CstParser, Lexer } from 'chevrotain';
+import { createToken, CstNode, CstParser, Lexer } from 'chevrotain';
 import { WHITE_SPACE_T,
     ANGLE_START_T,
     ATTRIBUTE_START_T,
@@ -14,7 +14,8 @@ import { WHITE_SPACE_T,
     INTEGER_T
 } from '@ligature/lig';
 
-const COMMENT_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
+const COMMENT_NEW_LINE_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
+const COMMENT_END_T = createToken({ name: "Comment", pattern: /#.*/, group: Lexer.SKIPPED });
 const LET_T = createToken({ name: "Let", pattern: /let/ }); //TODO update so letter doesn't match (see chevrotain docs)
 const EQUALS_T = createToken({ name: "Equals", pattern: /=/ });
 const BOOLEAN_T = createToken({ name: "Boolean", pattern: /(true)|(false)/ });
@@ -27,7 +28,7 @@ const ARROW_T = createToken({ name:'arrow', pattern: /->/ });
 const DOT_T = createToken({ name: "dot", pattern: /\./ });
 
 const allTokens = [
-    COMMENT_T,
+    COMMENT_NEW_LINE_T,
     WHITE_SPACE_T,
     LET_T,
     BOOLEAN_T,
@@ -46,7 +47,8 @@ const allTokens = [
     STRING_T,
     BYTES_T,
     FLOAT_T,
-    INTEGER_T
+    INTEGER_T,
+    COMMENT_END_T
 ];
 
 class WanderParser extends CstParser {
@@ -63,7 +65,6 @@ class WanderParser extends CstParser {
 
         $.RULE('topLevel', () => {
             $.OR([
-                { ALT: () => $.CONSUME(COMMENT_T) },
                 { ALT: () => $.SUBRULE($.expression) },
                 { ALT: () => $.SUBRULE($.letStatement) }
             ]);
@@ -176,64 +177,85 @@ const wanderParser = new WanderParser();
 const BaseWanderVisitor = wanderParser.getBaseCstVisitorConstructor();
 
 class WanderVisitor extends BaseWanderVisitor {
+    debug(a: any) {
+        console.log(JSON.stringify(a, undefined, 4));
+    }
+
     constructor() {
         super();
         this.validateVisitor();
     }
 
-    script() {
+    script(ctx: any): any {
+        if (ctx.topLevel != undefined) {
+            return this.visit(ctx.topLevel);
+            //throw new Error("Not implemented.");
+        } else {
+            return "nothing";
+        }
+    }
+
+    topLevel(ctx: any) {
+        if (ctx.expression != undefined) {
+            return this.visit(ctx.expression)
+        } else {
+            throw new Error("Not implemented.");
+        }
+    }
+
+    letStatement(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    topLevel() {
+    expression(ctx: any) {
+        if (ctx.wanderValue != undefined) {
+            return this.visit(ctx.wanderValue);
+        } else {
+            throw new Error("Not implemented.");
+        }
+    }
+
+    wanderValue(ctx: any) {
+        if (ctx.Boolean != undefined) {
+            return ctx.Boolean[0].image === "true";
+        } else {
+            throw new Error("Not implemented.");
+        }
+    }
+
+    functionDefinition(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    letStatement() {
+    whenExpression(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    expression() {
+    functionCall(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    wanderValue() {
+    methodCall(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    functionDefinition() {
+    statements(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    whenExpression() {
+    statement(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    functionCall() {
+    entity(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    methodCall() {
+    attribute(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 
-    statements() {
-        throw new Error("Not implemented.");
-    }
-
-    statement() {
-        throw new Error("Not implemented.");
-    }
-
-    entity() {
-        throw new Error("Not implemented.");
-    }
-
-    attribute() {
-        throw new Error("Not implemented.");
-    }
-
-    value() {
+    value(ctx: CstNode) {
         throw new Error("Not implemented.");
     }
 }
@@ -244,7 +266,7 @@ export class WanderInterpreter {
     run(script: string): any {
         const lexResult = wanderLexer.tokenize(script);
         wanderParser.input = lexResult.tokens;
-        wanderVisitor.visit(wanderParser.script()); //TODO not sure if this is the correct method call (visit vs visitScript???)
-        return "nothing";
+        const res = wanderVisitor.visit(wanderParser.script());
+        return res;
     }
 }
