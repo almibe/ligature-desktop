@@ -11,8 +11,11 @@ import { WHITE_SPACE_T,
     STRING_T,
     BYTES_T,
     FLOAT_T,
-    INTEGER_T
+    INTEGER_T,
+    writeValue,
+    writeEntity
 } from '@ligature/lig';
+import { Value, Entity } from '@ligature/ligature';
 
 const COMMENT_NEW_LINE_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
 const COMMENT_END_T = createToken({ name: "Comment", pattern: /#.*/, group: Lexer.SKIPPED });
@@ -189,7 +192,6 @@ class WanderVisitor extends BaseWanderVisitor {
     script(ctx: any): any {
         if (ctx.topLevel != undefined) {
             return this.visit(ctx.topLevel);
-            //throw new Error("Not implemented.");
         } else {
             return "nothing";
         }
@@ -218,7 +220,14 @@ class WanderVisitor extends BaseWanderVisitor {
     wanderValue(ctx: any) {
         if (ctx.Boolean != undefined) {
             return ctx.Boolean[0].image === "true";
+        } else if (ctx.value != undefined) {
+            if (ctx.value[0].children.Integer != undefined) {
+                return BigInt(ctx.value[0].children.Integer[0].image);
+            } else if (ctx.value[0].children.Float != undefined) {
+                return Number(ctx.value[0].children.Float[0].image);
+            }
         } else {
+            this.debug(ctx);
             throw new Error("Not implemented.");
         }
     }
@@ -262,11 +271,34 @@ class WanderVisitor extends BaseWanderVisitor {
 
 const wanderVisitor = new WanderVisitor();
 
+export type WanderResult = Value | boolean;
+
 export class WanderInterpreter {
-    run(script: string): any {
+    run(script: string): WanderResult {
         const lexResult = wanderLexer.tokenize(script);
         wanderParser.input = lexResult.tokens;
         const res = wanderVisitor.visit(wanderParser.script());
         return res;
+    }
+}
+
+/**
+ * Writes a given WanderResult as a string, referring to the lig implementation of write functions when applicable.
+ * @param result A WanderResult.
+ * @returns The serialized (not just toStringed) version of that WanderResult.
+ */
+export function write(result: WanderResult): string {
+    if (typeof result == "number") {
+        return writeValue(result);
+    } else if (typeof result == "string") {
+        return writeValue(result);
+    } else if (result instanceof Entity) {
+        return writeEntity(result);
+    } else if (typeof result == "bigint") {
+        return writeValue(result);
+    } else if (typeof result == "boolean") {
+        return result.toString();
+    } else {
+        throw new Error("Not implemented.");
     }
 }

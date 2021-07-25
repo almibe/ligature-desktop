@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { readdirSync, readFileSync } from 'fs';
-import { WanderInterpreter } from '../lib/index';
+import { WanderInterpreter, write } from '../lib/index';
 
-const runOnly: Array<string> = ["nothing.wander", "boolean.wander"];
+const runOnly: Array<string> = ["nothing.wander", "boolean.wander", "integer.wander", "float.wander"];
 
 describe('Wander tests', () => {
     const wander = new WanderInterpreter();    
@@ -17,7 +17,7 @@ describe('Wander tests', () => {
                         const script = readFileSync(__dirname + "/resources/" + dir + "/" + testFile);
                         const expected = readFileSync(__dirname + "/resources/" + dir + "/" + testFile.replace(/\.wander$/, ".result"));
                         const result = wander.run(script.toString());
-                        expect(result.toString()).toMatch(expected.toString());
+                        expect(write(result)).toMatch(expected.toString());
                     })
                 }
             });
