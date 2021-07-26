@@ -2,24 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { identifierPattern } from '@ligature/ligature';
 import { createToken, CstNode, CstParser, Lexer } from 'chevrotain';
-import { WHITE_SPACE_T,
-    ANGLE_START_T,
-    ATTRIBUTE_START_T,
-    ANGLE_END_T,
-    IDENTIFIER_T,
-    STRING_T,
-    BYTES_T,
-    FLOAT_T,
-    INTEGER_T,
-    writeValue,
+import { writeValue,
     writeEntity,
     writeAttribute,
     writeStatement,
-    processValue
+    processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
 
+//Tokens that are shared with lig
+//TODO all of these tokens should used a shared pattern with @ligature/lig, I don't think I can share the actual tokens though
+const WHITE_SPACE_T = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
+const ANGLE_START_T = createToken({name: "AngleStart", pattern: /</});
+const ATTRIBUTE_START_T = createToken({name: "AttributeStart", pattern: /@</});
+const ANGLE_END_T = createToken({name: "AngleEnd", pattern: />/});
+const IDENTIFIER_T = createToken({name: "Identifier", pattern: identifierPattern});
+const STRING_T = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
+const FLOAT_T = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
+const INTEGER_T = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
+const BYTES_T = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2})+/});
+
+//Tokens that are unique to Wander
 const COMMENT_NEW_LINE_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
 const COMMENT_END_T = createToken({ name: "Comment", pattern: /#.*/, group: Lexer.SKIPPED });
 const LET_T = createToken({ name: "Let", pattern: /let/ }); //TODO update so letter doesn't match (see chevrotain docs)
@@ -57,6 +62,10 @@ const allTokens = [
     COMMENT_END_T
 ];
 
+function debug(a: any) {
+    console.log(JSON.stringify(a, undefined, 4));
+}
+
 class WanderParser extends CstParser {
     constructor() {
         super(allTokens, {maxLookahead: 4});
@@ -71,13 +80,14 @@ class WanderParser extends CstParser {
 
         $.RULE('topLevel', () => {
             $.OR([
-                { ALT: () => $.SUBRULE($.expression) },
-                { ALT: () => $.SUBRULE($.letStatement) }
+                { ALT: () => $.SUBRULE($.letStatement) },
+                { ALT: () => $.SUBRULE($.expression) }
             ]);
         });
 
         $.RULE('letStatement', () => {
             $.CONSUME(LET_T);
+            $.CONSUME(IDENTIFIER_T);
             $.CONSUME(EQUALS_T);
             $.SUBRULE($.expression);
         });
@@ -187,10 +197,6 @@ export type WanderValue = Value | boolean | Attribute | Statement;
 export type WanderResult = Value | boolean | Attribute | Statement;
 
 class WanderVisitor extends BaseWanderVisitor {
-    debug(a: any) {
-        console.log(JSON.stringify(a, undefined, 4));
-    }
-
     constructor() {
         super();
         this.validateVisitor();
@@ -206,13 +212,16 @@ class WanderVisitor extends BaseWanderVisitor {
 
     topLevel(ctx: any) {
         if (ctx.expression != undefined) {
-            return this.visit(ctx.expression)
+            return this.visit(ctx.expression);
+        } else if (ctx.letStatement != undefined) {
+            return this.visit(ctx.letStatement);
         } else {
             throw new Error("Not implemented.");
         }
     }
 
     letStatement(ctx: CstNode) {
+        debug(ctx);
         throw new Error("Not implemented.");
     }
 
@@ -253,39 +262,39 @@ class WanderVisitor extends BaseWanderVisitor {
         }
     }
 
-    functionDefinition(ctx: CstNode) {
+    functionDefinition(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    whenExpression(ctx: CstNode) {
+    whenExpression(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    functionCall(ctx: CstNode) {
+    functionCall(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    methodCall(ctx: CstNode) {
+    methodCall(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    statements(ctx: CstNode) {
+    statements(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    statement(ctx: CstNode) {
+    statement(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    entity(ctx: CstNode) {
+    entity(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    attribute(ctx: CstNode) {
+    attribute(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    value(ctx: CstNode) {
+    value(ctx: any) {
         throw new Error("Not implemented.");
     }
 }
