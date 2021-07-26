@@ -5,7 +5,7 @@
 import { readdirSync, readFileSync } from 'fs';
 import { WanderInterpreter, write } from '../lib/index';
 
-const runOnly: Array<string> = ["nothing.wander", "boolean.wander", "integer.wander", "float.wander"];
+const runOnly: Array<string> = [];
 
 describe('Wander tests', () => {
     const wander = new WanderInterpreter();    

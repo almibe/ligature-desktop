@@ -13,9 +13,12 @@ import { WHITE_SPACE_T,
     FLOAT_T,
     INTEGER_T,
     writeValue,
-    writeEntity
+    writeEntity,
+    writeAttribute,
+    writeStatement,
+    processValue
 } from '@ligature/lig';
-import { Value, Entity } from '@ligature/ligature';
+import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
 
 const COMMENT_NEW_LINE_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
 const COMMENT_END_T = createToken({ name: "Comment", pattern: /#.*/, group: Lexer.SKIPPED });
@@ -179,6 +182,10 @@ const wanderLexer = new Lexer(allTokens);
 const wanderParser = new WanderParser();
 const BaseWanderVisitor = wanderParser.getBaseCstVisitorConstructor();
 
+//NOTE: keeping the following two types separate for now since I'm not sure if they will always be the same
+export type WanderValue = Value | boolean | Attribute | Statement;
+export type WanderResult = Value | boolean | Attribute | Statement;
+
 class WanderVisitor extends BaseWanderVisitor {
     debug(a: any) {
         console.log(JSON.stringify(a, undefined, 4));
@@ -217,7 +224,7 @@ class WanderVisitor extends BaseWanderVisitor {
         }
     }
 
-    wanderValue(ctx: any) {
+    wanderValue(ctx: any): WanderValue {
         if (ctx.Boolean != undefined) {
             return ctx.Boolean[0].image === "true";
         } else if (ctx.value != undefined) {
@@ -225,9 +232,23 @@ class WanderVisitor extends BaseWanderVisitor {
                 return BigInt(ctx.value[0].children.Integer[0].image);
             } else if (ctx.value[0].children.Float != undefined) {
                 return Number(ctx.value[0].children.Float[0].image);
+            } else if (ctx.value[0].children.String != undefined) {
+                const stringValue = ctx.value[0].children.String[0].image;
+                return stringValue.substring(1,stringValue.length-1);
+            } else if (ctx.value[0].children.entity != undefined) {
+                return new Entity(ctx.value[0].children.entity[0].children.Identifier[0].image);
+            } else {
+                throw new Error("Unsupported Wander Value - " + ctx.value[0].children);
             }
+        } else if (ctx.attribute != undefined) {
+            return new Attribute(ctx.attribute[0].children.Identifier[0].image);
+        } else if (ctx.statement != undefined) {
+            const entity = new Entity(ctx.statement[0].children.entity[0].children.Identifier[0].image);
+            const attribute = new Attribute(ctx.statement[0].children.attribute[0].children.Identifier[0].image);
+            const value = processValue(ctx.statement[0].children.value[0]);
+            const context = new Entity(ctx.statement[0].children.entity[1].children.Identifier[0].image);
+            return new Statement(entity, attribute, value, context);
         } else {
-            this.debug(ctx);
             throw new Error("Not implemented.");
         }
     }
@@ -271,8 +292,6 @@ class WanderVisitor extends BaseWanderVisitor {
 
 const wanderVisitor = new WanderVisitor();
 
-export type WanderResult = Value | boolean;
-
 export class WanderInterpreter {
     run(script: string): WanderResult {
         const lexResult = wanderLexer.tokenize(script);
@@ -294,10 +313,14 @@ export function write(result: WanderResult): string {
         return writeValue(result);
     } else if (result instanceof Entity) {
         return writeEntity(result);
+    } else if (result instanceof Attribute) {
+        return writeAttribute(result);
     } else if (typeof result == "bigint") {
         return writeValue(result);
     } else if (typeof result == "boolean") {
         return result.toString();
+    } else if (result instanceof Statement) {
+        return writeStatement(result);
     } else {
         throw new Error("Not implemented.");
     }

@@ -132,7 +132,7 @@ export function readValue(input: string): Value {
     return processValue(res);
 }
 
-function processValue(value: any): Value {
+export function processValue(value: any): Value {
     if (value == undefined) {
         throw new Error("Could not read Value from - " + value);
     } else {
