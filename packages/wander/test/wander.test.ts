@@ -6,7 +6,8 @@ import { readdirSync, readFileSync } from 'fs';
 import { WanderInterpreter, write } from '../lib/index';
 import { ast } from './ASTs';
 
-const runOnly: Array<string> = ['integer.wander'];
+//add wander files names below when you only want to run a set number of tests, leave empty to test all
+const runOnly: Array<string> = ['let-res.wander'];
 
 describe('Wander AST tests', () => {
     const wander = new WanderInterpreter();    

@@ -192,9 +192,12 @@ const wanderLexer = new Lexer(allTokens);
 const wanderParser = new WanderParser();
 const BaseWanderVisitor = wanderParser.getBaseCstVisitorConstructor();
 
+type nothing = null;
+const nothing = null;
+
 //NOTE: keeping the following two types separate for now since I'm not sure if they will always be the same
-export type WanderValue = Value | boolean | Attribute | Statement;
-export type WanderResult = Value | boolean | Attribute | Statement;
+export type WanderValue = Value | boolean | Attribute | Statement | nothing;
+export type WanderResult = WanderValue;
 
 /**
  * A visitor for Wander that focuses on converting Chevrotain's CTS to an internal AST.
@@ -308,6 +311,11 @@ class WanderVisitor extends BaseWanderVisitor {
 const wanderVisitor = new WanderVisitor();
 
 export class WanderInterpreter {
+    run(script: string): WanderResult {
+        const ast = this.createAst(script);
+        return this.eval(ast);
+    }
+
     createAst(script: string): Script {
         const lexResult = wanderLexer.tokenize(script);
         wanderParser.input = lexResult.tokens;
@@ -315,13 +323,14 @@ export class WanderInterpreter {
         return res;
     }
 
-    run(script: string): WanderResult {
-        const ast = this.createAst(script);
-        return this.eval(ast);
-    }
-
-    eval(ast: Script): WanderResult {
-        throw new Error("Not implemented.");
+    eval(script: Script): WanderResult {
+        let result: WanderResult = nothing;
+        for (const element of script.elements) {
+            if (element.type == "expression") {
+                result = element.value;
+            }
+        }
+        return result;
     }
 }
 
@@ -345,6 +354,8 @@ export function write(result: WanderResult): string {
         return result.toString();
     } else if (result instanceof Statement) {
         return writeStatement(result);
+    } else if (result == nothing) {
+        return "nothing";
     } else {
         throw new Error("Not implemented.");
     }
