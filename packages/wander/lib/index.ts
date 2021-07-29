@@ -204,13 +204,12 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     script(ctx: any): Script {
-        debug(ctx);
         if (ctx.topLevel != undefined) {
             let elements = Array<Element>();
             for (let ts of ctx.topLevel) {
                 elements.push(this.topLevel(ts.children));
             }
-            return { elements };
+            return { type: 'script', elements };
         } else {
             throw new Error();
             //return "nothing";
@@ -228,13 +227,12 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     letStatement(ctx: CstNode): LetStatement {
-        debug(ctx);
         throw new Error("Not implemented.");
     }
 
     expression(ctx: any): Expression {
         if (ctx.wanderValue != undefined) {
-            return { value: this.visit(ctx.wanderValue) };
+            return { type: 'expression', value: this.visit(ctx.wanderValue) };
         } else {
             throw new Error("Not implemented.");
         }
