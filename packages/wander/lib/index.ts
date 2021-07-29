@@ -11,9 +11,11 @@ import { writeValue,
     processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
+import { LetStatement, Script, Element, Expression } from './ast';
+import { debug } from './debug';
 
 //Tokens that are shared with lig
-//TODO all of these tokens should used a shared pattern with @ligature/lig, I don't think I can share the actual tokens though
+//TODO all of these tokens should use a shared pattern with @ligature/lig, I don't think I can share the actual tokens though
 const WHITE_SPACE_T = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
 const ANGLE_START_T = createToken({name: "AngleStart", pattern: /</});
 const ATTRIBUTE_START_T = createToken({name: "AttributeStart", pattern: /@</});
@@ -61,10 +63,6 @@ const allTokens = [
     INTEGER_T,
     COMMENT_END_T
 ];
-
-function debug(a: any) {
-    console.log(JSON.stringify(a, undefined, 4));
-}
 
 class WanderParser extends CstParser {
     constructor() {
@@ -196,21 +194,30 @@ const BaseWanderVisitor = wanderParser.getBaseCstVisitorConstructor();
 export type WanderValue = Value | boolean | Attribute | Statement;
 export type WanderResult = Value | boolean | Attribute | Statement;
 
+/**
+ * A visitor for Wander that focuses on converting Chevrotain's CTS to an internal AST.
+ */
 class WanderVisitor extends BaseWanderVisitor {
     constructor() {
         super();
         this.validateVisitor();
     }
 
-    script(ctx: any): any {
+    script(ctx: any): Script {
+        debug(ctx);
         if (ctx.topLevel != undefined) {
-            return this.visit(ctx.topLevel);
+            let elements = Array<Element>();
+            for (let ts of ctx.topLevel) {
+                elements.push(this.topLevel(ts.children));
+            }
+            return { elements };
         } else {
-            return "nothing";
+            throw new Error();
+            //return "nothing";
         }
     }
 
-    topLevel(ctx: any) {
+    topLevel(ctx: any): Element {
         if (ctx.expression != undefined) {
             return this.visit(ctx.expression);
         } else if (ctx.letStatement != undefined) {
@@ -220,14 +227,14 @@ class WanderVisitor extends BaseWanderVisitor {
         }
     }
 
-    letStatement(ctx: CstNode) {
+    letStatement(ctx: CstNode): LetStatement {
         debug(ctx);
         throw new Error("Not implemented.");
     }
 
-    expression(ctx: any) {
+    expression(ctx: any): Expression {
         if (ctx.wanderValue != undefined) {
-            return this.visit(ctx.wanderValue);
+            return { value: this.visit(ctx.wanderValue) };
         } else {
             throw new Error("Not implemented.");
         }
@@ -302,11 +309,20 @@ class WanderVisitor extends BaseWanderVisitor {
 const wanderVisitor = new WanderVisitor();
 
 export class WanderInterpreter {
-    run(script: string): WanderResult {
+    createAst(script: string): Script {
         const lexResult = wanderLexer.tokenize(script);
         wanderParser.input = lexResult.tokens;
         const res = wanderVisitor.visit(wanderParser.script());
         return res;
+    }
+
+    run(script: string): WanderResult {
+        const ast = this.createAst(script);
+        return this.eval(ast);
+    }
+
+    eval(ast: Script): WanderResult {
+        throw new Error("Not implemented.");
     }
 }
 
