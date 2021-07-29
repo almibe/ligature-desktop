@@ -61,12 +61,7 @@ export const ast: any = {
 
     "nothing.wander": {
         type: 'script',
-        elements: [
-            {
-                type: 'expression',
-                value: null
-            }
-        ]
+        elements: []
     },
 
     "statement.wander": {

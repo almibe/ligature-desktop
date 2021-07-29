@@ -206,16 +206,13 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     script(ctx: any): Script {
+        let elements = Array<Element>();
         if (ctx.topLevel != undefined) {
-            let elements = Array<Element>();
             for (let ts of ctx.topLevel) {
                 elements.push(this.topLevel(ts.children));
             }
-            return { type: 'script', elements };
-        } else {
-            throw new Error();
-            //return "nothing";
         }
+        return { type: 'script', elements };
     }
 
     topLevel(ctx: any): Element {
