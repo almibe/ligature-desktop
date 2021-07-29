@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Attribute, Entity } from "@ligature/ligature";
+import { Attribute, Entity, Statement } from "@ligature/ligature";
 
 /**
  * Keys in this structure match the names of test files and the values
@@ -10,64 +10,80 @@ import { Attribute, Entity } from "@ligature/ligature";
  */
 export const ast: any = {
     "attribute.wander": {
+        type: 'script',
         elements: [
             { 
+                type: 'expression',
                 value: new Attribute("attribute")
             }
         ]
     },
 
     "boolean.wander": {
+        type: 'script',
         elements: [
-            { 
+            {
+                type: 'expression',
                 value: true
             }
         ]
     },
     
     "entity.wander": {
+        type: 'script',
         elements: [
-            { 
+            {
+                type: 'expression',
                 value: new Entity("test")
             }
         ]
     },
 
     "float.wander": {
+        type: 'script',
         elements: [
-            { 
+            {
+                type: 'expression',
                 value: 3.0
             }
         ]
     },
 
     "integer.wander": {
+        type: 'script',
         elements: [
-            { 
+            {
+                type: 'expression',
                 value: 24601n
             }
         ]
     },
 
     "nothing.wander": {
+        type: 'script',
         elements: [
-            { 
-                value: null //TODO this probably shouldn't be null???
+            {
+                type: 'expression',
+                value: null
             }
         ]
     },
 
     "statement.wander": {
+        type: 'script',
         elements: [
-            { 
-                value: null //TODO need to figure out how I want to encode this
+            {
+                type: 'expression',
+                value: new Statement(new Entity("entity"), new Attribute("attribute"), 3.03, new Entity("context"))
             }
         ]
     },
 
     "string.wander": {
+        type: 'script',
         elements: [
-            { 
+            {
+                type: 'expression',
                 value: "Hello"
             }
         ]

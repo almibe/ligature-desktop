@@ -29,10 +29,11 @@ const BYTES_T = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2})+/});
 //Tokens that are unique to Wander
 const COMMENT_NEW_LINE_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
 const COMMENT_END_T = createToken({ name: "Comment", pattern: /#.*/, group: Lexer.SKIPPED });
+const NOTHING_T = createToken({ name: "Nothing", pattern: /nothing/ }); //TODO update so it doesn't match longer string
 const LET_T = createToken({ name: "Let", pattern: /let/ }); //TODO update so letter doesn't match (see chevrotain docs)
 const EQUALS_T = createToken({ name: "Equals", pattern: /=/ });
-const BOOLEAN_T = createToken({ name: "Boolean", pattern: /(true)|(false)/ });
-const WHEN_T = createToken({ name: "when", pattern: /when/ });
+const BOOLEAN_T = createToken({ name: "Boolean", pattern: /(true)|(false)/ }); //TODO update so it doesn't match longer string
+const WHEN_T = createToken({ name: "when", pattern: /when/ }); //TODO update so it doesn't match longer string
 const BRACE_LEFT_T = createToken({ name: "braceLeft", pattern: /\{/ });
 const BRACE_RIGHT_T = createToken({ name: "braceRight", pattern: /\}/ });
 const PAREN_LEFT_T = createToken({ name: "parenLeft", pattern: /\(/ });
@@ -45,6 +46,7 @@ const allTokens = [
     WHITE_SPACE_T,
     LET_T,
     BOOLEAN_T,
+    NOTHING_T,
     DOT_T,
     WHEN_T,
     PAREN_LEFT_T,
