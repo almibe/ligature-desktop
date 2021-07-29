@@ -9,6 +9,7 @@ import { Attribute, Entity, Statement } from "@ligature/ligature";
  * match the AST for that file.
  */
 export const ast: any = {
+    //PRIMITIVES
     "attribute.wander": {
         type: 'script',
         elements: [
@@ -75,6 +76,51 @@ export const ast: any = {
     },
 
     "string.wander": {
+        type: 'script',
+        elements: [
+            {
+                type: 'expression',
+                value: "Hello"
+            }
+        ]
+    },
+
+    //ASSIGNMENT
+    "let.wander": {
+        type: 'script',
+        elements: [
+            {
+                type: 'letStatement',
+                name: "x",
+                expression: {
+                    type: "expression",
+                    value: 5n
+                }
+            }
+        ]
+    },
+
+    "let-res.wander": {
+        type: 'script',
+        elements: [
+            {
+                type: 'expression',
+                value: "Hello"
+            }
+        ]
+    },
+
+    "block.wander": {
+        type: 'script',
+        elements: [
+            {
+                type: 'expression',
+                value: "Hello"
+            }
+        ]
+    },
+
+    "block-shadow.wander": {
         type: 'script',
         elements: [
             {

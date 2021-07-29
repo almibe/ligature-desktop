@@ -225,8 +225,10 @@ class WanderVisitor extends BaseWanderVisitor {
         }
     }
 
-    letStatement(ctx: CstNode): LetStatement {
-        throw new Error("Not implemented.");
+    letStatement(ctx: any): LetStatement {
+        const name = ctx.Identifier[0].image;
+        const expression = this.expression(ctx.expression[0].children);
+        return { type: "letStatement", name, expression };
     }
 
     expression(ctx: any): Expression {

@@ -6,6 +6,6 @@ import { WanderValue } from "."
 
 export type Script = Readonly<{ type: 'script', elements: Array<Element> }>
 export type Element = LetStatement | Expression
-export type LetStatement = Readonly<{ type: 'letStatement', name: Identifier, value: Expression }>
+export type LetStatement = Readonly<{ type: 'letStatement', name: Identifier, expression: Expression }>
 export type Identifier = Readonly<{ type: 'identifier', identifier: string }>
 export type Expression = Readonly<{ type: 'expression', value: WanderValue }>
