@@ -11,8 +11,9 @@ import { writeValue,
     processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
-import { LetStatement, Script, Element, Expression } from './ast';
+import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError } from './ast';
 import { debug } from './debug';
+import { Binding } from './binding';
 
 //Tokens that are shared with lig
 //TODO all of these tokens should use a shared pattern with @ligature/lig, I don't think I can share the actual tokens though
@@ -229,14 +230,14 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     letStatement(ctx: any): LetStatement {
-        const name = ctx.Identifier[0].image;
+        const identifier: string = ctx.Identifier[0].image;
         const expression = this.expression(ctx.expression[0].children);
-        return { type: "letStatement", name, expression };
+        return { type: "letStatement", name: { type: 'identifier', identifier: identifier }, expression };
     }
 
     expression(ctx: any): Expression {
         if (ctx.wanderValue != undefined) {
-            return { type: 'expression', value: this.visit(ctx.wanderValue) };
+            return { type: 'valueExpression', value: this.visit(ctx.wanderValue) };
         } else {
             throw new Error("Not implemented.");
         }
@@ -311,23 +312,45 @@ class WanderVisitor extends BaseWanderVisitor {
 const wanderVisitor = new WanderVisitor();
 
 export class WanderInterpreter {
-    run(script: string): WanderResult {
+    run(script: string): WanderResult | WanderError {
         const ast = this.createAst(script);
-        return this.eval(ast);
+        if (ast.type == 'wanderError') {
+            return ast;
+        } else {
+            return this.eval(ast);
+        }
     }
 
-    createAst(script: string): Script {
+    createAst(script: string): Script | WanderError  {
         const lexResult = wanderLexer.tokenize(script);
+        if (lexResult.errors.length > 0) {
+            return { type: 'wanderError', message: `Lexing Error: ${lexResult.errors}` } //TODO make message better/multiple messages?
+        }
+        
         wanderParser.input = lexResult.tokens;
-        const res = wanderVisitor.visit(wanderParser.script());
+        let parseResult = wanderParser.script()
+        if (wanderParser.errors.length > 0) {
+            return { type: 'wanderError', message: `Parsing Error: ${wanderParser.errors}` } //TODO make message better/multiple messages?
+        }
+
+        const res = wanderVisitor.visit(parseResult);
         return res;
     }
 
-    eval(script: Script): WanderResult {
+    eval(script: Script): WanderResult | WanderError  {
         let result: WanderResult = nothing;
+        let bindings = new Binding();
         for (const element of script.elements) {
-            if (element.type == "expression") {
+            if (element.type == "valueExpression") {
                 result = element.value;
+            } else if (element.type == "letStatement") {
+                if (element.expression.type == "valueExpression") {
+                    bindings.bind(element.name, element.expression.value);
+                } else {
+                    throw new Error("Not implemented.");
+                }
+            } else {
+                throw new Error(`Element type ${element.type} not implemented`);
             }
         }
         return result;
@@ -339,7 +362,7 @@ export class WanderInterpreter {
  * @param result A WanderResult.
  * @returns The serialized (not just toStringed) version of that WanderResult.
  */
-export function write(result: WanderResult): string {
+export function write(result: WanderResult | WanderError): string {
     if (typeof result == "number") {
         return writeValue(result);
     } else if (typeof result == "string") {
