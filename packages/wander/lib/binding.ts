@@ -35,13 +35,13 @@ export class Binding {
 
     read(identifier: Identifier): WanderValue {
         let currentScopeOffset = this.scopes.length-1;
-        while (currentScopeOffset > 0) {
+        while (currentScopeOffset >= 0) {
             let currentScope = this.scopes[currentScopeOffset];
             let value = currentScope.get(identifier);
             if (value != undefined) {
                 return value;
             }
-            currentScopeOffset =- 1;
+            currentScopeOffset -= 1;
         }
         throw new Error(`Could not find ${identifier.identifier} in scope.`);
     }
