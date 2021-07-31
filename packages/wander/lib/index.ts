@@ -98,7 +98,8 @@ class WanderParser extends CstParser {
                 { ALT: () => $.SUBRULE($.wanderValue) },
                 { ALT: () => $.SUBRULE($.whenExpression) },
                 { ALT: () => $.SUBRULE($.functionCall) },
-                { ALT: () => $.SUBRULE($.methodCall) }
+                { ALT: () => $.SUBRULE($.methodCall) },
+                { ALT: () => $.CONSUME(IDENTIFIER_T)}
             ])
         });
 
@@ -238,6 +239,9 @@ class WanderVisitor extends BaseWanderVisitor {
     expression(ctx: any): Expression {
         if (ctx.wanderValue != undefined) {
             return { type: 'valueExpression', value: this.visit(ctx.wanderValue) };
+        } else if (ctx.Identifier != undefined) {
+            debug(ctx);
+            throw new Error("Not implemented.")
         } else {
             throw new Error("Not implemented.");
         }
@@ -379,6 +383,8 @@ export function write(result: WanderResult | WanderError): string {
         return writeStatement(result);
     } else if (result == nothing) {
         return "nothing";
+    } else if ((result as WanderError).type == 'wanderError') {
+        return (result as WanderError).message;
     } else {
         throw new Error("Not implemented.");
     }
