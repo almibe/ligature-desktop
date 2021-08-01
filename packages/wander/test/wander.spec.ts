@@ -9,7 +9,7 @@ import { WanderInterpreter, write } from '../lib/index';
 import { ast } from './ASTs';
 
 //add wander files names below when you only want to run a set number of tests, leave empty to test all
-const runOnly: Array<string> = ['let-res.wander'];
+const runOnly: Array<string> = [];
 
 describe('Wander AST tests', () => {
     const wander = new WanderInterpreter();    
@@ -40,7 +40,11 @@ describe('Wander eval tests', () => {
                     const script = readFileSync(__dirname + "/resources/" + dir + "/" + testFile);
                     const expected = readFileSync(__dirname + "/resources/" + dir + "/" + testFile.replace(/\.wander$/, ".result"));
                     const result = wander.run(script.toString());
-                    expect(write(result)).to.be.eql(expected.toString());
+                    if (testFile.includes('err')) {
+                        expect(result).to.have.property("type", "wanderError");
+                    } else {
+                        expect(write(result)).to.be.eql(expected.toString());
+                    }
                 })
             }
         });
