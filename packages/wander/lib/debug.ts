@@ -3,5 +3,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export function debug(a: any) {
-    console.log(JSON.stringify(a, (_:any, value:any) => { typeof value === "bigint" ? value.toString() + "n" : value }, 4));
+    console.log(JSON.stringify(a, (key, value) => typeof value === "bigint" ? value.toString() + "n" : value, 4));
 }
