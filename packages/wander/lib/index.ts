@@ -240,8 +240,7 @@ class WanderVisitor extends BaseWanderVisitor {
         if (ctx.wanderValue != undefined) {
             return { type: 'valueExpression', value: this.visit(ctx.wanderValue) };
         } else if (ctx.Identifier != undefined) {
-            debug(ctx);
-            throw new Error("Not implemented.")
+            return { type: 'referenceExpression', name: {type: 'identifier', identifier: ctx.Identifier[0].image }};
         } else {
             throw new Error("Not implemented.");
         }
@@ -317,11 +316,11 @@ const wanderVisitor = new WanderVisitor();
 
 export class WanderInterpreter {
     run(script: string): WanderResult | WanderError {
-        const ast = this.createAst(script);
-        if (ast.type == 'wanderError') {
-            return ast;
+        const res = this.createAst(script);
+        if (res.type == 'wanderError') {
+            return res;
         } else {
-            return this.eval(ast);
+            return this.eval(res);
         }
     }
 
@@ -353,8 +352,10 @@ export class WanderInterpreter {
                 } else {
                     throw new Error("Not implemented.");
                 }
+            } else if (element.type == "referenceExpression") {
+                result = bindings.read(element.name)
             } else {
-                throw new Error(`Element type ${element.type} not implemented`);
+                throw new Error(`Element type ${element} not implemented`);
             }
         }
         return result;

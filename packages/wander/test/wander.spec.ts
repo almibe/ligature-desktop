@@ -23,7 +23,6 @@ describe('Wander AST tests', () => {
                     if (testFile.includes('err')) {
                         expect(result).to.have.property("type", "wanderError");
                     } else {
-                        debug(result);
                         expect(result).to.be.eql(expected);                        
                     }
                 })

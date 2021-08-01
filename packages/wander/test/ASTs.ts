@@ -114,7 +114,7 @@ export const ast: any = {
             },
             {
                 type: 'referenceExpression',
-                name: 'hello'
+                name: { type: 'identifier', identifier: "hello" }
             }
         ]
     } as Script,
