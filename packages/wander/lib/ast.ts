@@ -10,6 +10,6 @@ export type LetStatement = Readonly<{ type: 'letStatement', name: Identifier, ex
 export type Identifier = Readonly<{ type: 'identifier', identifier: string }>
 export type Expression = ValueExpression | ReferenceExpression
 export type ValueExpression = Readonly<{ type: 'valueExpression', value: WanderValue }>
-export type ReferenceExpression = Readonly<{ type: 'referenceExpression', name: string }>
+export type ReferenceExpression = Readonly<{ type: 'referenceExpression', name: Identifier }>
 
 export type WanderError = Readonly<{ type: 'wanderError', message: string }>

@@ -106,7 +106,7 @@ export const ast: any = {
         elements: [
             {
                 type: 'letStatement',
-                name: { type: 'identifer', identifier: "x" },
+                name: { type: 'identifier', identifier: "hello" },
                 expression: {
                     type: "valueExpression",
                     value: 5n
@@ -114,7 +114,7 @@ export const ast: any = {
             },
             {
                 type: 'referenceExpression',
-                name: 'x'
+                name: 'hello'
             }
         ]
     } as Script,
