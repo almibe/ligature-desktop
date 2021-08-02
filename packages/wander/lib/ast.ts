@@ -4,12 +4,92 @@
 
 import { WanderValue } from "."
 
-export type Script = Readonly<{ type: 'script', elements: Array<Element> }>
-export type Element = LetStatement | Expression
-export type LetStatement = Readonly<{ type: 'letStatement', name: Identifier, expression: Expression }>
-export type Identifier = Readonly<{ type: 'identifier', identifier: string }>
-export type Expression = ValueExpression | ReferenceExpression
-export type ValueExpression = Readonly<{ type: 'valueExpression', value: WanderValue }>
-export type ReferenceExpression = Readonly<{ type: 'referenceExpression', name: Identifier }>
+export interface Ast {
+    eval<T>(): T
+}
 
-export type WanderError = Readonly<{ type: 'wanderError', message: string }>
+export class Script implements Ast {
+    readonly elements: Array<Element>
+
+    constructor(elements: Array<Element>) {
+        this.elements = elements;
+    }
+
+    eval<T>(): T {
+        throw new Error("Not implemented.");
+    }
+}
+
+export class Scope implements Expression {
+    readonly elements: Array<Element>
+
+    constructor(elements: Array<Element>) {
+        this.elements = elements;
+    }
+
+    eval<T>(): T {
+        throw new Error("Not implemented.");
+    }
+}
+
+interface Element extends Ast {}
+
+export class LetStatement implements Element {
+    readonly name: Identifier
+    readonly expression: Expression
+
+    constructor(name: Identifier, expression: Expression) {
+        this.name = name;
+        this.expression = expression;
+    }
+
+    eval<T>(): T {
+        throw new Error("Not implemented.");
+    }
+}
+
+export class Identifier implements Ast {
+    readonly identifier: Identifier
+
+    constructor(identifier: Identifier) {
+        this.identifier = identifier;
+    }
+
+    eval<T>(): T {
+        throw new Error("Not implemented.");
+    }
+}
+
+interface Expression extends Element {}
+
+export class ValueExpression implements Expression {
+    readonly value: WanderValue
+
+    constructor(value: WanderValue) {
+        this.value = value;
+    }
+
+    eval<T>(): T {
+        throw new Error("Not implemented.");
+    }
+}
+
+export class ReferenceExpression implements Expression {
+    readonly name: Identifier
+
+    constructor(name: Identifier) {
+        this.name = name;
+    }
+
+    eval<T>(): T {
+        throw new Error("Not implemented.");
+    }
+}
+
+export class WanderError {
+    readonly message: string;
+
+    constructor(message: string) {
+        this.message = message;
+    }
+}
