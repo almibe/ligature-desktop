@@ -11,7 +11,7 @@ import { writeValue,
     processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
-import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError } from './ast';
+import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression } from './ast';
 import { debug } from './debug';
 import { Binding } from './binding';
 
@@ -99,6 +99,7 @@ class WanderParser extends CstParser {
                 { ALT: () => $.SUBRULE($.whenExpression) },
                 { ALT: () => $.SUBRULE($.functionCall) },
                 { ALT: () => $.SUBRULE($.methodCall) },
+                { ALT: () => $.SUBRULE($.scope)},
                 { ALT: () => $.CONSUME(IDENTIFIER_T)}
             ])
         });
@@ -133,7 +134,15 @@ class WanderParser extends CstParser {
             $.CONSUME(IDENTIFIER_T);
             $.CONSUME(DOT_T);
             //TODO
-        })
+        });
+
+        $.RULE('scope', () => {
+            $.CONSUME(BRACE_LEFT_T);
+            $.MANY(() => {
+                $.SUBRULE($.topLevel);
+            });
+            $.CONSUME(BRACE_RIGHT_T);
+        });
 
         $.RULE("statements", () => {
             $.MANY(() => {
@@ -181,6 +190,7 @@ class WanderParser extends CstParser {
     functionCall: any;
     functionDefinition: any;
     methodCall: any;
+    scope: any;
     whenExpression: any;
     entity: any;
     attribute: any;
@@ -217,7 +227,7 @@ class WanderVisitor extends BaseWanderVisitor {
                 elements.push(this.topLevel(ts.children));
             }
         }
-        return { type: 'script', elements };
+        return new Script(elements);
     }
 
     topLevel(ctx: any): Element {
@@ -233,14 +243,17 @@ class WanderVisitor extends BaseWanderVisitor {
     letStatement(ctx: any): LetStatement {
         const identifier: string = ctx.Identifier[0].image;
         const expression = this.expression(ctx.expression[0].children);
-        return { type: "letStatement", name: { type: 'identifier', identifier: identifier }, expression };
+        return new LetStatement(new Identifier(identifier), expression);
     }
 
     expression(ctx: any): Expression {
         if (ctx.wanderValue != undefined) {
-            return { type: 'valueExpression', value: this.visit(ctx.wanderValue) };
+            return new ValueExpression(this.visit(ctx.wanderValue));
         } else if (ctx.Identifier != undefined) {
-            return { type: 'referenceExpression', name: {type: 'identifier', identifier: ctx.Identifier[0].image }};
+            return new ReferenceExpression(new Identifier(ctx.Identifier[0].image));
+        } else if (ctx.scope != undefined) {
+            //debug("scope", ctx.scope)
+            return this.scope(ctx.scope[0])
         } else {
             throw new Error("Not implemented.");
         }
@@ -291,6 +304,16 @@ class WanderVisitor extends BaseWanderVisitor {
         throw new Error("Not implemented.");
     }
 
+    scope(ctx: any): Scope {
+        let elements = new Array<Element>();
+        if (ctx.children.topLevel != undefined) {
+            for (let ts of ctx.children.topLevel) {
+                elements.push(this.topLevel(ts.children));
+            }
+        }
+        return new Scope(elements);
+    }
+
     statements(ctx: any) {
         throw new Error("Not implemented.");
     }
@@ -317,7 +340,7 @@ const wanderVisitor = new WanderVisitor();
 export class WanderInterpreter {
     run(script: string): WanderResult | WanderError {
         const res = this.createAst(script);
-        if (res.type == 'wanderError') {
+        if (res instanceof WanderError) {
             return res;
         } else {
             return this.eval(res);
@@ -327,38 +350,44 @@ export class WanderInterpreter {
     createAst(script: string): Script | WanderError  {
         const lexResult = wanderLexer.tokenize(script);
         if (lexResult.errors.length > 0) {
-            return { type: 'wanderError', message: `Lexing Error: ${lexResult.errors}` } //TODO make message better/multiple messages?
+            return new WanderError(`Lexing Error: ${lexResult.errors}`); //TODO make message better/multiple messages?
         }
         
         wanderParser.input = lexResult.tokens;
         let parseResult = wanderParser.script()
         if (wanderParser.errors.length > 0) {
-            return { type: 'wanderError', message: `Parsing Error: ${wanderParser.errors}` } //TODO make message better/multiple messages?
+            return new WanderError(`Parsing Error: ${wanderParser.errors}`) //TODO make message better/multiple messages?
         }
 
         const res = wanderVisitor.visit(parseResult);
         return res;
     }
 
-    eval(script: Script): WanderResult | WanderError  {
-        let result: WanderResult = nothing;
-        let bindings = new Binding();
-        for (const element of script.elements) {
-            if (element.type == "valueExpression") {
-                result = element.value;
-            } else if (element.type == "letStatement") {
-                if (element.expression.type == "valueExpression") {
-                    bindings.bind(element.name, element.expression.value);
-                } else {
-                    throw new Error("Not implemented.");
-                }
-            } else if (element.type == "referenceExpression") {
-                result = bindings.read(element.name)
-            } else {
-                throw new Error(`Element type ${element} not implemented`);
-            }
-        }
-        return result;
+    eval(script: Script): WanderResult | WanderError {
+        //return script.eval();
+        throw new Error("Not implemented.")
+    }
+
+    //TODO move this code to ast.ts
+    // eval(script: Script): WanderResult | WanderError  {
+    //     let result: WanderResult = nothing;
+    //     let bindings = new Binding();
+    //     for (const element of script.elements) {
+    //         if (element.type == "valueExpression") {
+    //             result = element.value;
+    //         } else if (element.type == "letStatement") {
+    //             if (element.expression.type == "valueExpression") {
+    //                 bindings.bind(element.name, element.expression.value);
+    //             } else {
+    //                 throw new Error("Not implemented.");
+    //             }
+    //         } else if (element.type == "referenceExpression") {
+    //             result = bindings.read(element.name)
+    //         } else {
+    //             throw new Error(`Element type ${element} not implemented`);
+    //         }
+    //     }
+    //     return result;
     }
 }
 

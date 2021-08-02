@@ -32,7 +32,7 @@ export class Scope implements Expression {
     }
 }
 
-interface Element extends Ast {}
+export interface Element extends Ast {}
 
 export class LetStatement implements Element {
     readonly name: Identifier
@@ -49,9 +49,9 @@ export class LetStatement implements Element {
 }
 
 export class Identifier implements Ast {
-    readonly identifier: Identifier
+    readonly identifier: string
 
-    constructor(identifier: Identifier) {
+    constructor(identifier: string) {
         this.identifier = identifier;
     }
 
@@ -60,7 +60,7 @@ export class Identifier implements Ast {
     }
 }
 
-interface Expression extends Element {}
+export interface Expression extends Element {}
 
 export class ValueExpression implements Expression {
     readonly value: WanderValue
