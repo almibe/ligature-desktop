@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { WanderValue } from "."
+import { nothing, WanderResult, WanderValue } from "."
+import { Binding } from "./binding";
+
+export type Result = WanderResult | WanderError
 
 export interface Ast {
-    eval<T>(): T
+    eval(bindings: Binding): Result
 }
 
 export class Script implements Ast {
@@ -15,8 +18,12 @@ export class Script implements Ast {
         this.elements = elements;
     }
 
-    eval<T>(): T {
-        throw new Error("Not implemented.");
+    eval(bindings: Binding): Result {
+        let result: Result = nothing;
+        for (const element of this.elements) {
+            result = element.eval(bindings);
+        }
+        return result;
     }
 }
 
@@ -43,8 +50,13 @@ export class LetStatement implements Element {
         this.expression = expression;
     }
 
-    eval<T>(): T {
-        throw new Error("Not implemented.");
+    eval(bindings: Binding): Result {
+        if (this.expression instanceof ValueExpression) {
+            bindings.bind(this.name, this.expression.value);
+        } else {
+            throw new Error("Not implemented.");
+        }
+        return nothing;
     }
 }
 
@@ -55,8 +67,8 @@ export class Identifier implements Ast {
         this.identifier = identifier;
     }
 
-    eval<T>(): T {
-        throw new Error("Not implemented.");
+    eval(bindings: Binding): Result {
+        return bindings.read(this);
     }
 }
 
@@ -69,8 +81,8 @@ export class ValueExpression implements Expression {
         this.value = value;
     }
 
-    eval<T>(): T {
-        throw new Error("Not implemented.");
+    eval(): Result {
+        return this.value;
     }
 }
 
@@ -81,8 +93,8 @@ export class ReferenceExpression implements Expression {
         this.name = name;
     }
 
-    eval<T>(): T {
-        throw new Error("Not implemented.");
+    eval(bindings: Binding): Result {
+        return bindings.read(this.name);
     }
 }
 

@@ -4,6 +4,7 @@
 
 import { expect } from 'chai';
 import { readdirSync, readFileSync } from 'fs';
+import { WanderError } from '../lib/ast';
 import { debug } from '../lib/debug';
 import { WanderInterpreter, write } from '../lib/index';
 import { ast } from './ASTs';
@@ -21,7 +22,7 @@ describe('Wander AST tests', () => {
                     const result = wander.createAst(script.toString());
                     const expected = ast[testFile];
                     if (testFile.includes('err')) {
-                        expect(result).to.have.property("type", "wanderError");
+                        expect(result instanceof WanderError).to.be.true;
                     } else {
                         expect(result).to.be.eql(expected);                        
                     }

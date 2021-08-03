@@ -204,8 +204,9 @@ const wanderLexer = new Lexer(allTokens);
 const wanderParser = new WanderParser();
 const BaseWanderVisitor = wanderParser.getBaseCstVisitorConstructor();
 
-type nothing = null;
-const nothing = null;
+//the following type and value exist to just help with using Ligature language in code
+export type nothing = null;
+export const nothing = null;
 
 //NOTE: keeping the following two types separate for now since I'm not sure if they will always be the same
 export type WanderValue = Value | boolean | Attribute | Statement | nothing;
@@ -364,31 +365,9 @@ export class WanderInterpreter {
     }
 
     eval(script: Script): WanderResult | WanderError {
-        //return script.eval();
-        throw new Error("Not implemented.")
+        let bindings = new Binding();
+        return script.eval(bindings);
     }
-
-    //TODO move this code to ast.ts
-    // eval(script: Script): WanderResult | WanderError  {
-    //     let result: WanderResult = nothing;
-    //     let bindings = new Binding();
-    //     for (const element of script.elements) {
-    //         if (element.type == "valueExpression") {
-    //             result = element.value;
-    //         } else if (element.type == "letStatement") {
-    //             if (element.expression.type == "valueExpression") {
-    //                 bindings.bind(element.name, element.expression.value);
-    //             } else {
-    //                 throw new Error("Not implemented.");
-    //             }
-    //         } else if (element.type == "referenceExpression") {
-    //             result = bindings.read(element.name)
-    //         } else {
-    //             throw new Error(`Element type ${element} not implemented`);
-    //         }
-    //     }
-    //     return result;
-    //}
 }
 
 /**
