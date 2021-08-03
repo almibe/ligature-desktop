@@ -34,8 +34,14 @@ export class Scope implements Expression {
         this.elements = elements;
     }
 
-    eval<T>(): T {
-        throw new Error("Not implemented.");
+    eval(bindings: Binding): Result {
+        let result: Result = nothing;
+        bindings.addScope();
+        for (const element of this.elements) {
+            result = element.eval(bindings);
+        }
+        bindings.removeScope();
+        return result;
     }
 }
 

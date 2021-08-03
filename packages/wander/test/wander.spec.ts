@@ -42,7 +42,7 @@ describe('Wander eval tests', () => {
                     const expected = readFileSync(__dirname + "/resources/" + dir + "/" + testFile.replace(/\.wander$/, ".result"));
                     const result = wander.run(script.toString());
                     if (testFile.includes('err')) {
-                        expect(result).to.have.property("type", "wanderError");
+                        expect(result instanceof WanderError).to.be.true;
                     } else {
                         expect(write(result)).to.be.eql(expected.toString());
                     }
