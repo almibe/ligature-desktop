@@ -3,7 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Attribute, Entity, Statement } from "@ligature/ligature";
-import { Script } from '../lib/ast'
+import { WanderValue } from "../lib";
+import { Element, Expression, Identifier, LetStatement, ReferenceExpression, Scope, Script, ValueExpression } from '../lib/ast';
+
+let script = (elements: Array<Element>) => new Script(elements);
+let valueExpression = (value: WanderValue) => new ValueExpression(value);
+let letStatement = (name: Identifier, expression: Expression) => new LetStatement(name, expression);
+let identifier = (name: string) => new Identifier(name);
+let referenceExpression = (name: Identifier) => new ReferenceExpression(name);
+let scope = (elements: Array<Element>) => new Scope(elements);
 
 /**
  * Keys in this structure match the names of test files and the values
@@ -11,131 +19,70 @@ import { Script } from '../lib/ast'
  */
 export const ast: any = {
     //PRIMITIVES
-    "attribute.wander": {
-        type: 'script',
-        elements: [
-            { 
-                type: 'valueExpression',
-                value: new Attribute("attribute")
-            }
-        ]
-    } as Script,
+    "attribute.wander": 
+        script([
+            valueExpression(new Attribute("attribute"))
+        ]),
 
-    "boolean.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'valueExpression',
-                value: true
-            }
-        ]
-    } as Script,
+    "boolean.wander":
+        script([
+            valueExpression(true)
+        ]),
     
-    "entity.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'valueExpression',
-                value: new Entity("test")
-            }
-        ]
-    } as Script,
+    "entity.wander":
+        script([
+            valueExpression(new Entity("test"))
+        ]),
 
-    "float.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'valueExpression',
-                value: 3.0
-            }
-        ]
-    } as Script,
+    "float.wander":
+        script([
+            valueExpression(3.0)
+        ]),
 
-    "integer.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'valueExpression',
-                value: 24601n
-            }
-        ]
-    } as Script,
+    "integer.wander":
+        script([
+            valueExpression(24601n)
+        ]),
 
-    "nothing.wander": {
-        type: 'script',
-        elements: []
-    } as Script,
+    "nothing.wander":
+        script([]),
 
-    "statement.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'valueExpression',
-                value: new Statement(new Entity("entity"), new Attribute("attribute"), 3.03, new Entity("context"))
-            }
-        ]
-    } as Script,
+    "statement.wander":
+        script([
+            valueExpression(new Statement(new Entity("entity"), new Attribute("attribute"), 3.03, new Entity("context")))
+        ]),
 
-    "string.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'valueExpression',
-                value: "Hello"
-            }
-        ]
-    } as Script,
+    "string.wander":
+        script([
+            valueExpression("Hello")
+        ]),
 
     //ASSIGNMENT
-    "let.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'letStatement',
-                name: { type: 'identifier', identifier: "x" },
-                expression: {
-                    type: "valueExpression",
-                    value: 5n
-                }
-            }
-        ]
-    } as Script,
+    "let.wander":
+        script([
+            letStatement(identifier("x"), valueExpression(5n))
+        ]),
 
-    "let-res.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'letStatement',
-                name: { type: 'identifier', identifier: "hello" },
-                expression: {
-                    type: "valueExpression",
-                    value: 5n
-                }
-            },
-            {
-                type: 'referenceExpression',
-                name: { type: 'identifier', identifier: "hello" }
-            }
-        ]
-    } as Script,
+    "let-res.wander":
+        script([
+            letStatement(identifier("hello"), valueExpression(5n)),
+            referenceExpression(identifier("hello"))
+        ]),
 
-    "block.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'valueExpression',
-                value: "Hello"
-            }
-        ]
-    } as Script,
+    "block.wander":
+        script([
+            scope([
+                letStatement(identifier("x"), valueExpression(7n)),
+                referenceExpression(identifier('x'))
+            ])
+        ]),
 
-    "block-shadow.wander": {
-        type: 'script',
-        elements: [
-            {
-                type: 'valueExpression',
-                value: "Hello"
-            }
-        ]
-    } as Script,
+    "block-shadow.wander":
+        script([
+            letStatement(identifier("x"), valueExpression(5n)),
+            scope([
+                letStatement(identifier("x"), valueExpression(7n)),
+                referenceExpression(identifier('x'))
+            ])
+        ])
 }
