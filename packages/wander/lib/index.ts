@@ -388,7 +388,7 @@ export class WanderInterpreter {
     //         }
     //     }
     //     return result;
-    }
+    //}
 }
 
 /**
@@ -413,8 +413,8 @@ export function write(result: WanderResult | WanderError): string {
         return writeStatement(result);
     } else if (result == nothing) {
         return "nothing";
-    } else if ((result as WanderError).type == 'wanderError') {
-        return (result as WanderError).message;
+    } else if (result instanceof WanderError) {
+        return result.message;
     } else {
         throw new Error("Not implemented.");
     }

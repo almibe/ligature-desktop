@@ -7,8 +7,8 @@ import { Identifier } from '../lib/ast';
 import { Binding } from '../lib/binding';
  
 describe('Binding tests', () => {
-    let identifier = { type: 'identifier', identifier: 'test' } as Identifier
-    let identifier2 = { type: 'identifier', identifier: 'test2' } as Identifier
+    let identifier = new Identifier('test')
+    let identifier2 = new Identifier('test2')
 
     it('add single value and read', () => {
         const binding = new Binding();
