@@ -11,7 +11,7 @@ import { writeValue,
     processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
-import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression } from './ast';
+import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition } from './ast';
 import { debug } from './debug';
 import { Binding } from './binding';
 
@@ -34,6 +34,8 @@ const NOTHING_T = createToken({ name: "Nothing", pattern: /nothing/ }); //TODO u
 const LET_T = createToken({ name: "Let", pattern: /let/ }); //TODO update so letter doesn't match (see chevrotain docs)
 const EQUALS_T = createToken({ name: "Equals", pattern: /=/ });
 const BOOLEAN_T = createToken({ name: "Boolean", pattern: /(true)|(false)/ }); //TODO update so it doesn't match longer string
+const IF_T = createToken({ name: "if", pattern: /if/ }); //TODO update so it doesn't match longer string
+const ELSE_T = createToken({ name: 'else', pattern: /else/} ); //TODO update so it doesn't match longer string
 const WHEN_T = createToken({ name: "when", pattern: /when/ }); //TODO update so it doesn't match longer string
 const BRACE_LEFT_T = createToken({ name: "braceLeft", pattern: /\{/ });
 const BRACE_RIGHT_T = createToken({ name: "braceRight", pattern: /\}/ });
@@ -116,8 +118,19 @@ class WanderParser extends CstParser {
 
         $.RULE('functionDefinition', () => {
             $.CONSUME(PAREN_LEFT_T);
-            //TODO
+            $.MANY(() => {
+                $.CONSUME(IDENTIFIER_T);
+            });
+            $.CONSUME(PAREN_RIGHT_T);
+            $.CONSUME(ARROW_T);
+            $.CONSUME(BRACE_LEFT_T);
+            $.MANY2(() => {
+                $.SUBRULE($.topLevel);
+            });
+            $.CONSUME(BRACE_RIGHT_T);
         })
+
+        //TODO add if expression
 
         $.RULE('whenExpression', () => {
             $.CONSUME(WHEN_T);
@@ -127,13 +140,21 @@ class WanderParser extends CstParser {
         $.RULE('functionCall', () => {
             $.CONSUME(IDENTIFIER_T);
             $.CONSUME(PAREN_LEFT_T);
-            //TODO
+            $.MANY(() => {
+                $.CONSUME2(IDENTIFIER_T);
+            });
+            $.CONSUME(PAREN_RIGHT_T);
         });
 
         $.RULE('methodCall', () => {
             $.CONSUME(IDENTIFIER_T);
             $.CONSUME(DOT_T);
-            //TODO
+            $.CONSUME2(IDENTIFIER_T);
+            $.CONSUME(PAREN_LEFT_T);
+            $.MANY(() => {
+                $.CONSUME3(IDENTIFIER_T);
+            });
+            $.CONSUME(PAREN_RIGHT_T);
         });
 
         $.RULE('scope', () => {
@@ -204,12 +225,12 @@ const wanderLexer = new Lexer(allTokens);
 const wanderParser = new WanderParser();
 const BaseWanderVisitor = wanderParser.getBaseCstVisitorConstructor();
 
-//the following type and value exist to just help with using Ligature language in code
+//the following type and value exist to just help with using Ligature terms in code
 export type nothing = null;
 export const nothing = null;
 
 //NOTE: keeping the following two types separate for now since I'm not sure if they will always be the same
-export type WanderValue = Value | boolean | Attribute | Statement | nothing;
+export type WanderValue = Value | boolean | Attribute | Statement | nothing | FunctionDefinition;
 export type WanderResult = WanderValue;
 
 /**

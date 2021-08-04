@@ -4,7 +4,7 @@
 
 import { Attribute, Entity, Statement } from "@ligature/ligature";
 import { WanderValue } from "../lib";
-import { Element, Expression, Identifier, LetStatement, ReferenceExpression, Scope, Script, ValueExpression } from '../lib/ast';
+import { Element, Expression, FunctionDefinition, Identifier, LetStatement, ReferenceExpression, Scope, Script, ValueExpression } from '../lib/ast';
 
 let script = (elements: Array<Element>) => new Script(elements);
 let valueExpression = (value: WanderValue) => new ValueExpression(value);
@@ -12,6 +12,8 @@ let letStatement = (name: Identifier, expression: Expression) => new LetStatemen
 let identifier = (name: string) => new Identifier(name);
 let referenceExpression = (name: Identifier) => new ReferenceExpression(name);
 let scope = (elements: Array<Element>) => new Scope(elements);
+let functionDefinition = (parameters: Array<string>, body: Array<Element>) => new FunctionDefinition(parameters, body);
+let functionCall = (name: Identifier, parameters: Array<string>) => null as unknown as Element; //TODO get rid of null
 
 /**
  * Keys in this structure match the names of test files and the values
@@ -84,5 +86,12 @@ export const ast: any = {
                 letStatement(identifier("x"), valueExpression(7n)),
                 referenceExpression(identifier('x'))
             ])
+        ]),
+
+    //FUNCTIONS
+    "function0-def.wander":
+        script([
+            letStatement(identifier("f"), functionDefinition([], [valueExpression(5n)])),
+            functionCall(identifier("f"), [])
         ])
 }

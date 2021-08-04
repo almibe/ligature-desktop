@@ -104,6 +104,20 @@ export class ReferenceExpression implements Expression {
     }
 }
 
+export class FunctionDefinition implements Ast {
+    readonly parameters: Array<string> //this needs types so eventually it'll have to be something other than a string
+    readonly body: Array<Element>
+
+    constructor(parameters: Array<string>, body: Array<Element>) {
+        this.parameters = parameters;
+        this.body = body;
+    }
+
+    eval(bindings: Binding): Result {
+        throw new Error("Not implemented.");
+    }
+}
+
 export class WanderError {
     readonly message: string;
 
