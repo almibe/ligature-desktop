@@ -21,7 +21,8 @@ const WHITE_SPACE_T = createToken({ name: "WhiteSpace", pattern: /\s+/, group: L
 const ANGLE_START_T = createToken({name: "AngleStart", pattern: /</});
 const ATTRIBUTE_START_T = createToken({name: "AttributeStart", pattern: /@</});
 const ANGLE_END_T = createToken({name: "AngleEnd", pattern: />/});
-const IDENTIFIER_T = createToken({name: "Identifier", pattern: identifierPattern});
+const LIGATURE_IDENTIFIER_T = createToken({name: "LigatureIdentifier", pattern: identifierPattern});
+const IDENTIFIER_T = createToken({name: "Identifier", pattern: /(:?[a-z][A-Z]_)(:?[a-z][A-Z][0-9]_)*/});
 const STRING_T = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
 const FLOAT_T = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
 const INTEGER_T = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
@@ -62,6 +63,7 @@ const allTokens = [
     ATTRIBUTE_START_T,
     ANGLE_END_T,
     IDENTIFIER_T,
+    LIGATURE_IDENTIFIER_T,
     STRING_T,
     BYTES_T,
     FLOAT_T,
@@ -290,13 +292,23 @@ class WanderVisitor extends BaseWanderVisitor {
             return this.attribute(ctx.attribute[0]);
         } else if (ctx.statement != undefined) {
             return this.statement(ctx.statement[0]);
+        } else if (ctx.functionDefinition != undefined) {
+            return this.functionDefinition(ctx.functionDefinition[0]);
         } else {
             throw new Error("Not implemented.");
         }
     }
 
-    functionDefinition(ctx: any) {
-        throw new Error("Not implemented.");
+    functionDefinition(ctx: any): FunctionDefinition {
+        //TODO doesn't grab parameters yet
+        let parameters = new Array<string>();
+        let body = new Array<Element>();
+        if (ctx.children.topLevel != undefined) {
+            for (let ts of ctx.children.topLevel) {
+                body.push(this.topLevel(ts.children));
+            }
+        }
+        return new FunctionDefinition(parameters, body)
     }
 
     whenExpression(ctx: any) {
@@ -326,10 +338,10 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     statement(ctx: any): Statement {
-        const entity = new Entity(ctx.children.entity[0].children.Identifier[0].image);
-        const attribute = new Attribute(ctx.children.attribute[0].children.Identifier[0].image);
+        const entity = new Entity(ctx.children.entity[0].children.LigatureIdentifier[0].image);
+        const attribute = new Attribute(ctx.children.attribute[0].children.LigatureIdentifier[0].image);
         const value = processValue(ctx.children.value[0]);
-        const context = new Entity(ctx.children.entity[1].children.Identifier[0].image);
+        const context = new Entity(ctx.children.entity[1].children.LigatureIdentifier[0].image);
         return new Statement(entity, attribute, value, context);
     }
 
@@ -338,7 +350,7 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     attribute(ctx: any): Attribute {
-        return new Attribute(ctx.children.Identifier[0].image);
+        return new Attribute(ctx.children.LigatureIdentifier[0].image);
     }
 
     value(ctx: any): WanderValue {
@@ -350,7 +362,7 @@ class WanderVisitor extends BaseWanderVisitor {
             const stringValue = ctx.children.String[0].image;
             return stringValue.substring(1,stringValue.length-1);
         } else if (ctx.children.entity != undefined) {
-            return new Entity(ctx.children.entity[0].children.Identifier[0].image);
+            return new Entity(ctx.children.entity[0].children.LigatureIdentifier[0].image);
         } else {
             throw new Error("Unsupported Wander Value - " + ctx.value[0].children);
         }
@@ -362,6 +374,7 @@ const wanderVisitor = new WanderVisitor();
 export class WanderInterpreter {
     run(script: string): WanderResult | WanderError {
         const res = this.createAst(script);
+        debug("--", res)
         if (res instanceof WanderError) {
             return res;
         } else {

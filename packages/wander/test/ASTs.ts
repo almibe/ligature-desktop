@@ -91,7 +91,7 @@ export const ast: any = {
     //FUNCTIONS
     "function0-def.wander":
         script([
-            letStatement(identifier("f"), functionDefinition([], [valueExpression(5n)])),
+            letStatement(identifier("f"), valueExpression(functionDefinition([], [valueExpression(5n)]))),
             functionCall(identifier("f"), [])
         ])
 }
