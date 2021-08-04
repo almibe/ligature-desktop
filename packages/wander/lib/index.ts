@@ -285,26 +285,11 @@ class WanderVisitor extends BaseWanderVisitor {
         if (ctx.Boolean != undefined) {
             return ctx.Boolean[0].image === "true";
         } else if (ctx.value != undefined) {
-            if (ctx.value[0].children.Integer != undefined) {
-                return BigInt(ctx.value[0].children.Integer[0].image);
-            } else if (ctx.value[0].children.Float != undefined) {
-                return Number(ctx.value[0].children.Float[0].image);
-            } else if (ctx.value[0].children.String != undefined) {
-                const stringValue = ctx.value[0].children.String[0].image;
-                return stringValue.substring(1,stringValue.length-1);
-            } else if (ctx.value[0].children.entity != undefined) {
-                return new Entity(ctx.value[0].children.entity[0].children.Identifier[0].image);
-            } else {
-                throw new Error("Unsupported Wander Value - " + ctx.value[0].children);
-            }
+            return this.value(ctx.value[0])
         } else if (ctx.attribute != undefined) {
-            return new Attribute(ctx.attribute[0].children.Identifier[0].image);
+            return this.attribute(ctx.attribute[0]);
         } else if (ctx.statement != undefined) {
-            const entity = new Entity(ctx.statement[0].children.entity[0].children.Identifier[0].image);
-            const attribute = new Attribute(ctx.statement[0].children.attribute[0].children.Identifier[0].image);
-            const value = processValue(ctx.statement[0].children.value[0]);
-            const context = new Entity(ctx.statement[0].children.entity[1].children.Identifier[0].image);
-            return new Statement(entity, attribute, value, context);
+            return this.statement(ctx.statement[0]);
         } else {
             throw new Error("Not implemented.");
         }
@@ -340,20 +325,35 @@ class WanderVisitor extends BaseWanderVisitor {
         throw new Error("Not implemented.");
     }
 
-    statement(ctx: any) {
-        throw new Error("Not implemented.");
+    statement(ctx: any): Statement {
+        const entity = new Entity(ctx.children.entity[0].children.Identifier[0].image);
+        const attribute = new Attribute(ctx.children.attribute[0].children.Identifier[0].image);
+        const value = processValue(ctx.children.value[0]);
+        const context = new Entity(ctx.children.entity[1].children.Identifier[0].image);
+        return new Statement(entity, attribute, value, context);
     }
 
     entity(ctx: any) {
         throw new Error("Not implemented.");
     }
 
-    attribute(ctx: any) {
-        throw new Error("Not implemented.");
+    attribute(ctx: any): Attribute {
+        return new Attribute(ctx.children.Identifier[0].image);
     }
 
-    value(ctx: any) {
-        throw new Error("Not implemented.");
+    value(ctx: any): WanderValue {
+        if (ctx.children.Integer != undefined) {
+            return BigInt(ctx.children.Integer[0].image);
+        } else if (ctx.children.Float != undefined) {
+            return Number(ctx.children.Float[0].image);
+        } else if (ctx.children.String != undefined) {
+            const stringValue = ctx.children.String[0].image;
+            return stringValue.substring(1,stringValue.length-1);
+        } else if (ctx.children.entity != undefined) {
+            return new Entity(ctx.children.entity[0].children.Identifier[0].image);
+        } else {
+            throw new Error("Unsupported Wander Value - " + ctx.value[0].children);
+        }
     }
 }
 
