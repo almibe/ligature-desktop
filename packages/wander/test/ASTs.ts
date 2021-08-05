@@ -4,7 +4,7 @@
 
 import { Attribute, Entity, Statement } from "@ligature/ligature";
 import { WanderValue } from "../lib";
-import { Element, Expression, FunctionDefinition, Identifier, LetStatement, ReferenceExpression, Scope, Script, ValueExpression } from '../lib/ast';
+import { Element, Expression, FunctionCall, FunctionDefinition, Identifier, LetStatement, ReferenceExpression, Scope, Script, ValueExpression } from '../lib/ast';
 
 let script = (elements: Array<Element>) => new Script(elements);
 let valueExpression = (value: WanderValue) => new ValueExpression(value);
@@ -13,7 +13,7 @@ let identifier = (name: string) => new Identifier(name);
 let referenceExpression = (name: Identifier) => new ReferenceExpression(name);
 let scope = (elements: Array<Element>) => new Scope(elements);
 let functionDefinition = (parameters: Array<string>, body: Array<Element>) => new FunctionDefinition(parameters, body);
-let functionCall = (name: Identifier, parameters: Array<string>) => null as unknown as Element; //TODO get rid of null
+let functionCall = (name: Identifier, parameters: Array<string>) => new FunctionCall(name, parameters);
 
 /**
  * Keys in this structure match the names of test files and the values

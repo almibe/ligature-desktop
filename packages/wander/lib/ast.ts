@@ -118,6 +118,20 @@ export class FunctionDefinition implements Ast {
     }
 }
 
+export class FunctionCall implements Expression {
+    readonly name: Identifier;
+    readonly parameters: Array<WanderValue>;
+
+    constructor(name: Identifier, parameters: Array<WanderValue>) {
+        this.name = name;
+        this.parameters = parameters;
+    }
+
+    eval(bindings: Binding): Result {
+        throw new Error("Not implemented.");
+    }
+}
+
 export class WanderError {
     readonly message: string;
 

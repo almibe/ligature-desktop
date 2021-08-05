@@ -11,7 +11,7 @@ import { writeValue,
     processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
-import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition } from './ast';
+import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall } from './ast';
 import { debug } from './debug';
 import { Binding } from './binding';
 
@@ -22,7 +22,7 @@ const ANGLE_START_T = createToken({name: "AngleStart", pattern: /</});
 const ATTRIBUTE_START_T = createToken({name: "AttributeStart", pattern: /@</});
 const ANGLE_END_T = createToken({name: "AngleEnd", pattern: />/});
 const LIGATURE_IDENTIFIER_T = createToken({name: "LigatureIdentifier", pattern: identifierPattern});
-const IDENTIFIER_T = createToken({name: "Identifier", pattern: /(:?[a-z][A-Z]_)(:?[a-z][A-Z][0-9]_)*/});
+const IDENTIFIER_T = createToken({name: "Identifier", pattern: /(:?[a-zA-Z_])(:?[a-zA-Z0-9_])*/});
 const STRING_T = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
 const FLOAT_T = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
 const INTEGER_T = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
@@ -276,8 +276,9 @@ class WanderVisitor extends BaseWanderVisitor {
         } else if (ctx.Identifier != undefined) {
             return new ReferenceExpression(new Identifier(ctx.Identifier[0].image));
         } else if (ctx.scope != undefined) {
-            //debug("scope", ctx.scope)
             return this.scope(ctx.scope[0])
+        } else if (ctx.functionCall != undefined) {
+            return this.functionCall(ctx.functionCall[0]);
         } else {
             throw new Error("Not implemented.");
         }
@@ -315,8 +316,10 @@ class WanderVisitor extends BaseWanderVisitor {
         throw new Error("Not implemented.");
     }
 
-    functionCall(ctx: any) {
-        throw new Error("Not implemented.");
+    functionCall(ctx: any): FunctionCall {
+        let identifer = new Identifier(ctx.children.Identifier[0].image);
+        let parameters = new Array<WanderValue>();
+        return new FunctionCall(identifer, parameters);
     }
 
     methodCall(ctx: any) {
@@ -374,7 +377,6 @@ const wanderVisitor = new WanderVisitor();
 export class WanderInterpreter {
     run(script: string): WanderResult | WanderError {
         const res = this.createAst(script);
-        debug("--", res)
         if (res instanceof WanderError) {
             return res;
         } else {
