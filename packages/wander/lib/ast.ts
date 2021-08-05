@@ -7,6 +7,16 @@ import { Binding } from "./binding";
 
 export type Result = WanderResult | WanderError
 
+export class FunctionDefinition {
+    readonly parameters: Array<string> //this needs types so eventually it'll have to be something other than a string
+    readonly body: Array<Element>
+
+    constructor(parameters: Array<string>, body: Array<Element>) {
+        this.parameters = parameters;
+        this.body = body;
+    }
+}
+
 export interface Ast {
     eval(bindings: Binding): Result
 }
@@ -104,20 +114,6 @@ export class ReferenceExpression implements Expression {
     }
 }
 
-export class FunctionDefinition implements Ast {
-    readonly parameters: Array<string> //this needs types so eventually it'll have to be something other than a string
-    readonly body: Array<Element>
-
-    constructor(parameters: Array<string>, body: Array<Element>) {
-        this.parameters = parameters;
-        this.body = body;
-    }
-
-    eval(bindings: Binding): Result {
-        throw new Error("Not implemented.");
-    }
-}
-
 export class FunctionCall implements Expression {
     readonly name: Identifier;
     readonly parameters: Array<WanderValue>;
@@ -128,7 +124,23 @@ export class FunctionCall implements Expression {
     }
 
     eval(bindings: Binding): Result {
-        throw new Error("Not implemented.");
+        let func = bindings.read(this.name);
+        if (func != undefined && func instanceof FunctionDefinition) {
+            if (func.parameters.length == this.parameters.length) {
+                let functionBindings = new Binding();
+                //TODO set all function bindings
+
+                let result: Result = nothing;
+                for (const element of func.body) {
+                    result = element.eval(functionBindings);
+                }
+                return result;        
+            } else {
+                throw new Error(`Invalid number of parameters passed to ${this.name.identifier} expected ${func.parameters.length} received ${this.parameters.length}.`)
+            }
+        } else {
+            throw new Error(`Function ${this.name.identifier} not found in scope.`);
+        }
     }
 }
 

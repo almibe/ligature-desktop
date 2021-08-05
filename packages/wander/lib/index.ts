@@ -182,13 +182,13 @@ class WanderParser extends CstParser {
 
         $.RULE("entity", () => {
             $.CONSUME(ANGLE_START_T);
-            $.CONSUME(IDENTIFIER_T);
+            $.CONSUME(LIGATURE_IDENTIFIER_T);
             $.CONSUME(ANGLE_END_T);
         });
 
         $.RULE("attribute", () => {
             $.CONSUME(ATTRIBUTE_START_T);
-            $.CONSUME(IDENTIFIER_T);
+            $.CONSUME(LIGATURE_IDENTIFIER_T);
             $.CONSUME(ANGLE_END_T);
         });
 
