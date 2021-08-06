@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { identifierPattern } from '@ligature/ligature';
-import { createToken, CstNode, CstParser, Lexer } from 'chevrotain';
+import { createToken, CstParser, Lexer } from 'chevrotain';
 import { writeValue,
     writeEntity,
     writeAttribute,
@@ -31,6 +31,7 @@ const BYTES_T = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2})+/});
 //Tokens that are unique to Wander
 const COMMENT_NEW_LINE_T = createToken({ name: "Comment", pattern: /#.*\n/, group: Lexer.SKIPPED });
 const COMMENT_END_T = createToken({ name: "Comment", pattern: /#.*/, group: Lexer.SKIPPED });
+const COMMA_T = createToken({ name: "Comma", pattern: /,/ });
 const NOTHING_T = createToken({ name: "Nothing", pattern: /nothing/ }); //TODO update so it doesn't match longer string
 const LET_T = createToken({ name: "Let", pattern: /let/ }); //TODO update so letter doesn't match (see chevrotain docs)
 const EQUALS_T = createToken({ name: "Equals", pattern: /=/ });
@@ -48,6 +49,7 @@ const DOT_T = createToken({ name: "dot", pattern: /\./ });
 const allTokens = [
     COMMENT_NEW_LINE_T,
     WHITE_SPACE_T,
+    COMMA_T,
     LET_T,
     BOOLEAN_T,
     NOTHING_T,
@@ -120,13 +122,16 @@ class WanderParser extends CstParser {
 
         $.RULE('functionDefinition', () => {
             $.CONSUME(PAREN_LEFT_T);
-            $.MANY(() => {
-                $.CONSUME(IDENTIFIER_T);
+            $.MANY_SEP({
+                SEP: COMMA_T,
+                DEF : () => {
+                    $.CONSUME(IDENTIFIER_T);
+                }
             });
             $.CONSUME(PAREN_RIGHT_T);
             $.CONSUME(ARROW_T);
             $.CONSUME(BRACE_LEFT_T);
-            $.MANY2(() => {
+            $.MANY(() => {
                 $.SUBRULE($.topLevel);
             });
             $.CONSUME(BRACE_RIGHT_T);
@@ -142,8 +147,11 @@ class WanderParser extends CstParser {
         $.RULE('functionCall', () => {
             $.CONSUME(IDENTIFIER_T);
             $.CONSUME(PAREN_LEFT_T);
-            $.MANY(() => {
-                $.CONSUME2(IDENTIFIER_T);
+            $.MANY_SEP({
+                SEP: COMMA_T,
+                DEF: () => {
+                    $.SUBRULE($.expression);
+                }
             });
             $.CONSUME(PAREN_RIGHT_T);
         });
@@ -182,13 +190,19 @@ class WanderParser extends CstParser {
 
         $.RULE("entity", () => {
             $.CONSUME(ANGLE_START_T);
-            $.CONSUME(LIGATURE_IDENTIFIER_T);
+            $.OR([
+                { ALT: () => $.CONSUME(IDENTIFIER_T) },
+                { ALT: () => $.CONSUME(LIGATURE_IDENTIFIER_T) }
+            ]);
             $.CONSUME(ANGLE_END_T);
         });
 
         $.RULE("attribute", () => {
             $.CONSUME(ATTRIBUTE_START_T);
-            $.CONSUME(LIGATURE_IDENTIFIER_T);
+            $.OR([
+                { ALT: () => $.CONSUME(IDENTIFIER_T) },
+                { ALT: () => $.CONSUME(LIGATURE_IDENTIFIER_T) }
+            ]);
             $.CONSUME(ANGLE_END_T);
         });
 
@@ -301,9 +315,13 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     functionDefinition(ctx: any): FunctionDefinition {
-        //TODO doesn't grab parameters yet
         let parameters = new Array<string>();
         let body = new Array<Element>();
+        if (ctx.children.Identifier != undefined) {
+            for (let p of ctx.children.Identifier) {
+                parameters.push(p.image)
+            }
+        }
         if (ctx.children.topLevel != undefined) {
             for (let ts of ctx.children.topLevel) {
                 body.push(this.topLevel(ts.children));
@@ -318,7 +336,13 @@ class WanderVisitor extends BaseWanderVisitor {
 
     functionCall(ctx: any): FunctionCall {
         let identifer = new Identifier(ctx.children.Identifier[0].image);
-        let parameters = new Array<WanderValue>();
+        let parameters = new Array<Expression>();
+        if (ctx.children.expression != undefined) {
+            for (let ex of ctx.children.expression) {
+                let expression = this.expression(ex.children);
+                parameters.push(expression);
+            }
+        }
         return new FunctionCall(identifer, parameters);
     }
 
@@ -341,19 +365,31 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     statement(ctx: any): Statement {
-        const entity = new Entity(ctx.children.entity[0].children.LigatureIdentifier[0].image);
-        const attribute = new Attribute(ctx.children.attribute[0].children.LigatureIdentifier[0].image);
+        const entity = this.entity(ctx.children.entity[0]);
+        const attribute = this.attribute(ctx.children.attribute[0]);
         const value = processValue(ctx.children.value[0]);
-        const context = new Entity(ctx.children.entity[1].children.LigatureIdentifier[0].image);
+        const context = this.entity(ctx.children.entity[1]);
         return new Statement(entity, attribute, value, context);
     }
 
-    entity(ctx: any) {
-        throw new Error("Not implemented.");
+    entity(ctx: any): Entity {
+        if (ctx.children.LigatureIdentifier != undefined) {
+            return new Entity(ctx.children.LigatureIdentifier[0].image);
+        } else if (ctx.children.Identifier != undefined) {
+            return new Entity(ctx.children.Identifier[0].image);
+        } else {
+            throw new Error("Invalid Entity.");
+        }
     }
 
     attribute(ctx: any): Attribute {
-        return new Attribute(ctx.children.LigatureIdentifier[0].image);
+        if (ctx.children.LigatureIdentifier != undefined) {
+            return new Attribute(ctx.children.LigatureIdentifier[0].image);
+        } else if (ctx.children.Identifier != undefined) {
+            return new Attribute(ctx.children.Identifier[0].image);
+        } else {
+            throw new Error("Invalid Attribute.");
+        }
     }
 
     value(ctx: any): WanderValue {
@@ -365,7 +401,7 @@ class WanderVisitor extends BaseWanderVisitor {
             const stringValue = ctx.children.String[0].image;
             return stringValue.substring(1,stringValue.length-1);
         } else if (ctx.children.entity != undefined) {
-            return new Entity(ctx.children.entity[0].children.LigatureIdentifier[0].image);
+            return this.entity(ctx.children.entity[0]);
         } else {
             throw new Error("Unsupported Wander Value - " + ctx.value[0].children);
         }

@@ -13,7 +13,7 @@ let identifier = (name: string) => new Identifier(name);
 let referenceExpression = (name: Identifier) => new ReferenceExpression(name);
 let scope = (elements: Array<Element>) => new Scope(elements);
 let functionDefinition = (parameters: Array<string>, body: Array<Element>) => new FunctionDefinition(parameters, body);
-let functionCall = (name: Identifier, parameters: Array<string>) => new FunctionCall(name, parameters);
+let functionCall = (name: Identifier, parameters: Array<Expression>) => new FunctionCall(name, parameters);
 
 /**
  * Keys in this structure match the names of test files and the values
@@ -93,5 +93,11 @@ export const ast: any = {
         script([
             letStatement(identifier("f"), valueExpression(functionDefinition([], [valueExpression(5n)]))),
             functionCall(identifier("f"), [])
+        ]),
+
+    "function1-def.wander":
+        script([
+            letStatement(identifier("identity"), valueExpression(functionDefinition(["value"], [referenceExpression(identifier("value"))]))),
+            functionCall(identifier("identity"), [valueExpression(new Entity("testEntity"))])
         ])
 }
