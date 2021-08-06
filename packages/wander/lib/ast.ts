@@ -116,9 +116,9 @@ export class ReferenceExpression implements Expression {
 
 export class FunctionCall implements Expression {
     readonly name: Identifier;
-    readonly parameters: Array<WanderValue>;
+    readonly parameters: Array<Expression>;
 
-    constructor(name: Identifier, parameters: Array<WanderValue>) {
+    constructor(name: Identifier, parameters: Array<Expression>) {
         this.name = name;
         this.parameters = parameters;
     }
@@ -128,7 +128,15 @@ export class FunctionCall implements Expression {
         if (func != undefined && func instanceof FunctionDefinition) {
             if (func.parameters.length == this.parameters.length) {
                 let functionBindings = new Binding();
-                //TODO set all function bindings
+
+                for (let i = 0; i < func.parameters.length; i++) {
+                    let result = this.parameters[i].eval(bindings)
+                    if (result instanceof WanderError) {
+                        return result;
+                    } else {
+                        functionBindings.bind(new Identifier(func.parameters[i]), result);
+                    }
+                }
 
                 let result: Result = nothing;
                 for (const element of func.body) {
