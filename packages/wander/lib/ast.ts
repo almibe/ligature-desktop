@@ -17,6 +17,16 @@ export class FunctionDefinition {
     }
 }
 
+export class NativeFunction {
+    readonly parameters: Array<string> //this needs types so eventually it'll have to be something other than a string
+    readonly body: (parameters: Array<WanderValue>) => WanderResult
+
+    constructor(parameters: Array<string>, body: (parameters: Array<WanderValue>) => WanderResult) {
+        this.parameters = parameters;
+        this.body = body;
+    }
+}
+
 export interface Ast {
     eval(bindings: Binding): Result
 }
