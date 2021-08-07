@@ -3,5 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export function debug(message: string, a: any) {
-    console.log(message + " -- " + JSON.stringify(a, (key, value) => typeof value === "bigint" ? value.toString() + "n" : value, 4));
+    console.log(message + ": " + JSON.stringify(a, (key, value) => typeof value === "bigint" ? value.toString() + "n" : value, 4));
+}
+
+export function TODO(message: string) {
+    throw new Error(`TODO: ${message}`);
 }
