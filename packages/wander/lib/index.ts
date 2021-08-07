@@ -11,9 +11,10 @@ import { writeValue,
     processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
-import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall } from './ast';
+import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall, NativeFunction } from './ast';
 import { debug } from './debug';
 import { Binding } from './binding';
+import { stdLib } from './stdlib';
 
 //Tokens that are shared with lig
 //TODO all of these tokens should use a shared pattern with @ligature/lig, I don't think I can share the actual tokens though
@@ -246,7 +247,7 @@ export type nothing = null;
 export const nothing = null;
 
 //NOTE: keeping the following two types separate for now since I'm not sure if they will always be the same
-export type WanderValue = Value | boolean | Attribute | Statement | nothing | FunctionDefinition;
+export type WanderValue = Value | boolean | Attribute | Statement | nothing | FunctionDefinition | NativeFunction;
 export type WanderResult = WanderValue;
 
 /**
@@ -437,7 +438,7 @@ export class WanderInterpreter {
     }
 
     eval(script: Script): WanderResult | WanderError {
-        let bindings = new Binding();
+        let bindings = stdLib();
         return script.eval(bindings);
     }
 }
