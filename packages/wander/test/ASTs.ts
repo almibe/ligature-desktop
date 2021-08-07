@@ -99,5 +99,11 @@ export const ast: any = {
         script([
             letStatement(identifier("identity"), valueExpression(functionDefinition(["value"], [referenceExpression(identifier("value"))]))),
             functionCall(identifier("identity"), [valueExpression(new Entity("testEntity"))])
+        ]),
+
+    //BOOLEAN-EXPRESSION
+    "not.wander":
+        script([
+            functionCall(identifier("not"), [valueExpression(true)])
         ])
 }

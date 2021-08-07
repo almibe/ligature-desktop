@@ -1,1 +1,1 @@
-true || false && false
+or(true, and(false, false))
