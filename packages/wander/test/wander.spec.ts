@@ -23,6 +23,8 @@ describe('Wander AST tests', () => {
                     const expected = ast[testFile];
                     if (testFile.includes('err')) {
                         expect(result instanceof WanderError).to.be.true;
+                    } else if (expected == undefined) {
+                        console.log(`No AST for ${testFile}`);
                     } else {
                         expect(result).to.be.eql(expected);                        
                     }

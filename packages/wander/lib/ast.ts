@@ -19,9 +19,9 @@ export class FunctionDefinition {
 
 export class NativeFunction {
     readonly parameters: Array<string> //this needs types so eventually it'll have to be something other than a string
-    readonly body: (parameters: Array<WanderValue>) => WanderResult
+    readonly body: (bindings: Binding) => WanderResult
 
-    constructor(parameters: Array<string>, body: (parameters: Array<WanderValue>) => WanderResult) {
+    constructor(parameters: Array<string>, body: (bindings: Binding) => WanderResult) {
         this.parameters = parameters;
         this.body = body;
     }
@@ -77,10 +77,11 @@ export class LetStatement implements Element {
     }
 
     eval(bindings: Binding): Result {
-        if (this.expression instanceof ValueExpression) {
-            bindings.bind(this.name, this.expression.value);
+        let result = this.expression.eval(bindings);
+        if (result instanceof WanderError) {
+            return result
         } else {
-            throw new Error("Not implemented.");
+            bindings.bind(this.name, result);
         }
         return nothing;
     }
@@ -133,29 +134,44 @@ export class FunctionCall implements Expression {
         this.parameters = parameters;
     }
 
+    createBindings(func: FunctionDefinition | NativeFunction, bindings: Binding): Binding | WanderError {
+        if (func.parameters.length == this.parameters.length) {
+
+            let functionBindings = new Binding();
+
+            for (let i = 0; i < func.parameters.length; i++) {
+                let result = this.parameters[i].eval(bindings)
+                if (result instanceof WanderError) {
+                    return result;
+                } else {
+                    functionBindings.bind(new Identifier(func.parameters[i]), result);
+                }
+            }
+            return functionBindings;
+        } else {
+            throw new Error(`Invalid number of parameters passed to ${this.name.identifier} expected ${func.parameters.length} received ${this.parameters.length}.`)
+        }
+    }
+
     eval(bindings: Binding): Result {
         let func = bindings.read(this.name);
-        if (func != undefined && func instanceof FunctionDefinition) {
-            if (func.parameters.length == this.parameters.length) {
-                let functionBindings = new Binding();
-
-                for (let i = 0; i < func.parameters.length; i++) {
-                    let result = this.parameters[i].eval(bindings)
-                    if (result instanceof WanderError) {
-                        return result;
-                    } else {
-                        functionBindings.bind(new Identifier(func.parameters[i]), result);
-                    }
-                }
-
-                let result: Result = nothing;
-                for (const element of func.body) {
-                    result = element.eval(functionBindings);
-                }
-                return result;        
-            } else {
-                throw new Error(`Invalid number of parameters passed to ${this.name.identifier} expected ${func.parameters.length} received ${this.parameters.length}.`)
+        if (func != undefined && func instanceof FunctionDefinition) {            
+            let functionBindings = this.createBindings(func, bindings);
+            if (functionBindings instanceof WanderError) {
+                return functionBindings;
             }
+            let result: Result = nothing;
+            for (const element of func.body) {
+                result = element.eval(functionBindings);
+            }
+            return result;        
+        } else if (func != undefined && func instanceof NativeFunction) {
+            let functionBindings = this.createBindings(func, bindings);
+            if (functionBindings instanceof WanderError) {
+                return functionBindings;
+            }
+            let result = func.body(functionBindings);
+            return result;
         } else {
             throw new Error(`Function ${this.name.identifier} not found in scope.`);
         }
