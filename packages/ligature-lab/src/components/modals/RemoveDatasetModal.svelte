@@ -44,7 +44,7 @@
     })
 
     async function removeDataset() {
-        await $ligature.deleteDataset(new Dataset(removeModalState.dataset.name)); //TODO handle errors
+        await (await $ligature).deleteDataset(new Dataset(removeModalState.dataset.name)); //TODO handle errors
         removeDatasetModal.hide();
     }
 

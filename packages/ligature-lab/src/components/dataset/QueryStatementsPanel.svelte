@@ -60,7 +60,7 @@
         }
 
         if (valid) {
-            await $ligature.query(dataset, async (tx) => {
+            await (await $ligature).query(dataset, async (tx) => {
                 let res = null;
                 if (stopValue != null) {
                     let range: LiteralRange | null = makeLiteralRange(startValue, stopValue);

@@ -119,7 +119,7 @@
         }
 
         if (valid) {
-            await $ligature.createDataset(dataset); //TODO handle error from Promise
+            await (await $ligature).createDataset(dataset); //TODO handle error from Promise
             newDatasetModal.hide()
         }
     }

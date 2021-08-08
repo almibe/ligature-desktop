@@ -49,7 +49,7 @@
 
         if (valid) {
             let statement = new Statement(entity, attribute, value, context);
-            await $ligature.write(dataset, async (tx) => {
+            await (await $ligature).write(dataset, async (tx) => {
                 let res = await tx.addStatement(statement); //TODO handle errors
                 console.log(res);
                 if (res != null) {

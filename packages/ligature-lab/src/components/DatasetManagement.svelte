@@ -3,6 +3,7 @@
     import RemoveDatasetModal from "./modals/RemoveDatasetModal.svelte";
     import { ligature } from '../store/store';
     import { onMount } from 'svelte';
+    import type { Dataset } from "@ligature/ligature";
 
     onMount(async () => {
         await updateDatasets();
@@ -24,7 +25,7 @@
     let removeModalState = {show: false, dataset: null};
 
     async function updateDatasets() {
-        datasets = await $ligature.allDatasets();
+        datasets = await (await $ligature).allDatasets();
     }
 
     function removeDataset(dataset: Dataset) {
