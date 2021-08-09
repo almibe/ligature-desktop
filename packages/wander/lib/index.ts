@@ -11,8 +11,8 @@ import { writeValue,
     processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
-import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall, NativeFunction } from './ast';
-import { debug } from './debug';
+import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall, NativeFunction, IfExpression } from './ast';
+import { debug, TODO } from './debug';
 import { Binding } from './binding';
 import { stdLib } from './stdlib';
 
@@ -37,21 +37,23 @@ const NOTHING_T = createToken({ name: "Nothing", pattern: /nothing/ }); //TODO u
 const LET_T = createToken({ name: "Let", pattern: /let/ }); //TODO update so letter doesn't match (see chevrotain docs)
 const EQUALS_T = createToken({ name: "Equals", pattern: /=/ });
 const BOOLEAN_T = createToken({ name: "Boolean", pattern: /(true)|(false)/ }); //TODO update so it doesn't match longer string
-const IF_T = createToken({ name: "if", pattern: /if/ }); //TODO update so it doesn't match longer string
-const ELSE_T = createToken({ name: 'else', pattern: /else/} ); //TODO update so it doesn't match longer string
-const WHEN_T = createToken({ name: "when", pattern: /when/ }); //TODO update so it doesn't match longer string
-const BRACE_LEFT_T = createToken({ name: "braceLeft", pattern: /\{/ });
-const BRACE_RIGHT_T = createToken({ name: "braceRight", pattern: /\}/ });
-const PAREN_LEFT_T = createToken({ name: "parenLeft", pattern: /\(/ });
-const PAREN_RIGHT_T = createToken({ name: "parenRight", pattern: /\)/ });
-const ARROW_T = createToken({ name:'arrow', pattern: /->/ });
-const DOT_T = createToken({ name: "dot", pattern: /\./ });
+const IF_T = createToken({ name: "If", pattern: /if/ }); //TODO update so it doesn't match longer string
+const ELSE_T = createToken({ name: 'Else', pattern: /else/} ); //TODO update so it doesn't match longer string
+const WHEN_T = createToken({ name: "When", pattern: /when/ }); //TODO update so it doesn't match longer string
+const BRACE_LEFT_T = createToken({ name: "BraceLeft", pattern: /\{/ });
+const BRACE_RIGHT_T = createToken({ name: "BraceRight", pattern: /\}/ });
+const PAREN_LEFT_T = createToken({ name: "ParenLeft", pattern: /\(/ });
+const PAREN_RIGHT_T = createToken({ name: "ParenRight", pattern: /\)/ });
+const ARROW_T = createToken({ name:'Arrow', pattern: /->/ });
+const DOT_T = createToken({ name: "Dot", pattern: /\./ });
 
 const allTokens = [
     COMMENT_NEW_LINE_T,
     WHITE_SPACE_T,
     COMMA_T,
     LET_T,
+    IF_T,
+    ELSE_T,
     BOOLEAN_T,
     NOTHING_T,
     DOT_T,
@@ -103,6 +105,7 @@ class WanderParser extends CstParser {
         $.RULE('expression', () => {
             $.OR([
                 { ALT: () => $.SUBRULE($.wanderValue) },
+                { ALT: () => $.SUBRULE($.ifExpression)},
                 { ALT: () => $.SUBRULE($.whenExpression) },
                 { ALT: () => $.SUBRULE($.functionCall) },
                 { ALT: () => $.SUBRULE($.methodCall) },
@@ -138,7 +141,44 @@ class WanderParser extends CstParser {
             $.CONSUME(BRACE_RIGHT_T);
         })
 
-        //TODO add if expression
+        $.RULE('ifExpression', () => {
+            $.CONSUME(IF_T);
+            $.CONSUME(PAREN_LEFT_T);
+            $.SUBRULE($.expression);
+            $.CONSUME(PAREN_RIGHT_T);
+
+            $.CONSUME(BRACE_LEFT_T);
+            $.SUBRULE2($.expression);
+            $.CONSUME(BRACE_RIGHT_T);
+
+            $.MANY(() => {
+                $.SUBRULE($.elseIf);
+            });
+            $.OPTION(() => {
+                $.SUBRULE($.else);
+            });
+        });
+
+        $.RULE('elseIf', () => {
+            $.CONSUME(IF_T);
+            //TODO probably needs whitespace here?
+            $.CONSUME(ELSE_T);
+
+            $.CONSUME(PAREN_LEFT_T);
+            $.SUBRULE($.expression);
+            $.CONSUME(PAREN_RIGHT_T);
+
+            $.CONSUME(BRACE_LEFT_T);
+            $.SUBRULE2($.expression);
+            $.CONSUME(BRACE_RIGHT_T);
+        });
+
+        $.RULE('else', () => {
+            $.CONSUME(ELSE_T);
+            $.CONSUME(BRACE_LEFT_T);
+            $.SUBRULE($.expression);
+            $.CONSUME(BRACE_RIGHT_T);
+        });
 
         $.RULE('whenExpression', () => {
             $.CONSUME(WHEN_T);
@@ -224,6 +264,9 @@ class WanderParser extends CstParser {
     script: any;
     topLevel: any;
     expression: any;
+    ifExpression: any;
+    elseIf: any;
+    else: any;
     wanderValue: any;
     functionCall: any;
     functionDefinition: any;
@@ -313,6 +356,18 @@ class WanderVisitor extends BaseWanderVisitor {
         } else {
             throw new Error("Not implemented.");
         }
+    }
+
+    ifExpression(ctx: any): IfExpression {
+        return TODO("Support if expressions in visitor");
+    }
+
+    elseIf(ctx: any): any {
+        return TODO("Support else if in visitor");
+    }
+
+    else(ctx: any): any {
+        return TODO("Support else in visitor");
     }
 
     functionDefinition(ctx: any): FunctionDefinition {

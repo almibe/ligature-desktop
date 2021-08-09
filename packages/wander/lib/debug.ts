@@ -6,6 +6,6 @@ export function debug(message: string, a: any) {
     console.log(message + ": " + JSON.stringify(a, (key, value) => typeof value === "bigint" ? value.toString() + "n" : value, 4));
 }
 
-export function TODO(message: string) {
+export function TODO(message: string): any {
     throw new Error(`TODO: ${message}`);
 }

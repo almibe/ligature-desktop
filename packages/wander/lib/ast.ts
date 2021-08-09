@@ -125,6 +125,20 @@ export class ReferenceExpression implements Expression {
     }
 }
 
+export class IfExpression implements Expression {
+    readonly condition: Expression
+    readonly body: Expression
+
+    constructor(condition: Expression, body: Expression) {
+        this.condition = condition
+        this.body = body
+    }
+
+    eval(bindings: Binding): Result {
+        throw new Error("Not implemented.")
+    }
+}
+
 export class FunctionCall implements Expression {
     readonly name: Identifier;
     readonly parameters: Array<Expression>;
