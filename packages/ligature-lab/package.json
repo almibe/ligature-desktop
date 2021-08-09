@@ -30,8 +30,13 @@
   },
   "type": "module",
   "dependencies": {
-    "@ligature/ligature": "../ligature",    
+    "@codemirror/basic-setup": "^0.18.2",
+    "@codemirror/commands": "^0.18.3",
+    "@codemirror/state": "^0.18.7",
+    "@codemirror/view": "^0.18.19",
+    "@ligature/ligature": "../ligature",
     "@ligature/ligature-indexeddb": "../ligature-indexeddb",
+    "@ligature/wander": "../wander",
     "bootstrap": "^5.0.2"
   }
 }
