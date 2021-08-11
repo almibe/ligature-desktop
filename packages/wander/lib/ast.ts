@@ -4,6 +4,7 @@
 
 import { nothing, WanderResult, WanderValue } from "."
 import { Binding } from "./binding";
+import { debug, TODO } from "./debug";
 
 export type Result = WanderResult | WanderError
 
@@ -128,14 +129,57 @@ export class ReferenceExpression implements Expression {
 export class IfExpression implements Expression {
     readonly condition: Expression
     readonly body: Expression
+    readonly elseIfs: Array<ElseIf>
+    readonly else: Else | null
+
+    constructor(condition: Expression, body: Expression, elseIfs: Array<ElseIf> = [], elseArg: Else | null = null) {
+        this.condition = condition
+        this.body = body
+        this.elseIfs = elseIfs
+        this.else = elseArg
+    }
+
+    eval(bindings: Binding): Result {
+        let conditionResult = this.condition.eval(bindings);
+        if (typeof conditionResult != 'boolean') {
+            return new WanderError("Conditions must evaluate to boolean values.")
+        }
+        if (conditionResult) {
+            return this.body.eval(bindings)
+        } else {
+            for (let elseIf of this.elseIfs) {
+                let conditionResult = elseIf.condition.eval(bindings)
+                if (typeof conditionResult != 'boolean') {
+                    return new WanderError("Conditions must evaluate to boolean values.")
+                }
+                if (conditionResult) {
+                    return elseIf.body.eval(bindings)
+                }
+            }
+            if (this.else != null) {
+                return this.else.body.eval(bindings)
+            } else {
+                return nothing
+            }
+        }
+    }
+}
+
+export class ElseIf {
+    readonly condition: Expression
+    readonly body: Expression
 
     constructor(condition: Expression, body: Expression) {
         this.condition = condition
         this.body = body
     }
+}
 
-    eval(bindings: Binding): Result {
-        throw new Error("Not implemented.")
+export class Else {
+    readonly body: Expression
+
+    constructor(body: Expression) {
+        this.body = body
     }
 }
 

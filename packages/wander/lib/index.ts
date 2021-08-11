@@ -11,7 +11,7 @@ import { writeValue,
     processValue,
 } from '@ligature/lig';
 import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
-import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall, NativeFunction, IfExpression } from './ast';
+import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall, NativeFunction, IfExpression, ElseIf, Else } from './ast';
 import { debug, TODO } from './debug';
 import { Binding } from './binding';
 import { stdLib } from './stdlib';
@@ -160,9 +160,8 @@ class WanderParser extends CstParser {
         });
 
         $.RULE('elseIf', () => {
-            $.CONSUME(IF_T);
-            //TODO probably needs whitespace here?
             $.CONSUME(ELSE_T);
+            $.CONSUME(IF_T);
 
             $.CONSUME(PAREN_LEFT_T);
             $.SUBRULE($.expression);
@@ -337,6 +336,8 @@ class WanderVisitor extends BaseWanderVisitor {
             return this.scope(ctx.scope[0])
         } else if (ctx.functionCall != undefined) {
             return this.functionCall(ctx.functionCall[0]);
+        } else if (ctx.ifExpression != undefined) {
+            return this.ifExpression(ctx.ifExpression[0]);
         } else {
             throw new Error("Not implemented.");
         }
@@ -359,15 +360,32 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     ifExpression(ctx: any): IfExpression {
-        return TODO("Support if expressions in visitor");
+        let conditionExpression = this.expression(ctx.children.expression[0].children);
+        let body = this.expression(ctx.children.expression[1].children)
+        let elseIfs = new Array<ElseIf>();
+        if (ctx.children.elseIf != undefined) {
+            elseIfs = this.elseIf(ctx.children.elseIf)
+        }
+        let elseClause = null;
+        if (ctx.children.else != undefined) {
+            elseClause = this.else(ctx.children.else[0])
+        }
+        return new IfExpression(conditionExpression, body, elseIfs, elseClause);
     }
 
-    elseIf(ctx: any): any {
-        return TODO("Support else if in visitor");
+    elseIf(ctx: any): Array<ElseIf> {
+        let elseIfs = new Array<ElseIf>()
+        for (let elseIf of ctx) {
+            let conditionExpression = this.expression(elseIf.children.expression[0].children);
+            let body = this.expression(elseIf.children.expression[1].children)
+            elseIfs.push(new ElseIf(conditionExpression, body))
+        }
+        return elseIfs
     }
 
-    else(ctx: any): any {
-        return TODO("Support else in visitor");
+    else(ctx: any): Else {
+        let body = this.expression(ctx.children.expression[0].children)
+        return new Else(body);
     }
 
     functionDefinition(ctx: any): FunctionDefinition {
