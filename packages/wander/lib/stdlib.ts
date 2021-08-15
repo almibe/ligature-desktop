@@ -4,8 +4,24 @@
 
 import { Identifier, NativeFunction } from "./ast";
 import { Binding } from "./binding";
+import { TODO } from "./debug";
+import { ExecutionScope } from "./index"
 
-export function stdLib(): Binding {
+export function stdLib(scope: ExecutionScope): Binding {
+    let stdLib = common();
+
+    if (scope.scopeType == "Instance") {
+        instanceScope(scope, stdLib)
+    } else if (scope.scopeType == "ReadTx") {
+        readScope(scope, stdLib)
+    } else if (scope.scopeType == "WriteTx") {
+        writeScope(scope, stdLib)
+    }
+
+    return stdLib;
+}
+
+function common(): Binding {
     const stdLib = new Binding();
 
     stdLib.bind(new Identifier("not"), new NativeFunction(["bool"], (bindings: Binding) => {
@@ -26,4 +42,16 @@ export function stdLib(): Binding {
     }));
 
     return stdLib;
+}
+
+function instanceScope(scope: ExecutionScope, bindings: Binding) {
+    TODO("Support Instance Scope")
+}
+
+function readScope(scope: ExecutionScope, bindings: Binding) {
+    TODO("Support ReadTx Scope")
+}
+
+function writeScope(scope: ExecutionScope, bindings: Binding) {
+    TODO("Support WriteTx Scope")
 }

@@ -25,6 +25,7 @@
     "chevrotain": "^9.0.2"
   },
   "devDependencies": {
+    "@ligature/ligature-indexeddb": "../ligature-indexeddb",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "chai": "^4.3.4",

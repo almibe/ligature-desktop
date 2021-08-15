@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { identifierPattern } from '@ligature/ligature';
+import { identifierPattern, Ligature, ReadTx, WriteTx } from '@ligature/ligature';
 import { createToken, CstParser, Lexer } from 'chevrotain';
 import { writeValue,
     writeEntity,
@@ -484,13 +484,19 @@ class WanderVisitor extends BaseWanderVisitor {
 
 const wanderVisitor = new WanderVisitor();
 
+export type NoScope = { scopeType: "None" }
+export type InstanceScope = { scopeType: "Instance", instance: Ligature }
+export type ReadScope = { scopeType: "ReadTx", readTx: ReadTx }
+export type WriteScope = { scopeType: "WriteTx", writeTx: WriteTx }
+export type ExecutionScope = NoScope | InstanceScope | ReadScope | WriteScope
+
 export class WanderInterpreter {
-    run(script: string): WanderResult | WanderError {
+    run(script: string, scope: ExecutionScope = { scopeType: "None" }): WanderResult | WanderError {
         const res = this.createAst(script);
         if (res instanceof WanderError) {
             return res;
         } else {
-            return this.eval(res);
+            return this.eval(res, scope);
         }
     }
 
@@ -510,8 +516,8 @@ export class WanderInterpreter {
         return res;
     }
 
-    eval(script: Script): WanderResult | WanderError {
-        let bindings = stdLib();
+    eval(script: Script, scope: ExecutionScope): WanderResult | WanderError {
+        let bindings = stdLib(scope);
         return script.eval(bindings);
     }
 }
