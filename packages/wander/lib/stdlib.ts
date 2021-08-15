@@ -45,13 +45,72 @@ function common(): Binding {
 }
 
 function instanceScope(scope: ExecutionScope, bindings: Binding) {
-    TODO("Support Instance Scope")
+    // allDatasets(): Promise<Array<Dataset>>;
+    bindings.bind(new Identifier("allDatasets"), new NativeFunction([], (_bindings: Binding) => {
+        return TODO()
+    }))
+    // datasetExists(dataset: Dataset): Promise<boolean>;
+    bindings.bind(new Identifier("datasetExists"), new NativeFunction(["dataset"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    // matchDatasetPrefix(prefix: string): Promise<Array<Dataset>>;
+    bindings.bind(new Identifier("matchDatasetPrefix"), new NativeFunction(["prefix"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    // matchDatasetRange(start: string, end: string): Promise<Array<Dataset>>;
+    bindings.bind(new Identifier("matchDatasetRange"), new NativeFunction(["start", "end"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    // createDataset(dataset: Dataset): Promise<Dataset>;
+    bindings.bind(new Identifier("createDataset"), new NativeFunction(["dataset"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    // deleteDataset(dataset: Dataset): Promise<Dataset>;
+    bindings.bind(new Identifier("deleteDataset"), new NativeFunction(["dataset"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    // query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T>;
+    bindings.bind(new Identifier("query"), new NativeFunction(["dataset", "fn"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    // write<T>(dataset: Dataset, fn: (writeTx: WriteTx) => Promise<T>): Promise<T>;
+    bindings.bind(new Identifier("write"), new NativeFunction(["dataset", "fn"], (_bindings: Binding) => {
+        return TODO()
+    }))
 }
 
 function readScope(scope: ExecutionScope, bindings: Binding) {
-    TODO("Support ReadTx Scope")
+    //      allStatements(): Promise<Array<Statement>>
+    bindings.bind(new Identifier("allStatements"), new NativeFunction([], (_bindings: Binding) => {
+        return TODO()
+    }))
+    //      matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null | LiteralRange, context: Entity | null): Promise<Array<Statement>>
+    bindings.bind(new Identifier("matchStatements"), new NativeFunction(["entity", "attribute", "value", "context"], (_bindings: Binding) => {
+        return TODO()
+    }))
 }
 
 function writeScope(scope: ExecutionScope, bindings: Binding) {
-    TODO("Support WriteTx Scope")
+    // /**
+    //  * Returns a new, unique to this collection identifier in the form _:UUID
+    //  */
+    //  generateEntity(prefix: string): Promise<Entity>
+    bindings.bind(new Identifier("newEntity"), new NativeFunction(["prefix"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    //  addStatement(statement: Statement): Promise<Statement>
+    bindings.bind(new Identifier("addStatement"), new NativeFunction(["statement"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    //  removeStatement(statement: Statement): Promise<Statement>
+    bindings.bind(new Identifier("removeStatement"), new NativeFunction(["statement"], (_bindings: Binding) => {
+        return TODO()
+    }))
+    //  /**
+    //   * Cancels this transaction.
+    //   */
+    //  cancel(): any //TODO figure out return type
+    bindings.bind(new Identifier("cancel"), new NativeFunction([], (_bindings: Binding) => {
+        return TODO()
+    }))
 }
