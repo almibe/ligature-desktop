@@ -121,16 +121,52 @@ export type DoubleLiteralRange = { start: number, end: number };
 export type BytesLiteralRange = { start: BytesLiteral, end: BytesLiteral };
 export type LiteralRange = StringLiteralRange | BytesLiteralRange | LongLiteralRange | DoubleLiteralRange;
 
+export class ResultComplete {
+    readonly length: BigInt
+
+    constructor(length: BigInt) {
+        this.length = length
+    }
+}
+
+export class ResultError {
+    readonly message: string
+    readonly error: Error | null
+
+    constructor(message: string, error: Error | null = null) {
+        this.message = message
+        this.error = error
+    }
+}
+
+/**
+ * An interface that represents a result set from a method call on a Ligature object.
+ */
+export interface ResultStream<T> {
+    /**
+     * Returns the next value if one exists, ResultComplete if a next value doesn't exist, or a ResultError if an error occurred.
+     * If you call next on a completed or an error stream you will continue to get the last result.
+     */
+    next(): T | ResultComplete | ResultError
+    /**
+     * Returns an array of results.
+     * If the requested number is greater than the remaining number an array with all the remain elements will be returned.
+     * If the result set is empty ResultComplete will be returned.
+     * If you call next on a completed or an error stream you will continue to get the last result.
+     */
+    take(number: number): Array<T> | ResultComplete | ResultError
+}
+
 /**
  * The main interface for interacting with Ligature.
  * It allows for interacting with Datasets outside of transactions,
  * and also allow for interacting with the contents of a specific Dataset inside of a transaction.
  */
 export interface Ligature {
-    allDatasets(): Promise<Array<Dataset>>;
+    allDatasets(): Promise<ResultStream<Dataset>>;
     datasetExists(dataset: Dataset): Promise<boolean>;
-    matchDatasetPrefix(prefix: string): Promise<Array<Dataset>>;
-    matchDatasetRange(start: string, end: string): Promise<Array<Dataset>>;
+    matchDatasetPrefix(prefix: string): Promise<ResultStream<Dataset>>;
+    matchDatasetRange(start: string, end: string): Promise<ResultStream<Dataset>>;
     createDataset(dataset: Dataset): Promise<Dataset>;
     deleteDataset(dataset: Dataset): Promise<Dataset>;
     
@@ -146,30 +182,23 @@ export interface Ligature {
     isOpen(): boolean;
 }
 
-export interface LigatureCursor<T> { //TODO possibly replace Arrays used in ReadTx with this type, also should these return Promises?
-    reset(): void
-    next(): T | null
-    size(): number
-    toArray(): Array<T>
-}
-
 export interface ReadTx { 
     /**
      * Accepts nothing but returns a Flow of all Statements in the Collection.
      */
-    allStatements(): Promise<Array<Statement>>
+    allStatements(): Promise<ResultStream<Statement>>
  
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null | LiteralRange, context: Entity | null): Promise<Array<Statement>>
+    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null | LiteralRange, context: Entity | null): Promise<ResultStream<Statement>>
 }
 
 export interface WriteTx {
     /**
      * Returns a new, unique to this collection identifier in the form _:UUID
      */
-    generateEntity(prefix: string): Promise<Entity>
+    newEntity(prefix: string): Promise<Entity>
     addStatement(statement: Statement): Promise<Statement>
     removeStatement(statement: Statement): Promise<Statement>
 
