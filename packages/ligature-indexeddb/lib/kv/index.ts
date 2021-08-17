@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Ligature, ReadTx, WriteTx, Dataset } from "@ligature/ligature";
+import { Ligature, ReadTx, WriteTx, Dataset, ResultStream } from "@ligature/ligature";
 import { openDB, deleteDB, IDBPDatabase } from "idb";
 import { LIDBReadTx } from './lidbreadtx';
 import { LIDBWriteTx } from './lidbwritetx';
@@ -62,7 +62,7 @@ class LigatureIndexedDB implements Ligature {
         this.name = db.name;
     }
 
-    async allDatasets(): Promise<Array<Dataset>> {
+    async allDatasets(): Promise<ResultStream<Dataset>> {
         let res = Array<Dataset>();
         await (await this.db.getAll("datasets")).forEach(d => res.push(new Dataset(d.name)));
         return res;

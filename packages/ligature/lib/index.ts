@@ -154,7 +154,50 @@ export interface ResultStream<T> {
      * If the result set is empty ResultComplete will be returned.
      * If you call next on a completed or an error stream you will continue to get the last result.
      */
-    take(number: number): Array<T> | ResultComplete | ResultError
+    //take(number: number): Array<T> | ResultComplete | ResultError
+
+    /**
+     * Returns all remaining results as an array.
+     */
+    toArray(): Array<T> | ResultComplete | ResultError
+}
+
+export class ArrayResultStream<T> implements ResultStream<T> {
+    private array: Array<T>
+    private index = 0;
+    
+    constructor(array: Array<T>) {
+        this.array = array
+    }
+
+    next(): ResultComplete | ResultError | T {
+        if (this.index == this.array.length) {
+            return new ResultComplete(BigInt(this.array.length))
+        } else {
+            let result = this.array[this.index];
+            this.index++
+            return result;
+        }
+    }
+
+    toArray(): Array<T> | ResultComplete | ResultError {
+        if (this.index == this.array.length) {
+            return new ResultComplete(BigInt(this.array.length));
+        }
+        let result = this.array.slice(this.index, this.array.length)
+        this.index = this.array.length
+        return result
+    }
+
+    // take(number: number): ResultComplete | ResultError | T[] {
+    //     if (this.index == this.array.length) {
+    //         return new ResultComplete(BigInt(this.array.length))
+    //     } else {
+    //         let result = this.array[this.index];
+    //         this.index++
+    //         return result;
+    //     }
+    // }
 }
 
 /**
