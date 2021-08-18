@@ -147,19 +147,19 @@ export interface ResultStream<T> {
      * Returns the next value if one exists, ResultComplete if a next value doesn't exist, or a ResultError if an error occurred.
      * If you call next on a completed or an error stream you will continue to get the last result.
      */
-    next(): T | ResultComplete | ResultError
+    next(): Promise<T | ResultComplete | ResultError>
     /**
      * Returns an array of results.
      * If the requested number is greater than the remaining number an array with all the remain elements will be returned.
      * If the result set is empty ResultComplete will be returned.
      * If you call next on a completed or an error stream you will continue to get the last result.
      */
-    //take(number: number): Array<T> | ResultComplete | ResultError
+    //take(number: number): Promise<Array<T> | ResultComplete | ResultError>
 
     /**
      * Returns all remaining results as an array.
      */
-    toArray(): Array<T> | ResultComplete | ResultError
+    toArray(): Promise<Array<T> | ResultComplete | ResultError>
 }
 
 export class ArrayResultStream<T> implements ResultStream<T> {
@@ -170,23 +170,23 @@ export class ArrayResultStream<T> implements ResultStream<T> {
         this.array = array
     }
 
-    next(): ResultComplete | ResultError | T {
+    next(): Promise<T | ResultComplete | ResultError> {
         if (this.index == this.array.length) {
-            return new ResultComplete(BigInt(this.array.length))
+            return Promise.resolve(new ResultComplete(BigInt(this.array.length)))
         } else {
             let result = this.array[this.index];
             this.index++
-            return result;
+            return Promise.resolve(result);
         }
     }
 
-    toArray(): Array<T> | ResultComplete | ResultError {
+    toArray(): Promise<Array<T> | ResultComplete | ResultError> {
         if (this.index == this.array.length) {
-            return new ResultComplete(BigInt(this.array.length));
+            return Promise.resolve(new ResultComplete(BigInt(this.array.length)));
         }
         let result = this.array.slice(this.index, this.array.length)
         this.index = this.array.length
-        return result
+        return Promise.resolve(result)
     }
 
     // take(number: number): ResultComplete | ResultError | T[] {
