@@ -4,11 +4,16 @@
 
 import { expect } from 'chai';
 import { v4 as uuidv4 } from 'uuid';
-import { Dataset, Entity, Attribute, Statement, Ligature } from '@ligature/ligature';
+import { Dataset, Entity, Attribute, Statement, Ligature, ResultStream } from '@ligature/ligature';
 import type { Value } from '@ligature/ligature';
 import { valueType, encodeInteger, decodeInteger, ENTITY_VALUE_TYPE, STRING_VALUE_TYPE, INTEGER_VALUE_TYPE, FLOAT_VALUE_TYPE, BYTES_VALUE_TYPE } from '../lib/util';
 
 let newDataset = new Dataset("newDataset");
+
+async function forceToArray<T>(rs: Promise<ResultStream<T>>): Promise<T[]> {
+    return (await (await rs).toArray()) as T[]
+}
+
 
 export function commonTests() {
     describe("Utility functions", () => {
@@ -59,8 +64,8 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
         it('should open and close cleanly', async () => {
             let instance = await create("test-" + uuidv4());
             expect(instance.isOpen()).to.be.true;
-            let ds = await instance.allDatasets();
-            expect(ds.length).to.be.equal(0);
+            let ds = await forceToArray(instance.allDatasets());
+            expect(ds.length).to.be.equal(0n);
             await instance.close(true);
             expect(instance.isOpen()).to.be.false;
         });
@@ -69,7 +74,7 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
             let instance = await create("test-" + uuidv4());
             expect(instance.isOpen()).to.be.true;
             await instance.createDataset(newDataset);
-            let datasets = await instance.allDatasets();
+            let datasets = await forceToArray(instance.allDatasets());
             expect(datasets.length).to.be.equal(1);
             expect(datasets[0].equals(newDataset)).to.be.true;
             await instance.close(true);
@@ -98,15 +103,15 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
             await instance.createDataset(new Dataset("newDataset03"));
             await instance.createDataset(new Dataset("znewDataset"));
     
-            let res1 = (await instance.matchDatasetPrefix("n")).length;
-            let res2 = (await instance.matchDatasetPrefix("a")).length;
-            let res3 = (await instance.matchDatasetPrefix("s")).length;
-            let res4 = (await instance.matchDatasetPrefix("newDataset0")).length;
-            let res5 = (await instance.matchDatasetPrefix("newDataset01")).length;
+            let res1 = (await forceToArray(instance.matchDatasetPrefix("n"))).length;
+            let res2 = (await forceToArray(instance.matchDatasetPrefix("a"))).length;
+            let res3 = (await forceToArray(instance.matchDatasetPrefix("s"))).length;
+            let res4 = (await forceToArray(instance.matchDatasetPrefix("newDataset0"))).length;
+            let res5 = (await forceToArray(instance.matchDatasetPrefix("newDataset01"))).length;
     
             expect(res1).to.be.equal(4);
             expect(res2).to.be.equal(1);
-            expect(res3).to.be.equal(0);
+            expect(res3).to.be.equal(0n);
             expect(res4).to.be.equal(3);
             expect(res5).to.be.equal(1);
     
@@ -124,15 +129,15 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
             await instance.createDataset(new Dataset("newDataset03"));
             await instance.createDataset(new Dataset("znewDataset"));
     
-            let res1 = (await instance.matchDatasetRange("a","zz")).length;
-            let res2 = (await instance.matchDatasetRange("anew", "bnew")).length;
-            let res3 = (await instance.matchDatasetRange("anewE", "m")).length;
-            let res4 = (await instance.matchDatasetRange(newDataset.name, "newDataset02")).length;
-            let res5 = (await instance.matchDatasetRange("newDataset03", "zz")).length;
+            let res1 = (await forceToArray(instance.matchDatasetRange("a","zz"))).length;
+            let res2 = (await forceToArray(instance.matchDatasetRange("anew", "bnew"))).length;
+            let res3 = (await forceToArray(instance.matchDatasetRange("anewE", "m"))).length;
+            let res4 = (await forceToArray(instance.matchDatasetRange(newDataset.name, "newDataset02"))).length;
+            let res5 = (await forceToArray(instance.matchDatasetRange("newDataset03", "zz"))).length;
     
             expect(res1).to.be.equal(6);
             expect(res2).to.be.equal(1);
-            expect(res3).to.be.equal(0);
+            expect(res3).to.be.equal(0n);
             expect(res4).to.be.equal(2);
             expect(res5).to.be.equal(2);
     
@@ -153,7 +158,7 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
             await instance.deleteDataset(newDataset);
             await instance.deleteDataset(new Dataset("newDataset02"));
             await instance.deleteDataset(new Dataset("zznewDataset"));
-            let total = (await instance.allDatasets()).length;
+            let total = (await forceToArray(instance.allDatasets())).length;
     
             expect(total).to.be.equal(4);
     
@@ -168,10 +173,10 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
             expect(instance.isOpen()).to.be.true;
             await instance.createDataset(newDataset);
     
-            let res = await instance.query(newDataset, (readTx) => {
+            let res = await forceToArray(instance.query(newDataset, (readTx) => {
                 return readTx.allStatements()
-            });
-            expect(res.length).to.be.equal(0);
+            }));
+            expect(res.length).to.be.equal(0n);
             await instance.close(true);
             expect(instance.isOpen()).to.be.false;
         });
@@ -182,7 +187,7 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
             await instance.createDataset(newDataset);
     
             let entityRes = await instance.write(newDataset, (writeTx) => {
-                return writeTx.generateEntity("test");
+                return writeTx.newEntity("test");
             });
             expect(entityRes.id).to.match(/^test[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
             await instance.close(true);
@@ -199,9 +204,9 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
                 await writeTx.addStatement(statement);
                 return Promise.resolve(); //TODO should find a way to remove this
             });
-            let res = await instance.query(newDataset, (readTx) => {
+            let res = await forceToArray(instance.query(newDataset, (readTx) => {
                 return readTx.allStatements()
-            });
+            }));
             expect(res.length).to.be.equal(1);
             let statementFromStore = res[0];
             expect(statement.equals(statementFromStore)).to.be.true;
@@ -226,9 +231,9 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
                 await writeTx.removeStatement(new Statement(new Entity("e2"), new Attribute("a"), "value", new Entity("c")));
                 return Promise.resolve(); //TODO should find a way to remove this
             });
-            let res = await instance.query(newDataset, (readTx) => {
+            let res = await forceToArray(instance.query(newDataset, (readTx) => {
                 return readTx.allStatements()
-            });
+            }));
             expect(res.length).to.be.equal(1);
             let statementFromStore = res[0];
             expect(statement.equals(statementFromStore)).to.be.true;
@@ -249,10 +254,10 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
                 writeTx.cancel();
                 return Promise.resolve(); //TODO should find a way to remove this
             });
-            let res = await instance.query(newDataset, (readTx) => {
+            let res = await forceToArray(instance.query(newDataset, (readTx) => {
                 return readTx.allStatements()
-            });
-            expect(res.length).to.be.equal(0);
+            }));
+            expect(res.length).to.be.equal(0n);
             await instance.close(true);
             expect(instance.isOpen()).to.be.false;
         });
@@ -269,12 +274,12 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
                 await writeTx.addStatement(statement2);
                 return Promise.resolve(); //TODO should find a way to remove this
             });
-            let res = await instance.query(newDataset, (readTx) => {
+            let res = await forceToArray(instance.query(newDataset, (readTx) => {
                 return readTx.matchStatements(new Entity("e2"), new Attribute("a2"), new Entity("__"), new Entity("c2"));
-            });
-            let res2 = await instance.query(newDataset, (readTx) => {
+            }));
+            let res2 = await forceToArray(instance.query(newDataset, (readTx) => {
                 return readTx.matchStatements(null, null, null, null);
-            });
+            }));
             expect(res.length).to.be.equal(1);
             expect(res2.length).to.be.equal(2);
             expect(res[0]).to.be.eql(statement2);
@@ -298,9 +303,9 @@ export function runTests(name: string, create: (name: string) => Promise<Ligatur
                 await writeTx.addStatement(statement4);
                 return Promise.resolve(); //TODO should find a way to remove this
             });
-            let res = await instance.query(newDataset, (readTx) => {
+            let res = await forceToArray(instance.query(newDataset, (readTx) => {
                 return readTx.matchStatements(null, null, {start: 1, end: 1.9}, null);
-            });
+            }));
             expect(res.length).to.be.equal(3);
             expect(res[0]).to.be.eql(statement);
             expect(res[1]).to.be.eql(statement2);
