@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Ligature, ReadTx, WriteTx, Dataset } from "@ligature/ligature";
+import { Ligature, ReadTx, WriteTx, Dataset, ResultStream, ArrayResultStream } from "@ligature/ligature";
 import { openDB, deleteDB, IDBPDatabase } from "idb";
 import { SimpleReadTx } from './simplereadtx';
 import { SimpleWriteTx } from './simplewritetx';
@@ -40,10 +40,10 @@ class LigatureIndexedDB implements Ligature {
         this.name = db.name;
     }
 
-    async allDatasets(): Promise<Array<Dataset>> {
+    async allDatasets(): Promise<ResultStream<Dataset>> {
         let res = Array<Dataset>();
         await (await this.db.getAll("datasets")).forEach(d => res.push(new Dataset(d.name)));
-        return res;
+        return new ArrayResultStream(res);
     }
 
     async createDataset(dataset: Dataset): Promise<Dataset> {
@@ -87,7 +87,7 @@ class LigatureIndexedDB implements Ligature {
         }
     }
 
-    async matchDatasetPrefix(prefix: string): Promise<Array<Dataset>> {
+    async matchDatasetPrefix(prefix: string): Promise<ResultStream<Dataset>> {
         let tx = this.db.transaction(datasets, "readonly");
         let dStore = tx.store;
         let endLen = prefix.length-1;
@@ -96,17 +96,17 @@ class LigatureIndexedDB implements Ligature {
         (await dStore.index('name').getAll(IDBKeyRange.bound(prefix, prefixEnd, false, true))).forEach((name: { name: string; }) => {
             arr.push(new Dataset(name.name));
         });
-        return arr;
+        return new ArrayResultStream(arr);
     }
 
-    async matchDatasetRange(start: string, end: string): Promise<Array<Dataset>> {
+    async matchDatasetRange(start: string, end: string): Promise<ArrayResultStream<Dataset>> {
         let tx = this.db.transaction(datasets, "readonly");
         let dStore = tx.store;
         let arr = Array<Dataset>();
         (await dStore.index('name').getAll(IDBKeyRange.bound(start, end, false, true))).forEach((name: { name: string; }) => {
             arr.push(new Dataset(name.name));
         });
-        return arr;
+        return new ArrayResultStream(arr);
     }
 
     async query<T>(dataset: Dataset, fn: (readTx: ReadTx) => Promise<T>): Promise<T> {

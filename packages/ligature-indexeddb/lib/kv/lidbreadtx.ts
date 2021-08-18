@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ReadTx, Entity, Attribute, Value, LiteralRange, Statement, Dataset } from "@ligature/ligature";
+import { ReadTx, Entity, Attribute, Value, LiteralRange, Statement, Dataset, ResultStream, ArrayResultStream } from "@ligature/ligature";
 import { IDBPTransaction } from "idb";
 
 export class LIDBReadTx implements ReadTx {
@@ -16,19 +16,19 @@ export class LIDBReadTx implements ReadTx {
         this.dsId = dsId;
     }
 
-    async allStatements(): Promise<Array<Statement>> {
+    async allStatements(): Promise<ResultStream<Statement>> {
         let os = this.tx.objectStore('statements');
         let start: any = []; //TODO replace with real code
         let stop: any = [1]; //TODO replace with real code
         let arr = Array<Statement>();
         let res = await os.getAll(IDBKeyRange.bound(start, stop, false, true));
-        return Promise.resolve(arr);
+        return Promise.resolve(new ArrayResultStream(arr));
     }
 
     async matchStatements(entity: Entity | null, 
             attribute: Attribute | null, 
             value: Value | LiteralRange | null, 
-            context: Entity | null): Promise<Array<Statement>> {
+            context: Entity | null): Promise<ResultStream<Statement>> {
         let query: any = {};
         let arr = Array<Statement>();
         if (entity != null) {
@@ -41,6 +41,6 @@ export class LIDBReadTx implements ReadTx {
         if (context != null) {
             query['context'] = context.id;
         }
-        return Promise.resolve(arr);
+        return Promise.resolve(new ArrayResultStream(arr));
     }
 }

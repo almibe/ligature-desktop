@@ -18,7 +18,7 @@ export class LIDBWriteTx implements WriteTx {
         this.dsId = dsId;
     }
 
-    async generateEntity(prefix: string = '_:'): Promise<Entity> {
+    async newEntity(prefix: string = '_:'): Promise<Entity> {
         //TODO assert that Entity doesn't exist, and generate new one if it does
         let entity = new Entity(prefix + uuidv4());
         if (entity.isValid()) {

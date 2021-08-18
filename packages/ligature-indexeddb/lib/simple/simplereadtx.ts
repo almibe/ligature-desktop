@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ReadTx, Entity, Attribute, Value, LiteralRange, Statement, Dataset } from "@ligature/ligature";
+import { ReadTx, Entity, Attribute, Value, LiteralRange, Statement, Dataset, ArrayResultStream, ResultStream } from "@ligature/ligature";
 import { IDBPTransaction } from "idb";
 import type { StatementRecord } from './util';
 import { BYTES_VALUE_TYPE, decodeInteger, ENTITY_VALUE_TYPE, FLOAT_VALUE_TYPE, INTEGER_VALUE_TYPE, STRING_VALUE_TYPE, encodeInteger } from "../util";
@@ -18,17 +18,17 @@ export class SimpleReadTx implements ReadTx {
         this.dsId = dsId;
     }
 
-    async allStatements(): Promise<Array<Statement>> {
+    async allStatements(): Promise<ResultStream<Statement>> {
         let idx = this.tx.objectStore('statements').index('dataset');
         let arr = Array<Statement>();
         (await idx.getAll(this.ds.name)).forEach(s => arr.push(this.createStatement(s)));
-        return Promise.resolve(arr);
+        return new ArrayResultStream(arr);
     }
 
     async matchStatements(entity: Entity | null, 
             attribute: Attribute | null, 
             value: Value | LiteralRange | null, 
-            context: Entity | null): Promise<Array<Statement>> {
+            context: Entity | null): Promise<ResultStream<Statement>> {
         let entityIds: Set<number> | null = null;
         let attributeIds: Set<number> | null = null;
         let valueIds: Set<number> | null = null;
@@ -48,7 +48,7 @@ export class SimpleReadTx implements ReadTx {
         }
         let finalIds = this.findIntersection(entityIds, attributeIds, valueIds, contextId);
         let finalStatements = await this.lookupStatements(finalIds);
-        return Promise.resolve(finalStatements);
+        return finalStatements;
     }
 
     createStatement(record: StatementRecord): Statement {
@@ -139,7 +139,7 @@ export class SimpleReadTx implements ReadTx {
         return intersect(t2, contextId == null ? null : new Set([contextId]));
     }
 
-    async lookupStatements(statementIds: Set<number> | null): Promise<Array<Statement>> {
+    async lookupStatements(statementIds: Set<number> | null): Promise<ResultStream<Statement>> {
         if (statementIds == null) {
             return this.allStatements();
         } else {
@@ -147,7 +147,7 @@ export class SimpleReadTx implements ReadTx {
             for (let id of statementIds) { //TODO use a cursor for this instead of a loop
                 (await this.tx.objectStore("statements").getAll(id)).forEach(s => arr.push(this.createStatement(s)));
             }
-            return Promise.resolve(arr);
+            return new ArrayResultStream(arr);
         }
     }
 }
