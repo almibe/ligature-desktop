@@ -2,105 +2,100 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export const identifierPatternFull = /^[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
-export const identifierPattern =      /[a-zA-Z_][a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
+export const identifierPatternFull = /^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
+export const identifierPattern =      /[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
  
 export function validateIntegerLiteral(literal: bigint): boolean {
     return literal >= -9223372036854775808n && literal <= 9223372036854775807n;
 }
 
+export type InvalidDataset = "InvalidDataset";
+
 export class Dataset {
     readonly name: string;
 
-    constructor(name: string) {
+    private constructor(name: string) {
         this.name = name;
-    }
-
-    isValid(): boolean {
-        return identifierPatternFull.test(this.name);
     }
 
     equals(other: Dataset): boolean {
         return this.name === other.name;
     }
+
+    static from(name: string): Dataset | InvalidDataset {
+        if (identifierPatternFull.test(this.name)) {
+            return new Dataset(name);
+        } else {
+            return "InvalidDataset"
+        }
+    }
 }
 
-export class Entity {
+export type InvalidIdentifier = "InvalidIdentifier"
+
+export class Identifier {
     readonly id: string;
 
-    constructor(id: string) {
+    private constructor(id: string) {
         this.id = id;
     }
 
-    isValid(): boolean {
-        return identifierPatternFull.test(this.id);
+    equals(other: Identifier): boolean {
+        return this.id === other.id;
     }
 
-    equals(other: Entity): boolean {
-        return this.id === other.id;
+    static from(id: string): Identifier | InvalidIdentifier {
+        if (identifierPatternFull.test(id)) {
+            return new Identifier(id)
+        } else {
+            return "InvalidIdentifier"
+        }
     }
 }
 
-export class Attribute {
-    readonly name: string;
+export type InvalidLongLiteral = "InvalidLongLiteral"
 
-    constructor(name: string) {
-        this.name = name;
+export class LongLiteral {
+    readonly value: bigint;
+
+    private constructor(value: bigint) {
+        this.value = value;
     }
 
-    isValid(): boolean {
-        return identifierPatternFull.test(this.name);
+    equals(other: LongLiteral) {
+        return this.value === other.value;
     }
 
-    equals(other: Attribute): boolean {
-        return this.name === other.name;
+    static from(value: bigint): LongLiteral | InvalidLongLiteral {
+        if (validateIntegerLiteral(value)) {
+            return new LongLiteral(value)
+        } else {
+            return "InvalidLongLiteral"
+        }
     }
 }
 
 export type StringLiteral = string;
-export type LongLiteral = bigint;
-export type DoubleLiteral = number;
 export type BytesLiteral = Uint8Array;
-export type Literal = StringLiteral | BytesLiteral | LongLiteral | DoubleLiteral;
+export type Literal = StringLiteral | BytesLiteral | LongLiteral;
 
-export type Value = Entity | Literal;
+export type Value = Identifier | Literal;
 
 export class Statement {
-    readonly entity: Entity;
-    readonly attribute: Attribute;
+    readonly entity: Identifier;
+    readonly attribute: Identifier;
     readonly value: Value;
-    readonly context: Entity;
+    readonly context: Identifier;
 
-    constructor(entity: Entity, attribute: Attribute, value: Value, context: Entity) {
+    constructor(entity: Identifier, attribute: Identifier, value: Value, context: Identifier) {
         this.entity = entity;
         this.attribute = attribute;
         this.value = value;
         this.context = context;
     }
 
-    isValid(): {valid: boolean, invalidParts?: Set<'entity' | 'attribute' | 'value' | 'context'>} {
-        let invalidParts = new Set<'entity' | 'attribute' | 'value' | 'context'>();
-        if (!this.entity.isValid()) {
-            invalidParts.add('entity');
-        }
-        if (!this.attribute.isValid()) {
-            invalidParts.add('attribute');
-        }
-        if (typeof this.value == 'bigint' && !validateIntegerLiteral(this.value)) {
-            invalidParts.add('value');
-        }
-        if (!this.context.isValid()) {
-            invalidParts.add('context');
-        }
-        if (invalidParts.size === 0) {
-            return { valid: true };
-        } else {
-            return { valid: false, invalidParts};
-        }
-    }
-
     private valuesEqual(value: Value): boolean {
-        if (this.value instanceof Entity && value instanceof Entity) {
+        if (this.value instanceof Identifier && value instanceof Identifier) {
             return this.value.equals(value);
         } else {
             return value === this.value
@@ -116,10 +111,9 @@ export class Statement {
 }
 
 export type StringLiteralRange = { start: string, end: string };
-export type LongLiteralRange = { start: bigint, end: bigint }; //TODO make class w/ validate method
-export type DoubleLiteralRange = { start: number, end: number };
+export type LongLiteralRange = { start: LongLiteral, end: LongLiteral };
 export type BytesLiteralRange = { start: BytesLiteral, end: BytesLiteral };
-export type LiteralRange = StringLiteralRange | BytesLiteralRange | LongLiteralRange | DoubleLiteralRange;
+export type LiteralRange = StringLiteralRange | BytesLiteralRange | LongLiteralRange;
 
 export class ResultComplete {
     readonly length: BigInt
@@ -160,6 +154,13 @@ export interface ResultStream<T> {
      * Returns all remaining results as an array.
      */
     toArray(): Promise<Array<T> | ResultComplete | ResultError>
+}
+
+/**
+ * This function is a type guard for checking if an object implements ResultStream.
+ */
+export function instanceOfResultStream<T>(object: any): object is ResultStream<T> {
+    return 'next' in object && 'toArray' in object;
 }
 
 export class ArrayResultStream<T> implements ResultStream<T> {
@@ -234,14 +235,14 @@ export interface ReadTx {
     /**
      * Is passed a pattern and returns a seq with all matching Statements.
      */
-    matchStatements(entity: Entity | null, attribute: Attribute | null, value: Value | null | LiteralRange, context: Entity | null): Promise<ResultStream<Statement>>
+    matchStatements(entity: Identifier | null, attribute: Identifier | null, value: Value | null | LiteralRange, context: Identifier | null): Promise<ResultStream<Statement>>
 }
 
 export interface WriteTx {
     /**
      * Returns a new, unique to this collection identifier in the form _:UUID
      */
-    newEntity(prefix: string): Promise<Entity>
+    newIdentifier(prefix: string): Promise<Identifier>
     addStatement(statement: Statement): Promise<Statement>
     removeStatement(statement: Statement): Promise<Statement>
 
