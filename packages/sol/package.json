@@ -19,5 +19,8 @@
   },
   "bugs": {
     "url": "https://github.com/almibe/ligature-js/issues"
+  },
+  "dependencies": {
+    "purify-ts": "^1.1.0"
   }
 }
