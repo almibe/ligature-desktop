@@ -2,14 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export const identifierPatternFull = /^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*$/;
-export const identifierPattern =      /[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]*/;
- 
+import { Either, Left, Right } from "purify-ts"
+
+export const identifierPatternFull = /^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+$/
+export const identifierPattern =      /[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;%=]+/
+
 export function validateIntegerLiteral(literal: bigint): boolean {
     return literal >= -9223372036854775808n && literal <= 9223372036854775807n;
 }
 
-export type InvalidDataset = "InvalidDataset";
+export type LigatureError = { message: string }
+
+export const InvalidDataset = { message: "InvalidDataset" }
 
 export class Dataset {
     readonly name: string;
@@ -22,16 +26,16 @@ export class Dataset {
         return this.name === other.name;
     }
 
-    static from(name: string): Dataset | InvalidDataset {
-        if (identifierPatternFull.test(this.name)) {
-            return new Dataset(name);
+    static from(name: string): Either<typeof InvalidDataset, Dataset> {
+        if (identifierPatternFull.test(name)) {
+            return Right(new Dataset(name));
         } else {
-            return "InvalidDataset"
+            return Left(InvalidDataset)
         }
     }
 }
 
-export type InvalidIdentifier = "InvalidIdentifier"
+export const InvalidIdentifier = { message: "InvalidIdentifier" }
 
 export class Identifier {
     readonly id: string;
@@ -44,16 +48,16 @@ export class Identifier {
         return this.id === other.id;
     }
 
-    static from(id: string): Identifier | InvalidIdentifier {
+    static from(id: string): Either<typeof InvalidIdentifier, Identifier> {
         if (identifierPatternFull.test(id)) {
-            return new Identifier(id)
+            return Right(new Identifier(id))
         } else {
-            return "InvalidIdentifier"
+            return Left(InvalidIdentifier)
         }
     }
 }
 
-export type InvalidLongLiteral = "InvalidLongLiteral"
+export const InvalidLongLiteral = { message: "InvalidLongLiteral" }
 
 export class LongLiteral {
     readonly value: bigint;
@@ -66,11 +70,11 @@ export class LongLiteral {
         return this.value === other.value;
     }
 
-    static from(value: bigint): LongLiteral | InvalidLongLiteral {
+    static from(value: bigint): Either<typeof InvalidLongLiteral, LongLiteral> {
         if (validateIntegerLiteral(value)) {
-            return new LongLiteral(value)
+            return Right(new LongLiteral(value))
         } else {
-            return "InvalidLongLiteral"
+            return Left(InvalidLongLiteral)
         }
     }
 }
