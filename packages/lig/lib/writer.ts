@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Statement, Entity, Attribute } from '@ligature/ligature';
+import { Statement, Identifier, LongLiteral } from '@ligature/ligature';
 import type { Value } from '@ligature/ligature';
  
 export function write(statements: Array<Statement>): string {
@@ -13,27 +13,17 @@ export function write(statements: Array<Statement>): string {
     return finalString;
 }
 
-export function writeEntity(entity: Entity): string {
-    return "<" + entity.id + ">";
-}
-
-export function writeAttribute(attribute: Attribute): string {
-    return "@<" + attribute.name + ">";
+export function writeIdentifier(identifier: Identifier): string {
+    return "<" + identifier.id + ">";
 }
 
 export function writeValue(value: Value): string {
-    if (value instanceof Entity) {
-        return writeEntity(value);
+    if (value instanceof Identifier) {
+        return writeIdentifier(value);
     } else if (typeof value == 'string') {
         return '"' + value + '"'; //TODO needs escapes
-    } else if (typeof value == 'bigint') {
+    } else if (value instanceof LongLiteral) {
         return value.toString();
-    } else if (typeof value == 'number') {
-        let res = value.toString();
-        if (!res.includes(".")) {
-            res = res + ".0";
-        }
-        return res;
     } else if (value instanceof Uint8Array) {
         let res = "0x";
         for (let byte of value) {
@@ -50,6 +40,6 @@ export function writeValue(value: Value): string {
 }
 
 export function writeStatement(statement: Statement): string {
-    return writeEntity(statement.entity) + " " + writeAttribute(statement.attribute) +
-        " " + writeValue(statement.value) + " " + writeEntity(statement.context);
+    return writeIdentifier(statement.entity) + " " + writeIdentifier(statement.attribute) +
+        " " + writeValue(statement.value) + " " + writeIdentifier(statement.context);
 }

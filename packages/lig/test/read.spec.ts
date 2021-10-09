@@ -3,20 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { should } from "chai";
-import { Entity, Attribute, Statement } from "../../ligature/lib";
-import { read, readAttribute, readEntity, readValue } from "../lib";
+import { Identifier, LongLiteral, Statement } from "../../ligature/lib";
+import { read, readIdentifier, readValue } from "../lib";
 
 should();
 
 describe("Reading Lig", () => {
-    it("Read Entities", () => {
+    it("Read Identifiers", () => {
         let e = "<test>";
-        readEntity(e).should.be.eql(new Entity("test"));
-    });
-
-    it("Read Attributes", () => {
-        let a = "@<test>";
-        readAttribute(a).should.be.eql(new Attribute("test"));
+        readIdentifier(e).should.be.eql(Identifier.from("test"));
     });
 
     it("Read String Literals", () => {
@@ -39,9 +34,9 @@ describe("Reading Lig", () => {
         readValue(b).should.be.eql(new Uint8Array([0, 255]));
     });
 
-    it("Read Entity as Value", () => {
+    it("Read Identifier as Value", () => {
         let e = "<test>";
-        readValue(e).should.be.eql(new Entity("test"));
+        readValue(e).should.be.eql(Identifier.from("test"));
     })
 
     it("Read Empty Set of Statements", () => {
@@ -51,10 +46,10 @@ describe("Reading Lig", () => {
     });
 
     it("Read Set of Statements", () => {
-        let s = "<e> @<a> 123 <c>\n<e2> @<a> <e> <c2>\n";
+        let s = "<e> <a> 123 <c>\n<e2> <a> <e> <c2>\n";
         let expected = [
-            new Statement(new Entity("e"), new Attribute("a"), 123n, new Entity("c")),
-            new Statement(new Entity("e2"), new Attribute("a"), new Entity("e"), new Entity("c2"))
+            new Statement(Identifier.from("e").unsafeCoerce(), Identifier.from("a").unsafeCoerce(), LongLiteral.from(123n).unsafeCoerce(), Identifier.from("c").unsafeCoerce()),
+            new Statement(Identifier.from("e2").unsafeCoerce(), Identifier.from("a").unsafeCoerce(), Identifier.from("e").unsafeCoerce(), Identifier.from("c2").unsafeCoerce())
         ];
         read(s).should.be.eql(expected);
     });

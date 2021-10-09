@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Statement, Entity, Attribute, identifierPattern } from "@ligature/ligature";
+import { Statement, Identifier, identifierPattern, LongLiteral } from "@ligature/ligature";
 import type { Value } from '@ligature/ligature';
 import { createToken, CstParser, Lexer } from 'chevrotain';
+import { LigError } from ".";
+import { Either, Left, Right } from "purify-ts";
 
 export const WHITE_SPACE_T = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
 export const ANGLE_START_T = createToken({name: "AngleStart", pattern: /</});
-export const ATTRIBUTE_START_T = createToken({name: "AttributeStart", pattern: /@</});
 export const ANGLE_END_T = createToken({name: "AngleEnd", pattern: />/});
 export const IDENTIFIER_T = createToken({name: "Identifier", pattern: identifierPattern});
 export const STRING_T = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
@@ -19,7 +20,6 @@ export const BYTES_T = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2}
 let allTokens = [
     WHITE_SPACE_T,
     ANGLE_START_T,
-    ATTRIBUTE_START_T,
     ANGLE_END_T,
     IDENTIFIER_T,
     STRING_T,
@@ -41,27 +41,21 @@ class LigParser extends CstParser {
         });
 
         $.RULE("statement", () => {
-            $.SUBRULE($.entity);
-            $.SUBRULE($.attribute);
+            $.SUBRULE($.identifier);
+            $.SUBRULE2($.identifier);
             $.SUBRULE($.value);
-            $.SUBRULE2($.entity);
+            $.SUBRULE3($.identifier);
         });
 
-        $.RULE("entity", () => {
+        $.RULE("identifier", () => {
             $.CONSUME(ANGLE_START_T);
-            $.CONSUME(IDENTIFIER_T);
-            $.CONSUME(ANGLE_END_T);
-        });
-
-        $.RULE("attribute", () => {
-            $.CONSUME(ATTRIBUTE_START_T);
             $.CONSUME(IDENTIFIER_T);
             $.CONSUME(ANGLE_END_T);
         });
 
         $.RULE("value", () => {
             $.OR([
-                { ALT: () => $.SUBRULE($.entity) },
+                { ALT: () => $.SUBRULE($.identifier) },
                 { ALT: () => $.CONSUME(STRING_T) },
                 { ALT: () => $.CONSUME(FLOAT_T) },
                 { ALT: () => $.CONSUME(INTEGER_T) },
@@ -73,8 +67,7 @@ class LigParser extends CstParser {
     }
 
     //properties below just exist to make TS happy
-    entity: any;
-    attribute: any;
+    identifier: any;
     value: any;
     statement: any;
     statements: any;
@@ -83,78 +76,68 @@ class LigParser extends CstParser {
 let ligLexer = new Lexer(allTokens);
 let ligParser = new LigParser();
 
-export function read(input: string): Array<Statement> {
+export function read(input: string): Either<LigError, Array<Statement>> {
     const lexResult = ligLexer.tokenize(input);
     ligParser.input = lexResult.tokens;
     let res = ligParser.statements().children;
     let statements = Array<Statement>();
     if (res.statement == undefined) {
-        return statements;
+        return Right(statements);
     }
     res = res.statement;
     for (let s of res) {
-        let statement = s.children;
-        let entity = new Entity(statement.entity[0].children.Identifier[0].image);
-        let attribute = new Attribute(statement.attribute[0].children.Identifier[0].image);
-        let value = processValue(statement.value[0]);
-        let context = new Entity(statement.entity[1].children.Identifier[0].image);
-        statements.push(new Statement(entity, attribute, value, context));
+        try {
+            let statement = s.children;
+            let entity = Identifier.from(statement.entity[0].children.Identifier[0].image).unsafeCoerce();
+            let attribute = Identifier.from(statement.attribute[0].children.Identifier[0].image).unsafeCoerce();
+            let value = processValue(statement.value[0]).unsafeCoerce();
+            let context = Identifier.from(statement.entity[1].children.Identifier[0].image).unsafeCoerce();    
+            statements.push(new Statement(entity, attribute, value, context));
+        } catch(e) {
+            throw new Error("TODO")
+        }
     }
-    return statements;
+    return Right(statements);
 }
 
-export function readEntity(input: string): Entity {
+export function readIdentifier(input: string): Either<LigError, Identifier> {
     const lexResult = ligLexer.tokenize(input);
     ligParser.input = lexResult.tokens;
-    let res = ligParser.entity();
+    let res = ligParser.identifier();
     if (res == undefined) {
-        throw new Error("Could not read Entity from - " + input);
+        return Left({ message: "Could not read Identifier from - " + input } );
     } else {
-        return new Entity(res.children.Identifier[0].image);
+        return Right(Identifier.from(res.children.Identifier[0].image).unsafeCoerce());
     }
 }
 
-export function readAttribute(input: string): Attribute {
-    const lexResult = ligLexer.tokenize(input);
-    ligParser.input = lexResult.tokens;
-    let res = ligParser.attribute();
-    if (res == undefined) {
-        throw new Error("Could not read Attribute from - " + input);
-    } else {
-        return new Attribute(res.children.Identifier[0].image);
-    }
-}
-
-export function readValue(input: string): Value {
+export function readValue(input: string): Either<LigError, Value> {
     const lexResult = ligLexer.tokenize(input);
     ligParser.input = lexResult.tokens;
     let res = ligParser.value();
     return processValue(res);
 }
 
-export function processValue(value: any): Value {
+export function processValue(value: any): Either<LigError, Value> {
     if (value == undefined) {
         throw new Error("Could not read Value from - " + value);
     } else {
-        if (value.children.entity != undefined) {
-            return new Entity(value.children.entity[0].children.Identifier[0].image);
+        if (value.children.identifier != undefined) {
+            return Identifier.from(value.children.entity[0].children.Identifier[0].image);
         } else if (value.children.String != undefined) {
             value = value.children.String[0].image;
             return value.substring(1,value.length-1); //remove quotes
         } else if (value.children.Integer != undefined) {
             value = value.children.Integer[0].image;
-            return BigInt(value);
-        } else if (value.children.Float != undefined) {
-            value = value.children.Float[0].image;
-            return Number(value);
+            return LongLiteral.from(value);
         } else if (value.children.Bytes != undefined) {
             value = value.children.Bytes[0].image;
             value = value.substring(2, value.length); //remove 0x
             let chunks = value.match(/.{1,2}/g).map((v: string) => parseInt(v, 16));
             let result = new Uint8Array(chunks);
-            return result;
+            return Right(result);
         } else {
-            throw new Error("Could not read Value from " + value);
+            return Left({ message: "Could not read Value from " + value });
         }
     }
 }

@@ -4,3 +4,5 @@
 
 export * from './reader';
 export * from './writer';
+
+export type LigError = { message: string }
