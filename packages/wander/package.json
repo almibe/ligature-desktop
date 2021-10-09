@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "@ligature/lig": "../lig",
-    "chevrotain": "^9.0.2"
+    "chevrotain": "^9.0.2",
+    "purify-ts": "^1.1.0"
   },
   "devDependencies": {
     "@ligature/ligature-indexeddb": "../ligature-indexeddb",

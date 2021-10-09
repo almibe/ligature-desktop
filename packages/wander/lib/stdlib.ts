@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ResultComplete, ResultError, ResultStream } from "../../ligature/lib";
 import { Identifier, NativeFunction } from "./ast";
 import { Binding } from "./binding";
 import { TODO } from "./debug";
@@ -24,6 +25,10 @@ export function stdLib(scope: ExecutionScope): Binding {
 function common(): Binding {
     const stdLib = new Binding();
 
+    stdLib.bind(new Identifier("log"), new NativeFunction(["message"], (Binding: Binding) => {
+        throw new Error("Not implemented.");
+    }))
+
     stdLib.bind(new Identifier("not"), new NativeFunction(["bool"], (bindings: Binding) => {
         let b = bindings.read(new Identifier("bool")) as boolean //TODO check value
         return !b
@@ -40,6 +45,37 @@ function common(): Binding {
         let boolr = bindings.read(new Identifier("boolr")) as boolean //TODO check value
         return booll || boolr
     }));
+
+    class RangeResultStream implements ResultStream<bigint> {
+        readonly start: bigint
+        readonly stop: bigint
+        private i: bigint
+
+        constructor(start: bigint, stop: bigint) {
+            this.start = start
+            this.stop = stop
+            this.i = start
+        }
+
+        next(): Promise<bigint | ResultComplete | ResultError> {
+            if (this.i < this.stop) {
+                let result = this.i
+                this.i++;
+                return Promise.resolve(result)
+            } else {
+                return Promise.resolve(new ResultComplete(this.stop - this.start));
+            }
+        }
+        toArray(): Promise<ResultComplete | ResultError | bigint[]> {
+            throw new Error("Method not implemented.");
+        }
+    }
+
+    stdLib.bind(new Identifier("range"), new NativeFunction(["start", "stop"], (bindings: Binding) => {
+        let start = bindings.read(new Identifier("start")) as bigint //TODO check value
+        let stop = bindings.read(new Identifier("stop")) as bigint //TODO check value
+        return new RangeResultStream(start, stop)
+    }))
 
     return stdLib;
 }

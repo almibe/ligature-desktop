@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { identifierPattern, Ligature, ReadTx, WriteTx } from '@ligature/ligature';
+import { identifierPattern, instanceOfResultStream, Ligature, ReadTx, ResultComplete, ResultError, ResultStream, WriteTx } from '@ligature/ligature';
 import { createToken, CstParser, Lexer } from 'chevrotain';
 import { writeValue,
     writeEntity,
@@ -289,7 +289,7 @@ export type nothing = null;
 export const nothing = null;
 
 //NOTE: keeping the following two types separate for now since I'm not sure if they will always be the same
-export type WanderValue = Value | boolean | Attribute | Statement | nothing | FunctionDefinition | NativeFunction;
+export type WanderValue = Value | boolean | Attribute | Statement | nothing | FunctionDefinition | NativeFunction | ResultStream<WanderValue>;
 export type WanderResult = WanderValue;
 
 /**
@@ -546,6 +546,14 @@ export function write(result: WanderResult | WanderError): string {
         return "nothing";
     } else if (result instanceof WanderError) {
         return result.message;
+    } else if (instanceOfResultStream(result)) {
+        let i = 0
+        let str = "["
+        while (i < 100) {
+            let next = result.next()
+            if (next instanceof )
+        }
+        return "TODO"
     } else {
         throw new Error("Not implemented.");
     }

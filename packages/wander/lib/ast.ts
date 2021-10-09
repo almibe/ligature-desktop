@@ -8,6 +8,9 @@ import { debug, TODO } from "./debug";
 
 export type Result = WanderResult | WanderError
 
+type WanderType = "entity" | "attribute" | "value" | "string" | "integer" | "float" | "byteArray" | "boolean" | "function"
+type FunctionParameter = { name: string, type: WanderType }
+
 export class FunctionDefinition {
     readonly parameters: Array<string> //this needs types so eventually it'll have to be something other than a string
     readonly body: Array<Element>
