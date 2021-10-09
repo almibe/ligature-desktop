@@ -13,7 +13,6 @@ export const ANGLE_START_T = createToken({name: "AngleStart", pattern: /</});
 export const ANGLE_END_T = createToken({name: "AngleEnd", pattern: />/});
 export const IDENTIFIER_T = createToken({name: "Identifier", pattern: identifierPattern});
 export const STRING_T = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
-export const FLOAT_T = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
 export const INTEGER_T = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
 export const BYTES_T = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2})+/});
 
@@ -24,7 +23,6 @@ let allTokens = [
     IDENTIFIER_T,
     STRING_T,
     BYTES_T,
-    FLOAT_T,
     INTEGER_T
 ];
 
@@ -55,10 +53,9 @@ class LigParser extends CstParser {
 
         $.RULE("value", () => {
             $.OR([
+                { ALT: () => $.CONSUME(INTEGER_T) },
                 { ALT: () => $.SUBRULE($.identifier) },
                 { ALT: () => $.CONSUME(STRING_T) },
-                { ALT: () => $.CONSUME(FLOAT_T) },
-                { ALT: () => $.CONSUME(INTEGER_T) },
                 { ALT: () => $.CONSUME(BYTES_T) }
             ])
         });
@@ -112,15 +109,17 @@ export function readIdentifier(input: string): Either<LigError, Identifier> {
 }
 
 export function readValue(input: string): Either<LigError, Value> {
+    console.log("in readvalue " + input);
     const lexResult = ligLexer.tokenize(input);
     ligParser.input = lexResult.tokens;
     let res = ligParser.value();
+    console.log(res);
     return processValue(res);
 }
 
 export function processValue(value: any): Either<LigError, Value> {
     if (value == undefined) {
-        throw new Error("Could not read Value from - " + value);
+        return Left({ message: "Could not read Value from - " + value });
     } else {
         if (value.children.identifier != undefined) {
             return Identifier.from(value.children.entity[0].children.Identifier[0].image);

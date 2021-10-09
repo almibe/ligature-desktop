@@ -4,7 +4,7 @@
 
 import { should } from "chai"
 import { Right } from "purify-ts"
-import { Identifier, LongLiteral, Statement } from "../../ligature/lib"
+import { Identifier, LongLiteral, Statement } from "@ligature/ligature"
 import { read, readIdentifier, readValue } from "../lib"
 
 should();

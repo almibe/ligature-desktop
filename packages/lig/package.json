@@ -21,6 +21,7 @@
     "url": "https://github.com/almibe/ligature-js/issues"
   },
   "dependencies": {
+    "@ligature/gaze": "^0.1.0",
     "@ligature/ligature": "../ligature",
     "chevrotain": "^9.0.2",
     "purify-ts": "^1.1.0"
