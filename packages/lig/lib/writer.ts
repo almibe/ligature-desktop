@@ -23,7 +23,7 @@ export function writeValue(value: Value): string {
     } else if (typeof value == 'string') {
         return '"' + value + '"'; //TODO needs escapes
     } else if (value instanceof LongLiteral) {
-        return value.toString();
+        return value.value.toString();
     } else if (value instanceof Uint8Array) {
         let res = "0x";
         for (let byte of value) {
