@@ -34,6 +34,7 @@
     "@ligature/ligature": "../ligature",
     "@types/uuid": "^8.3.0",
     "idb": "^6.1.2",
+    "purify-ts": "^1.1.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

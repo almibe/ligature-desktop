@@ -8,5 +8,5 @@ import { openLigatureSimpleIndexedDB } from '../lib/simple/index';
 import { runTests, commonTests } from "./common";
 
 commonTests();
-runTests("KV", openLigatureIndexedDB);
+//runTests("KV", openLigatureIndexedDB);
 runTests("Simple", openLigatureSimpleIndexedDB);
