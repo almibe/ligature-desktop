@@ -85,13 +85,13 @@ export function read(input: string): Either<LigError, Array<Statement>> {
     for (let s of res) {
         try {
             let statement = s.children;
-            let entity = Identifier.from(statement.entity[0].children.Identifier[0].image).unsafeCoerce();
-            let attribute = Identifier.from(statement.attribute[0].children.Identifier[0].image).unsafeCoerce();
+            let entity = Identifier.from(statement.identifier[0].children.Identifier[0].image).unsafeCoerce();
+            let attribute = Identifier.from(statement.identifier[1].children.Identifier[0].image).unsafeCoerce();
             let value = processValue(statement.value[0]).unsafeCoerce();
-            let context = Identifier.from(statement.entity[1].children.Identifier[0].image).unsafeCoerce();    
+            let context = Identifier.from(statement.identifier[2].children.Identifier[0].image).unsafeCoerce();    
             statements.push(new Statement(entity, attribute, value, context));
         } catch(e) {
-            throw new Error("TODO")
+            throw e
         }
     }
     return Right(statements);

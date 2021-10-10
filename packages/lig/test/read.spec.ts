@@ -42,11 +42,12 @@ describe("Reading Lig", () => {
     })
 
     it("Read Set of Statements", () => {
-        let s = "<e> <a> 123 <c>\n<e2> <a> <e> <c2>\n"
+        let s = "<e> <a> 0x00ff <c>\n<e> <a> 123 <c>\n<e2> <a> <e> <c2>\n"
         let expected = [
+            new Statement(Identifier.from("e").unsafeCoerce(), Identifier.from("a").unsafeCoerce(), new Uint8Array([0, 255]), Identifier.from("c").unsafeCoerce()),
             new Statement(Identifier.from("e").unsafeCoerce(), Identifier.from("a").unsafeCoerce(), LongLiteral.from(123n).unsafeCoerce(), Identifier.from("c").unsafeCoerce()),
             new Statement(Identifier.from("e2").unsafeCoerce(), Identifier.from("a").unsafeCoerce(), Identifier.from("e").unsafeCoerce(), Identifier.from("c2").unsafeCoerce())
         ]
-        read(s).should.be.equal(expected)
+        read(s).unsafeCoerce().should.be.eql(expected)
     })
 })
