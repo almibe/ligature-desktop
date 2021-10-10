@@ -20,10 +20,10 @@ let allTokens = [
     WHITE_SPACE_T,
     ANGLE_START_T,
     ANGLE_END_T,
-    IDENTIFIER_T,
     STRING_T,
     BYTES_T,
-    INTEGER_T
+    INTEGER_T,
+    IDENTIFIER_T,
 ];
 
 class LigParser extends CstParser {
@@ -104,16 +104,14 @@ export function readIdentifier(input: string): Either<LigError, Identifier> {
     if (res == undefined) {
         return Left({ message: "Could not read Identifier from - " + input } );
     } else {
-        return Right(Identifier.from(res.children.Identifier[0].image).unsafeCoerce());
+        return Identifier.from(res.children.Identifier[0].image);
     }
 }
 
 export function readValue(input: string): Either<LigError, Value> {
-    console.log("in readvalue " + input);
     const lexResult = ligLexer.tokenize(input);
     ligParser.input = lexResult.tokens;
     let res = ligParser.value();
-    console.log(res);
     return processValue(res);
 }
 
@@ -122,13 +120,13 @@ export function processValue(value: any): Either<LigError, Value> {
         return Left({ message: "Could not read Value from - " + value });
     } else {
         if (value.children.identifier != undefined) {
-            return Identifier.from(value.children.entity[0].children.Identifier[0].image);
+            return Identifier.from(value.children.identifier[0].children.Identifier[0].image);
         } else if (value.children.String != undefined) {
             value = value.children.String[0].image;
             return value.substring(1,value.length-1); //remove quotes
         } else if (value.children.Integer != undefined) {
             value = value.children.Integer[0].image;
-            return LongLiteral.from(value);
+            return LongLiteral.from(BigInt(value));
         } else if (value.children.Bytes != undefined) {
             value = value.children.Bytes[0].image;
             value = value.substring(2, value.length); //remove 0x

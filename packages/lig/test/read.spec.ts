@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { should } from "chai"
-import { Right } from "purify-ts"
+import { Either, Right } from "purify-ts"
 import { Identifier, LongLiteral, Statement } from "../../ligature/lib"
 import { read, readIdentifier, readValue } from "../lib"
 
@@ -22,12 +22,12 @@ describe("Reading Lig", () => {
 
     it("Read Integer Literals", () => {
         let i = "243"
-        readValue(i).unsafeCoerce().should.be.eql(243n)
+        readValue(i).unsafeCoerce().should.be.eql(LongLiteral.from(243n).unsafeCoerce())
     })
 
     it("Read Byte Arrays Literals", () => {
         let b = "0x00ff"
-        readValue(b).should.be.eql(new Uint8Array([0, 255]))
+        readValue(b).should.be.eql(Right(new Uint8Array([0, 255])))
     })
 
     it("Read Identifier as Value", () => {
@@ -37,7 +37,7 @@ describe("Reading Lig", () => {
 
     it("Read Empty Set of Statements", () => {
         let s = ""
-        let expected: Array<Statement> = []
+        let expected: Either<never, Array<Statement>> = Right([])
         read(s).should.be.eql(expected)
     })
 
@@ -47,6 +47,6 @@ describe("Reading Lig", () => {
             new Statement(Identifier.from("e").unsafeCoerce(), Identifier.from("a").unsafeCoerce(), LongLiteral.from(123n).unsafeCoerce(), Identifier.from("c").unsafeCoerce()),
             new Statement(Identifier.from("e2").unsafeCoerce(), Identifier.from("a").unsafeCoerce(), Identifier.from("e").unsafeCoerce(), Identifier.from("c2").unsafeCoerce())
         ]
-        read(s).should.be.eql(expected)
+        read(s).should.be.equal(expected)
     })
 })
