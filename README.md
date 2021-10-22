@@ -3,6 +3,10 @@
 An implementation of Ligature targeting the JS ecosystem mostly written in TypeScript.
 See https://github.com/almibe/ligature-specification for the Ligature specification.
 
+## Status
+
+This project is in the middle of rewrite, so docs/code aren't up to date.
+
 ## Sub-packages
 
 This repo contains multiple packages.
@@ -22,9 +26,9 @@ They are all located within the `packages` directory.
 
 ## Testing
 
-This project uses lerna so to run all the unit test suites issue the following command:
+This project uses pnpm so to run all the unit test suites issue the following command:
 
-`lerna run test`
+`pnpm test`
 
 To run browser based tests issue the following commands:
 

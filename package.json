@@ -1,0 +1,19 @@
+{
+  "name": "@ligature/root",
+  "version": "0.1.0",
+  "description": "An implementation of Ligature targeting the JS ecosystem mostly written in TypeScript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/almibe/ligature-js.git"
+  },
+  "author": "Alex Michael Berry <alexmiberry@gmail.com>",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/almibe/ligature-js/issues"
+  },
+  "homepage": "https://github.com/almibe/ligature-js#readme"
+}
