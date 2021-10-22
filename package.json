@@ -1,9 +1,0 @@
-{
-  "name": "@ligature/root",
-  "description": "Root project for ligature",
-  "repository": "https://github.com/almibe/ligature-js.git",
-  "author": "alexmiberry@gmail.com",
-  "license": "MPLv2",
-  "private": true,
-  "workspaces": ["packages/*"]
-}
