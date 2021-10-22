@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { identifierPattern, instanceOfResultStream, Ligature, ReadTx, ResultComplete, ResultError, ResultStream, WriteTx } from '@ligature/ligature';
+import { Identifier, identifierPattern, instanceOfResultStream, Ligature, ReadTx, ResultComplete, ResultError, ResultStream, WriteTx } from '@ligature/ligature';
 import { createToken, CstParser, Lexer } from 'chevrotain';
 import { writeValue,
-    writeEntity,
-    writeAttribute,
+    writeIdentifier,
     writeStatement,
     processValue,
 } from '@ligature/lig';
-import { Value, Entity, Attribute, Statement } from '@ligature/ligature';
-import { LetStatement, Script, Element, Expression, Identifier, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall, NativeFunction, IfExpression, ElseIf, Else } from './ast';
+import { Value, Statement } from '@ligature/ligature';
+import { LetStatement, Script, Element, Expression, Name, ValueExpression, WanderError, Scope, ReferenceExpression, FunctionDefinition, FunctionCall, NativeFunction, IfExpression, ElseIf, Else } from './ast';
 import { debug, TODO } from './debug';
 import { Binding } from './binding';
 import { stdLib } from './stdlib';
@@ -20,12 +19,10 @@ import { stdLib } from './stdlib';
 //TODO all of these tokens should use a shared pattern with @ligature/lig, I don't think I can share the actual tokens though
 const WHITE_SPACE_T = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
 const ANGLE_START_T = createToken({name: "AngleStart", pattern: /</});
-const ATTRIBUTE_START_T = createToken({name: "AttributeStart", pattern: /@</});
 const ANGLE_END_T = createToken({name: "AngleEnd", pattern: />/});
 const LIGATURE_IDENTIFIER_T = createToken({name: "LigatureIdentifier", pattern: identifierPattern});
 const IDENTIFIER_T = createToken({name: "Identifier", pattern: /(:?[a-zA-Z_])(:?[a-zA-Z0-9_])*/});
 const STRING_T = createToken({name: "String", pattern: /"(:?[^\\"\n\r]+|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/});
-const FLOAT_T = createToken({name: "Float", pattern: /[0-9]+\.[0-9]+/}); //TODO fix pattern to not allow leading zeros
 const INTEGER_T = createToken({name: "Integer", pattern: /[0-9]+/}); //TODO fix pattern to not allow leading zeros
 const BYTES_T = createToken({name: "Bytes", pattern: /0x(:?[0-9A-Fa-f]{2})+/});
 
@@ -65,15 +62,13 @@ const allTokens = [
     BRACE_RIGHT_T,
     EQUALS_T,
     ANGLE_START_T,
-    ATTRIBUTE_START_T,
     ANGLE_END_T,
-    IDENTIFIER_T,
     LIGATURE_IDENTIFIER_T,
     STRING_T,
     BYTES_T,
-    FLOAT_T,
     INTEGER_T,
-    COMMENT_END_T
+    COMMENT_END_T,
+    IDENTIFIER_T,
 ];
 
 class WanderParser extends CstParser {
@@ -237,20 +232,10 @@ class WanderParser extends CstParser {
             $.CONSUME(ANGLE_END_T);
         });
 
-        $.RULE("attribute", () => {
-            $.CONSUME(ATTRIBUTE_START_T);
-            $.OR([
-                { ALT: () => $.CONSUME(IDENTIFIER_T) },
-                { ALT: () => $.CONSUME(LIGATURE_IDENTIFIER_T) }
-            ]);
-            $.CONSUME(ANGLE_END_T);
-        });
-
         $.RULE("value", () => {
             $.OR([
                 { ALT: () => $.SUBRULE($.entity) },
                 { ALT: () => $.CONSUME(STRING_T) },
-                { ALT: () => $.CONSUME(FLOAT_T) },
                 { ALT: () => $.CONSUME(INTEGER_T) },
                 { ALT: () => $.CONSUME(BYTES_T) }
             ])
@@ -289,7 +274,7 @@ export type nothing = null;
 export const nothing = null;
 
 //NOTE: keeping the following two types separate for now since I'm not sure if they will always be the same
-export type WanderValue = Value | boolean | Attribute | Statement | nothing | FunctionDefinition | NativeFunction | ResultStream<WanderValue>;
+export type WanderValue = Value | boolean | Statement | nothing | FunctionDefinition | NativeFunction | ResultStream<WanderValue>;
 export type WanderResult = WanderValue;
 
 /**
@@ -324,14 +309,14 @@ class WanderVisitor extends BaseWanderVisitor {
     letStatement(ctx: any): LetStatement {
         const identifier: string = ctx.Identifier[0].image;
         const expression = this.expression(ctx.expression[0].children);
-        return new LetStatement(new Identifier(identifier), expression);
+        return new LetStatement(new Name(identifier), expression);
     }
 
     expression(ctx: any): Expression {
         if (ctx.wanderValue != undefined) {
             return new ValueExpression(this.visit(ctx.wanderValue));
         } else if (ctx.Identifier != undefined) {
-            return new ReferenceExpression(new Identifier(ctx.Identifier[0].image));
+            return new ReferenceExpression(new Name(ctx.Identifier[0].image));
         } else if (ctx.scope != undefined) {
             return this.scope(ctx.scope[0])
         } else if (ctx.functionCall != undefined) {
@@ -348,8 +333,6 @@ class WanderVisitor extends BaseWanderVisitor {
             return ctx.Boolean[0].image === "true";
         } else if (ctx.value != undefined) {
             return this.value(ctx.value[0])
-        } else if (ctx.attribute != undefined) {
-            return this.attribute(ctx.attribute[0]);
         } else if (ctx.statement != undefined) {
             return this.statement(ctx.statement[0]);
         } else if (ctx.functionDefinition != undefined) {
@@ -409,7 +392,7 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     functionCall(ctx: any): FunctionCall {
-        let identifer = new Identifier(ctx.children.Identifier[0].image);
+        let identifer = new Name(ctx.children.Identifier[0].image);
         let parameters = new Array<Expression>();
         if (ctx.children.expression != undefined) {
             for (let ex of ctx.children.expression) {
@@ -439,30 +422,20 @@ class WanderVisitor extends BaseWanderVisitor {
     }
 
     statement(ctx: any): Statement {
-        const entity = this.entity(ctx.children.entity[0]);
-        const attribute = this.attribute(ctx.children.attribute[0]);
+        const entity = this.identifier(ctx.children.identifier[0]);
+        const attribute = this.identifier(ctx.children.identifier[1]);
         const value = processValue(ctx.children.value[0]);
-        const context = this.entity(ctx.children.entity[1]);
+        const context = this.identifier(ctx.children.identifier[2]);
         return new Statement(entity, attribute, value, context);
     }
 
-    entity(ctx: any): Entity {
+    identifier(ctx: any): Identifier {
         if (ctx.children.LigatureIdentifier != undefined) {
             return new Entity(ctx.children.LigatureIdentifier[0].image);
         } else if (ctx.children.Identifier != undefined) {
             return new Entity(ctx.children.Identifier[0].image);
         } else {
             throw new Error("Invalid Entity.");
-        }
-    }
-
-    attribute(ctx: any): Attribute {
-        if (ctx.children.LigatureIdentifier != undefined) {
-            return new Attribute(ctx.children.LigatureIdentifier[0].image);
-        } else if (ctx.children.Identifier != undefined) {
-            return new Attribute(ctx.children.Identifier[0].image);
-        } else {
-            throw new Error("Invalid Attribute.");
         }
     }
 
@@ -532,10 +505,8 @@ export function write(result: WanderResult | WanderError): string {
         return writeValue(result);
     } else if (typeof result == "string") {
         return writeValue(result);
-    } else if (result instanceof Entity) {
-        return writeEntity(result);
-    } else if (result instanceof Attribute) {
-        return writeAttribute(result);
+    } else if (result instanceof Identifier) {
+        return writeIdentifier(result);
     } else if (typeof result == "bigint") {
         return writeValue(result);
     } else if (typeof result == "boolean") {

@@ -8,7 +8,7 @@ import { debug, TODO } from "./debug";
 
 export type Result = WanderResult | WanderError
 
-type WanderType = "entity" | "attribute" | "value" | "string" | "integer" | "float" | "byteArray" | "boolean" | "function"
+type WanderType = "identifier" | "name" | "value" | "string" | "integer" | "float" | "byteArray" | "boolean" | "function"
 type FunctionParameter = { name: string, type: WanderType }
 
 export class FunctionDefinition {
@@ -72,10 +72,10 @@ export class Scope implements Expression {
 export interface Element extends Ast {}
 
 export class LetStatement implements Element {
-    readonly name: Identifier
+    readonly name: Name
     readonly expression: Expression
 
-    constructor(name: Identifier, expression: Expression) {
+    constructor(name: Name, expression: Expression) {
         this.name = name;
         this.expression = expression;
     }
@@ -91,11 +91,15 @@ export class LetStatement implements Element {
     }
 }
 
-export class Identifier implements Ast {
-    readonly identifier: string
+/**
+ * A name for either a variable or function name within Wander.
+ * TODO needs validation.
+ */
+export class Name implements Ast {
+    readonly name: string
 
-    constructor(identifier: string) {
-        this.identifier = identifier;
+    constructor(name: string) {
+        this.name = name;
     }
 
     eval(bindings: Binding): Result {
@@ -118,9 +122,9 @@ export class ValueExpression implements Expression {
 }
 
 export class ReferenceExpression implements Expression {
-    readonly name: Identifier
+    readonly name: Name
 
-    constructor(name: Identifier) {
+    constructor(name: Name) {
         this.name = name;
     }
 
@@ -187,10 +191,10 @@ export class Else {
 }
 
 export class FunctionCall implements Expression {
-    readonly name: Identifier;
+    readonly name: Name;
     readonly parameters: Array<Expression>;
 
-    constructor(name: Identifier, parameters: Array<Expression>) {
+    constructor(name: Name, parameters: Array<Expression>) {
         this.name = name;
         this.parameters = parameters;
     }
@@ -205,12 +209,12 @@ export class FunctionCall implements Expression {
                 if (result instanceof WanderError) {
                     return result;
                 } else {
-                    functionBindings.bind(new Identifier(func.parameters[i]), result);
+                    functionBindings.bind(new Name(func.parameters[i]), result);
                 }
             }
             return functionBindings;
         } else {
-            throw new Error(`Invalid number of parameters passed to ${this.name.identifier} expected ${func.parameters.length} received ${this.parameters.length}.`)
+            throw new Error(`Invalid number of parameters passed to ${this.name.name} expected ${func.parameters.length} received ${this.parameters.length}.`)
         }
     }
 
@@ -234,7 +238,7 @@ export class FunctionCall implements Expression {
             let result = func.body(functionBindings);
             return result;
         } else {
-            throw new Error(`Function ${this.name.identifier} not found in scope.`);
+            throw new Error(`Function ${this.name.name} not found in scope.`);
         }
     }
 }

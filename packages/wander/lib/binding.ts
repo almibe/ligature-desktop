@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { WanderValue } from ".";
-import { Identifier } from "./ast";
+import { Name } from "./ast";
 
 export class Binding {
     private scopes: Array<Map<string, WanderValue>>;
@@ -24,8 +24,8 @@ export class Binding {
         this.scopes.pop();
     }
 
-    bind(identifier: Identifier, wanderValue: WanderValue) {
-        let key = identifier.identifier
+    bind(name: Name, wanderValue: WanderValue) {
+        let key = name.name
         let currentScope = this.scopes[this.scopes.length-1];
         if (currentScope.has(key)) {
             throw new Error(`${key} is already bound in current scope.`);
@@ -34,9 +34,9 @@ export class Binding {
         }
     }
 
-    read(identifier: Identifier): WanderValue {
+    read(name: Name): WanderValue {
         let currentScopeOffset = this.scopes.length-1;
-        let key = identifier.identifier;
+        let key = name.name;
         while (currentScopeOffset >= 0) {
             let currentScope = this.scopes[currentScopeOffset];
             let value = currentScope.get(key);

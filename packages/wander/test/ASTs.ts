@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Attribute, Entity, Statement } from "@ligature/ligature";
+import { Identifier, LongLiteral, Statement } from "@ligature/ligature";
 import { WanderValue } from "../lib";
-import { Element, Expression, FunctionCall, FunctionDefinition, Identifier, LetStatement, ReferenceExpression, Scope, Script, ValueExpression } from '../lib/ast';
+import { Element, Expression, FunctionCall, FunctionDefinition, Name, LetStatement, ReferenceExpression, Scope, Script, ValueExpression } from '../lib/ast';
 
 let script = (elements: Array<Element>) => new Script(elements);
 let valueExpression = (value: WanderValue) => new ValueExpression(value);
@@ -21,29 +21,19 @@ let functionCall = (name: Identifier, parameters: Array<Expression>) => new Func
  */
 export const ast: any = {
     //PRIMITIVES
-    "attribute.wander": 
-        script([
-            valueExpression(new Attribute("attribute"))
-        ]),
-
     "boolean.wander":
         script([
             valueExpression(true)
         ]),
     
-    "entity.wander":
+    "identifier.wander":
         script([
-            valueExpression(new Entity("test"))
-        ]),
-
-    "float.wander":
-        script([
-            valueExpression(3.0)
+            valueExpression(Identifier.from("test").unsafeCoerce())
         ]),
 
     "integer.wander":
         script([
-            valueExpression(24601n)
+            valueExpression(LongLiteral.from(24601n).unsafeCoerce())
         ]),
 
     "nothing.wander":
