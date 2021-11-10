@@ -1,8 +1,14 @@
 {
   "name": "@ligature/lig",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.1.0-SNAPSHOT",
+  "description": "A TypeScript implementation of the lig serialization format for Ligature.",
+  "author": "Alex Michael Berry <alexmiberry@gmail.com>",
+  "license": "MPL-2.0",
   "main": "lib/index.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
   "scripts": {
     "test": "jest"
   },
@@ -10,8 +16,6 @@
     "type": "git",
     "url": "git+https://github.com/almibe/ligature-js.git"
   },
-  "author": "Alex Michael Berry <alexmiberry@gmail.com>",
-  "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/almibe/ligature-js/issues"
   },
@@ -21,5 +25,10 @@
     "jest": "^27.3.1",
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "chevrotain": "^9.1.0",
+    "purify-ts": "^1.1.0",
+    "@ligature/ligature": "workspace:*"
   }
 }
