@@ -5,9 +5,9 @@
   },
   "build": {
     "distDir": "../dist",
-    "devPath": "https://localhost:3000",
-    "beforeDevCommand": "",
-    "beforeBuildCommand": ""
+    "devPath": "http://localhost:3000",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
   },
   "tauri": {
     "bundle": {
