@@ -1,8 +1,12 @@
-# Svelte-Kit + Vite
+# Ligature Desktop
 
-This template should help get you started developing with Tauri and Svelte-Kit in Vite.
+A desktop application for working with Ligature data.
 
-## Recommended IDE Setup
+## Running
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+After going through this guide https://tauri.app/v1/guides/getting-started/prerequisites, do the following.
 
+```
+npm install
+npm run tauri dev
+```
