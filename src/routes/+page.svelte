@@ -1,33 +1,26 @@
-<script>
-  import Greet from "$lib/Greet.svelte";
+<script lang="ts">
+  import Datasets from "@ligature/ligature-components/Datasets.svelte";
+  import { invoke } from "@tauri-apps/api/tauri";
+  import { goto } from '$app/navigation';
+
+  let datasets: Array<string> = [];
+  
+  async function addDataset(event: {detail: string}) {
+    await invoke("add_dataset", { name: event.detail });
+  }
+
+  async function removeDataset(event: {detail: string}) {
+    await invoke("remove_dataset", { name: event.detail });
+  }
+
+  function openDataset(event: {detail: string}) {
+    goto(`/datasets/${event.detail}/`);
+  }
+
 </script>
 
-<h1>Welcome to Tauri!</h1>
-
-<div class="row">
-  <a href="https://vitejs.dev" target="_blank">
-    <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
-  </a>
-  <a href="https://tauri.app" target="_blank">
-    <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
-  </a>
-  <a href="https://kit.svelte.dev" target="_blank">
-    <img src="/svelte.svg" class="logo svelte" alt="Svelte Logo" />
-  </a>
-</div>
-
-<p>Click on the Tauri, Vite, and Svelte logos to learn more.</p>
-
-<div class="row">
-  <Greet />
-</div>
-
-<style>
-  .logo.vite:hover {
-    filter: drop-shadow(0 0 2em #747bff);
-  }
-
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00);
-  }
-</style>
+<Datasets 
+  {datasets} 
+  on:addDataset="{addDataset}" 
+  on:removeDataset="{removeDataset}"
+  on:openDataset="{openDataset}"></Datasets>

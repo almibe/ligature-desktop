@@ -1,6 +1,6 @@
 # Ligature Desktop
 
-A desktop application for working with Ligature data.
+A desktop application for working with Ligature instances.
 
 ## Running
 

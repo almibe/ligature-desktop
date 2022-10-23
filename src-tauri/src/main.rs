@@ -3,15 +3,10 @@
     windows_subsystem = "windows"
 )]
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
-#[tauri::command]
-fn add_dataset(name: String) {
-  println!("Adding Dataset: {}", name);
+fn add_dataset(name: String) -> String {
+//  reqwest
+  format!("Adding Dataset: {}", name)
 }
 
 #[tauri::command]
@@ -20,8 +15,9 @@ fn remove_dataset(name: String) {
 }
 
 #[tauri::command]
-fn all_datasets() {
+fn all_datasets() -> Vec<String> {
   println!("Returning Datasets: {}", "");
+  vec![]
 }
 
 #[tauri::command]
@@ -37,7 +33,6 @@ fn run_query(dataset: String, input: String) {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            greet,
             add_dataset,
             remove_dataset,
             all_datasets,
