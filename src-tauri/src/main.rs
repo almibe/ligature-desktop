@@ -5,19 +5,53 @@
 
 #[tauri::command]
 fn add_dataset(name: String) -> String {
-//  reqwest
-  format!("Adding Dataset: {}", name)
+  let client = reqwest::blocking::Client::new();
+  let res = client.post(format!("http://localhost:4200/datasets/{}", name))
+    .send();
+  match res {
+    Ok(response) => {
+      //TODO check response
+      match response.text() {
+        Ok(text) => format!("Added {}", text),
+        Err(_) => String::from("Error")
+      }
+    },
+    Err(e) => String::from("Error")
+  }
 }
 
 #[tauri::command]
-fn remove_dataset(name: String) {
-  println!("Removing Dataset: {}", name);
+fn remove_dataset(name: String) -> String {
+  let client = reqwest::blocking::Client::new();
+  let res = client.delete(format!("http://localhost:4200/datasets/{}", name))
+    .send();
+  match res {
+    Ok(response) => {
+      //TODO check response
+      match response.text() {
+        Ok(text) => format!("Removed {}", text),
+        Err(_) => String::from("Error")
+      }
+    },
+    Err(e) => String::from("Error")
+  }
 }
 
 #[tauri::command]
 fn all_datasets() -> Vec<String> {
-  println!("Returning Datasets: {}", "");
-  vec![]
+  let res = reqwest::blocking::get("http://localhost:4200/datasets");
+  match res {
+    Ok(response) => {
+      match response.text() {
+        Ok(text) => {
+          println!("{}", text);
+          text.split("\n").filter(|x| !x.is_empty()).map(|x| String::from(x)).collect()
+        },
+        Err(e) => vec![String::from("Error")]
+      }
+    },
+    Err(e) => vec![String::from("Error")]
+  }
 }
 
 #[tauri::command]
