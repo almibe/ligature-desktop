@@ -2,22 +2,20 @@
     import { page } from '$app/stores';
     import Dataset from "@ligature/ligature-components/Dataset.svelte";
     import { invoke } from "@tauri-apps/api/tauri";
-	import { onMount } from 'svelte';
-
 
     let datasetName = $page.params.dataset;
     let resultText = "";
 
-    function runQuery(event) {
-        console.log("runQuery - " + event.detail);
+    async function runQuery(event) {
+        resultText = await invoke("run_query", { dataset: datasetName, input: event.detail } );
     }
 
-    function runInsert(event) {
-        console.log("runInsert - " + event.detail);
+    async function runInsert(event) {
+        resultText = await invoke("run_insert", { dataset: datasetName, input: event.detail });
     }
 
-    function runRemove(event) {
-        console.log("runRemove - " + event.detail);
+    async function runRemove(event) {
+        resultText = await invoke("run_remove", { dataset: datasetName, input: event.detail });
     }
 </script>
 
