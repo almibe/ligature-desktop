@@ -1,12 +1,7 @@
-# Ligature Desktop
+# Tauri + Solid + Typescript
 
-A desktop application for working with Ligature instances.
+This template should help get you started developing with Tauri, Solid and Typescript in Vite.
 
-## Running
+## Recommended IDE Setup
 
-After going through this guide https://tauri.app/v1/guides/getting-started/prerequisites, do the following.
-
-```
-npm install
-npm run tauri dev
-```
+- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
