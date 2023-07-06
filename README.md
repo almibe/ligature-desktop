@@ -1,7 +1,11 @@
-# Tauri + Solid + Typescript
+# Ligature Desktop
 
-This template should help get you started developing with Tauri, Solid and Typescript in Vite.
+## To Run
 
-## Recommended IDE Setup
+Currently this application requires an instance of Ligature server running.
+See instructions here.
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+To run this application in dev mode.
+
+`pnpm tauri dev`
+
