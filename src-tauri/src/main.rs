@@ -3,18 +3,17 @@
 
 use wander::{run, preludes::common};
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(input: &str) -> String {
+fn run_wander(input: &str) -> String {
     match run(input, &mut common()) {
-        Err(err) => format!("Local Error: {}", err.0),
-        Ok(value) => format!("Local Result: {value}")
+        Err(err) => format!("Error: {}", err.0),
+        Ok(value) => format!("{value}")
     }
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![run_wander])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
