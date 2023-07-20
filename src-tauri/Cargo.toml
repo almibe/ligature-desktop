@@ -1,10 +1,10 @@
 [package]
 name = "ligature-desktop"
-version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+version = "0.1.0"
+description = "A desktop application for working with Ligature."
+authors = ["Alex Michael Berry <alexmiberry@gmail.com>"]
+license = "MPL-2.0"
+repository = "https://github.com/almibe/ligature-desktop"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,6 +15,9 @@ tauri-build = { version = "1.4", features = [] }
 [dependencies]
 ligature-client = { path = "../../ligature-rs/ligature-client" }
 wander = { path = "../../ligature-rs/wander" }
+ligature-redb = { path = "../../ligature-rs/ligature-redb" }
+ligature-sqlite = { path = "../../ligature-rs/ligature-sqlite" }
+ligature-in-memory = { path = "../../ligature-rs/ligature-in-memory" }
 tauri = { version = "1.4", features = ["shell-open"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

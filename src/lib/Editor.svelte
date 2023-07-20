@@ -40,9 +40,7 @@
 </script>
 
 <div style="width: 98%">
-  <sl-button-group label="Wander Controls">
-    <sl-button type="submit" on:click={runWander}>Run</sl-button>
-  </sl-button-group>
+  <sl-button on:click={runWander}>Run</sl-button>
   <div>
     <div id="input"></div>
   </div>
