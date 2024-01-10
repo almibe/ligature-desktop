@@ -39,3 +39,11 @@ a:hover {
 textarea {
   resize: none;
 }
+
+.result {
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  position: absolute;
+  padding: 10px;
+
+  bottom: 0;
+}

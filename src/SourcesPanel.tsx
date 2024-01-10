@@ -2,14 +2,21 @@ import '@shoelace-style/shoelace/dist/themes/light.css';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/tree/tree.js';
 import '@shoelace-style/shoelace/dist/components/tree-item/tree-item.js';
-import icon from './assets/sliders2-vertical.svg';
+import settingsIcon from './assets/sliders2-vertical.svg';
+import replIcon from './assets/terminal.svg';
+import { bus } from './bus.ts';
 
-export function Sources() {
+export function SourcesPanel() {
   return (
     <div style="height:100%">
-      <sl-button style="display: block; width: 45px; margin-left: auto;margin-right: auto;">
-        <img src={icon} alt="Settings" width="15" height="15" />
+      <div style="width:100px; display: block; margin-left: auto;margin-right: auto;">
+      <sl-button onClick={e => bus.emit("OpenSettings", "")} style="width: 50px; padding-right:5px; margin-left: auto;margin-right: auto;">
+        <img src={settingsIcon} alt="Settings"  />
       </sl-button>
+      <sl-button onClick={e => bus.emit("OpenRepl", "")} style="width: 45px; margin-left: auto;margin-right: auto;">
+        <img src={replIcon} alt="REPL"  />
+      </sl-button>
+      </div>
 <sl-tree>
   <sl-tree-item>
     Libs
@@ -30,4 +37,4 @@ export function Sources() {
   );
 }
 
-export default Sources;
+export default SourcesPanel;
