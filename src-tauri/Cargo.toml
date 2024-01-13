@@ -1,10 +1,10 @@
 [package]
-name = "wander-ide"
+name = "wander-shell"
 version = "0.0.0"
-description = "A Desktop IDE for working with the Wander Programming Language."
+description = "A desktop application for working with the Wander Programming Language."
 authors = ["Alex Michael Berry"]
 license = "MPL-2.0"
-repository = "https://github.com/almibe/wander-ide"
+repository = "https://github.com/almibe/wander-shell"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -3264,7 +3264,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "wander-ide"
+name = "wander-shell"
 version = "0.0.0"
 dependencies = [
  "serde",

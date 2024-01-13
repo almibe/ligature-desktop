@@ -4,17 +4,14 @@ html, body {
 }
 
 #root {
-  height: 100%;
   display: grid;
 }
 
 #main {
-  height: 100%;
   display: grid;
 }
 
 .container {
-  height: 100%;
   margin: 0;
 }
 
@@ -29,11 +26,9 @@ a:hover {
 }
 
 #editor {
-  height: 100%
 }
 
 .cm-editor {
-  height: 100%
 }
 
 textarea {
@@ -42,8 +37,5 @@ textarea {
 
 .result {
   font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-  position: absolute;
-  padding: 10px;
-
-  bottom: 0;
+  padding: 20px;
 }

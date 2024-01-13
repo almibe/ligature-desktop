@@ -1,5 +1,5 @@
 {
-  "name": "wander-ide",
+  "name": "wander-shell",
   "version": "0.0.0",
   "description": "",
   "type": "module",
@@ -15,7 +15,8 @@
     "@shoelace-style/shoelace": "^2.12.0",
     "@solid-primitives/event-bus": "^1.0.8",
     "@tauri-apps/api": "^1.5.2",
-    "@wander-lang/wander-components": "link:..\\wander-components",
+    "@wander-lang/wander-components": "link:..\\wander-components\\wander-components",
+    "@wander-lang/wander": "link:..\\wander-components\\wander",
     "solid-js": "^1.7.8",
     "tabulator-tables": "^5.5.2"
   },

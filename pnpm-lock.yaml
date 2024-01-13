@@ -14,9 +14,12 @@ dependencies:
   '@tauri-apps/api':
     specifier: ^1.5.2
     version: 1.5.3
+  '@wander-lang/wander':
+    specifier: link:..\wander-components\wander
+    version: link:../wander-components/wander
   '@wander-lang/wander-components':
-    specifier: link:..\wander-components
-    version: link:../wander-components
+    specifier: link:..\wander-components\wander-components
+    version: link:../wander-components/wander-components
   solid-js:
     specifier: ^1.7.8
     version: 1.8.8

@@ -6,8 +6,7 @@ export const bus = createGlobalEmitter<{
         panel: Element
     };
     OpenRepl: {};
-    RunScript: {
-        script: string,
-        callback: (result) => null
-    };
+    //Tell the IDE to Run.
+    //This usually means get the script from the 
+    //Run: {};
 }>();
