@@ -1,7 +1,8 @@
 import { bus } from './bus.ts';
-import {  } from '@wander-lang/wander';
+import { invoke } from '@tauri-apps/api/tauri'
 
-
-bus.on("RunScript", ({ script, callback }) => {
-
+bus.on("RunScript", ({ script }) => {
+//        let newResult = printResult(run(script, newEnvironment()))
+//        bus.emit("AddResult", { text: newResult });
+        invoke("run", {script}).then((result: string) => bus.emit("AddResult", { text: result }))
 })
