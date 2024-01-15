@@ -7,16 +7,24 @@ import { Results } from './Results.tsx';
 export function ShellPanel() {
   let editor: Editor;
 
+  bus.on("ClearEditor", () => {
+    editor.setText("");
+  })
+
   onMount(async () => {
     setTimeout(() => {
       editor = initializeEditor({ 
         elementId: "editor", 
-        onRun: (script) => { 
+        onRun: (script) => {
           editor.setText("")
           bus.emit("RunScript", { script });
         },
-        onKey: (key, text, position) => {
-          
+        onKey: (key, script, position) => {
+          console.log(key)
+          if (key == "Enter") {
+            bus.emit("RunScript", { script });
+            setTimeout(() => editor.setText(""))
+          }
         }
       })
     })

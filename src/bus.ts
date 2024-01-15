@@ -4,4 +4,5 @@ export const bus = createGlobalEmitter<{
     RunScript: { script: string }
     AddResult: { text: string }
     RemoveResult: { id: string }
+    ClearEditor: {}
 }>();
