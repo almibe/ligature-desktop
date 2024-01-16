@@ -47,7 +47,7 @@ function ResultSuccess(props) {
             if (result.value.has("error")) {
                 return renderResult("danger", result.value.get("error").value)
             } else {
-                return renderResult("success", printValue(result))
+                return renderResult("success", printValue(result.value.get("result")))
             }
         } else {
             return renderResult("success", printValue(result))
