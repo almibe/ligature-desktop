@@ -15,8 +15,9 @@
     "@shoelace-style/shoelace": "^2.12.0",
     "@solid-primitives/event-bus": "^1.0.8",
     "@tauri-apps/api": "^1.5.2",
-    "@wander-lang/wander-components": "link:..\\wander-components\\wander-components",
     "@wander-lang/wander": "link:..\\wander-components\\wander",
+    "@wander-lang/wander-components": "link:..\\wander-components\\wander-components",
+    "purify-ts": "^2.0.3",
     "solid-js": "^1.7.8",
     "tabulator-tables": "^5.5.2"
   },

@@ -20,7 +20,6 @@ export function ShellPanel() {
           bus.emit("RunScript", { script });
         },
         onKey: (key, script, position) => {
-          console.log(key)
           if (key == "Enter") {
             bus.emit("RunScript", { script });
             setTimeout(() => editor.setText(""))
