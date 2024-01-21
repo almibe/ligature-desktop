@@ -11,6 +11,10 @@ export function ShellPanel() {
     editor.setText("");
   })
 
+  bus.on("SetEditor", ({ script }) => {
+    editor.setText(script);
+  })
+
   onMount(async () => {
     setTimeout(() => {
       editor = initializeEditor({ 

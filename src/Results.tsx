@@ -23,17 +23,17 @@ interface Result {
 
 let id = 0n;
 
-bus.on("AddResult", (wanderResult: WanderResult) => {
+bus.on("AddResult", ({ result, script} ) => {
     id++;
-    let result = {
+    let finalResult = {
         id,
-        script: "?",
-        wanderResult: wanderResult,
+        script: script,
+        wanderResult: result,
         applet: rawTextApplet,
-        content: rawTextApplet.render(wanderResult)
+        content: rawTextApplet.render(result)
     };
     setStore(produce((store) => {
-        store.results = [result, ...store.results];
+        store.results = [finalResult, ...store.results];
     }))
 })
 
@@ -85,6 +85,11 @@ function renderResult(result: Result) {
                     }
                 </For>
                 <sl-divider></sl-divider>
+                <sl-menu-item>
+                    <span onClick={e => bus.emit("SetEditor", {script: result.script})}>
+                        Edit
+                    </span>
+                </sl-menu-item>
                 <sl-menu-item>
                     <span onClick={e => bus.emit("RemoveResult", {id: result.id})} style="float:right">
                         Remove <sl-icon name="x-lg" library="system"></sl-icon>

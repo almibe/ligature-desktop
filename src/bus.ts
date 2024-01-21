@@ -3,7 +3,8 @@ import { Applet } from "./Results.tsx";
 
 export const bus = createGlobalEmitter<{
     RunScript: { script: string }
-    AddResult: { text: string }
+    SetEditor: { script: string }
+    AddResult: { script: string, result: WanderResult }
     RemoveResult: { id: string }
     ClearEditor: {}
     AddApplet: { applet: Applet }
