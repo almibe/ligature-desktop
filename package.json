@@ -1,7 +1,8 @@
 {
   "name": "wander-shell",
   "version": "0.0.0",
-  "description": "",
+  "private": true,
+  "description": "A desktop application for working with Wander interactively.",
   "type": "module",
   "scripts": {
     "start": "vite",

@@ -85,13 +85,13 @@ function renderResult(result: Result) {
                     }
                 </For>
                 <sl-divider></sl-divider>
-                <sl-menu-item>
-                    <span onClick={e => bus.emit("SetEditor", {script: result.script})}>
+                <sl-menu-item onClick={e => bus.emit("SetEditor", {script: result.script})}>
+                    <span>
                         Edit
                     </span>
                 </sl-menu-item>
-                <sl-menu-item>
-                    <span onClick={e => bus.emit("RemoveResult", {id: result.id})} style="float:right">
+                <sl-menu-item onClick={e => bus.emit("RemoveResult", {id: result.id})}>
+                    <span style="float:right">
                         Remove <sl-icon name="x-lg" library="system"></sl-icon>
                     </span>
                 </sl-menu-item>
