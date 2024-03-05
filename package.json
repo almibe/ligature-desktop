@@ -15,7 +15,7 @@
   "dependencies": {
     "@shoelace-style/shoelace": "^2.12.0",
     "@solid-primitives/event-bus": "^1.0.8",
-    "@tauri-apps/api": "^1.5.2",
+    "@tauri-apps/api": "^1.5.3",
     "@wander-lang/wander": "link:..\\wander-components\\wander",
     "@wander-lang/wander-components": "link:..\\wander-components\\wander-components",
     "purify-ts": "^2.0.3",
@@ -23,7 +23,7 @@
     "tabulator-tables": "^5.5.2"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.5.8",
+    "@tauri-apps/cli": "^1.5.10",
     "typescript": "^5.0.2",
     "vite": "^5.0.0",
     "vite-plugin-solid": "^2.8.0"
