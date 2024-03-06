@@ -2,3 +2,9 @@
     font-family: SourceCodePro, monospace;
     margin: 2em;
 }
+
+#editor {
+    resize: vertical;
+    overflow: auto;
+    height:350px;
+}
