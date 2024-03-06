@@ -1,8 +1,8 @@
 {
-  "name": "wander-shell",
+  "name": "ligature-desktop",
   "version": "0.0.0",
   "private": true,
-  "description": "A desktop application for working with Wander interactively.",
+  "description": "A desktop application for working with Ligature.",
   "type": "module",
   "scripts": {
     "start": "vite",
@@ -13,11 +13,10 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
+    "@ligature/ligature-components": "link:..\\ligature-lab\\ligature-components",
     "@shoelace-style/shoelace": "^2.12.0",
     "@solid-primitives/event-bus": "^1.0.8",
     "@tauri-apps/api": "^1.5.3",
-    "@wander-lang/wander": "link:..\\wander-components\\wander",
-    "@wander-lang/wander-components": "link:..\\wander-components\\wander-components",
     "purify-ts": "^2.0.3",
     "solid-js": "^1.7.8",
     "tabulator-tables": "^5.5.2"

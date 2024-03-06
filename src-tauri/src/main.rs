@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 #[tauri::command(async)]
-fn run(script: String) -> String {
+fn run_bend(script: String) -> String {
     let ctx = zmq::Context::new();
     let socket = ctx.socket(zmq::REQ).unwrap();
     socket.connect("tcp://127.0.0.1:4200").unwrap();
@@ -12,7 +12,7 @@ fn run(script: String) -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![run])
+        .invoke_handler(tauri::generate_handler![run_bend])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

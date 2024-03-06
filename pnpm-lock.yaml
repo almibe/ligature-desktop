@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@ligature/ligature-components':
+    specifier: link:..\ligature-lab\ligature-components
+    version: link:../ligature-lab/ligature-components
   '@shoelace-style/shoelace':
     specifier: ^2.12.0
     version: 2.12.0(@types/react@18.2.62)(react@18.2.0)
@@ -14,12 +17,6 @@ dependencies:
   '@tauri-apps/api':
     specifier: ^1.5.3
     version: 1.5.3
-  '@wander-lang/wander':
-    specifier: link:..\wander-components\wander
-    version: link:../wander-components/wander
-  '@wander-lang/wander-components':
-    specifier: link:..\wander-components\wander-components
-    version: link:../wander-components/wander-components
   purify-ts:
     specifier: ^2.0.3
     version: 2.0.3
