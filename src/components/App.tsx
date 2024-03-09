@@ -1,15 +1,12 @@
 import { Header } from '../components/Header.tsx';
-import { Editor } from '../components/Editor.tsx';
-import { Results } from '../components/Results.tsx';
-import { createSignal } from 'solid-js';
+import { Body } from './Body.tsx';
+import { StoreProvider } from './StoreProvider.tsx';
+import { Editor } from './Editor.tsx';
 
 export function App() {
-  const [results, setResults] = createSignal("");
-  const [editorContent, setEditorContent] = createSignal("");
-
-  return <>
-      <Header setResults={setResults} editorContent={editorContent()}></Header>
-      <Editor setResults={setResults} setEditorContent={setEditorContent}></Editor>
-      <Results results={results()}></Results>
-  </>;
+  return <StoreProvider>
+      <Header></Header>
+      <Editor></Editor>
+      <Body></Body>
+  </StoreProvider>
 }

@@ -6,5 +6,9 @@
 #editor {
     resize: vertical;
     overflow: auto;
-    height:350px;
+}
+
+.selected {
+    background-color: lightgrey;
+    border-radius: 20%;
 }

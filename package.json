@@ -15,8 +15,8 @@
   "dependencies": {
     "@ligature/ligature-components": "link:..\\ligature-lab\\ligature-components",
     "@shoelace-style/shoelace": "^2.12.0",
-    "@solid-primitives/event-bus": "^1.0.8",
     "@tauri-apps/api": "^1.5.3",
+    "marked": "^12.0.1",
     "purify-ts": "^2.0.3",
     "solid-js": "^1.7.8",
     "tabulator-tables": "^5.5.2"
