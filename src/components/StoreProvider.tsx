@@ -13,7 +13,6 @@ export const StoreContext = createContext({
         setState({editMode: !state.editMode})
     },
     setLocation: (location: string) => {
-        console.log(location)
         setState({location: location})
     },
     setBodyContent: (content: string) => {

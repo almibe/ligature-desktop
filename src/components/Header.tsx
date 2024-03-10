@@ -13,15 +13,14 @@ import editIcon from '../icons/journal-code.svg';
 import homeIcon from '../icons/house-heart.svg';
 
 import { runBend } from '../lib/ligature-client';
-import { useContext } from 'solid-js';
+import { createEffect, useContext } from 'solid-js';
 import { StoreContext } from './StoreProvider';
 
 let term;
 
 function addressBarChange(e, store) {
   if(e.keyCode === 13){
-      const location = document.querySelector("#addressBar")?.textContent
-      console.log(location)
+      const location = document.querySelector("#addressBar")?.value
       store.setLocation(location);
   }
 }
@@ -36,7 +35,7 @@ function edit(store) {
   }
 }
 
-function reload() {
+function reload(store) {
   console.log("reload...")
 }
 
@@ -56,8 +55,8 @@ async function run() {
 //  props.setResults(res)
 }
 
-async function home() {
-//  props.setLocation("home")
+async function home(store) {
+  store.setLocation("home")
 }
 
 export function Header() {
@@ -67,11 +66,17 @@ export function Header() {
       return await runBend(command)
     });
   });
+  createEffect(() => {
+    const location = store.state.location
+    console.log("location", location)
+    const el = document.querySelector("#addressBar")
+    el?.setAttribute("value", location)
+  })
   return <>
       <div id='header'>
-        <sl-input id="addressBar" onkeydown={(e) => addressBarChange(e, store)}></sl-input>
-        <sl-icon-button src={homeIcon} onclick={home}></sl-icon-button>
-        <sl-icon-button src={reloadIcon} onclick={reload}></sl-icon-button>
+        <sl-input id="addressBar" onkeydown={(e) => addressBarChange(e, store)} defaultValue="home"></sl-input>
+        <sl-icon-button src={homeIcon} onclick={() => home(store)}></sl-icon-button>
+        <sl-icon-button src={reloadIcon} onclick={() => reload(store)}></sl-icon-button>
         <sl-icon-button id="editIcon" src={editIcon} onclick={() => edit(store)}></sl-icon-button>
         <sl-icon-button src={terminalIcon} onclick={terminal}></sl-icon-button>
         <sl-icon-button src={questionIcon} onclick={help}></sl-icon-button>

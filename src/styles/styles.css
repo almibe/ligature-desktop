@@ -3,11 +3,6 @@
     margin: 2em;
 }
 
-#editor {
-    resize: vertical;
-    overflow: auto;
-}
-
 .selected {
     background-color: lightgrey;
     border-radius: 20%;

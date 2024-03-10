@@ -1,7 +1,6 @@
 import { initializeEditor } from "@ligature/ligature-components/src/editor/ligature-editor"
 import { createEffect, useContext } from "solid-js";
 import { StoreContext } from "./StoreProvider";
-// import { runBend } from "../lib/ligature-client";
 
 let editor = null;
 
@@ -33,18 +32,6 @@ export function Editor() {
             // props.setEditorContent(script)
           }
         })
-        // bus.on('set-editor-content', (value) => {
-        //   console.log("in set-editor-content", value)
-        //   editor.setText(value)
-        // });
-        // console.log("about to register on display-editor")
-        // bus.on('diplay-editor', (value) => {
-        //   console.log("on display-editor", value)
-        //   console.log(editor.editorView.dom)
-        // });
-        // bus.on('request-content-update', () => {
-        //   bus.emit('update-content', editor.readText())
-        // })
       }
     );
   }
