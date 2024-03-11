@@ -1,22 +1,33 @@
 import { createContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
+export type Mode = "Edit" | "Preview" | "View";
+
+export const modeToStatus = {
+    "Edit": "Editting",
+    "Preview": "Preveiwing",
+    "View": "Location",
+}
+
 const [state, setState] = createStore({
     location: "home",
     bodyContent: "",
     editorContent: "",
-    editMode: false
+    mode: "View"
 })
 export const StoreContext = createContext({
     state,
-    toggleEdit: () => {
-        setState({editMode: !state.editMode})
+    setMode: (mode: Mode) => {
+        setState({mode})
     },
     setLocation: (location: string) => {
-        setState({location: location})
+        setState({location})
     },
-    setBodyContent: (content: string) => {
-        setState({bodyContent: content})
+    setBodyContent: (bodyContent: string) => {
+        setState({bodyContent})
+    },
+    setEditorContent: (editorContent: string) => {
+        setState({editorContent})
     }
 });
 

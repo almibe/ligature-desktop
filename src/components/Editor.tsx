@@ -2,19 +2,15 @@ import { initializeEditor } from "@ligature/ligature-components/src/editor/ligat
 import { createEffect, useContext } from "solid-js";
 import { StoreContext } from "./StoreProvider";
 
-let editor = null;
-
 export function Editor() {
+  let editor = null;
   const store = useContext(StoreContext);
 
   createEffect(() => {
-    if (store.state.editMode) {
+    if (store.state.mode == "Edit") {
       editor.setText(store.state.bodyContent)
       document.querySelector("#editorWrapper").hidden = false
     } else {
-      if (editor != null) {
-        store.setBodyContent(editor.readText())
-      }
       document.querySelector("#editorWrapper").hidden = true
     }
   })
@@ -25,11 +21,10 @@ export function Editor() {
         editor = initializeEditor({
           element,
           onRun: async (script) => {
-            // const res = await runBend(script)
-            // props.setResults(res)
+            //do nothing
           },
           onChange: (script) => {
-            // props.setEditorContent(script)
+            store.setEditorContent(script)
           }
         })
       }

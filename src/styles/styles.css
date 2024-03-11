@@ -3,7 +3,8 @@
     margin: 2em;
 }
 
-.selected {
-    background-color: lightgrey;
-    border-radius: 20%;
+.status {
+    float:right;
+    padding-left:.8em;
+    padding-top:.4em;
 }
