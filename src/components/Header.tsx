@@ -15,7 +15,7 @@ import homeIcon from '../icons/house-heart.svg';
 
 import { runBend } from '../lib/ligature-client';
 import { Match, Switch, createEffect, useContext } from 'solid-js';
-import { StoreContext, modeToStatus } from './StoreProvider';
+import { StoreContext, loadLocation, modeToStatus } from './StoreProvider';
 
 export function Header() {
   let term;
@@ -27,26 +27,25 @@ export function Header() {
   });
   createEffect(() => {
     const location = store.state.location
-    console.log("location", location)
     const el = document.querySelector("#addressBar")
     el?.setAttribute("value", location)
   })
   return <>
       <div id='header'>
-        <sl-input id="addressBar" disabled={store.state.editMode} onkeydown={(e) => addressBarChange(e, store)} defaultValue="home"></sl-input>
+        <sl-input id="addressBar" disabled={store.state.editMode} onkeydown={(e) => addressBarChange(e)} defaultValue="home"></sl-input>
         <Switch>
           <Match when={store.state.mode == "Edit" || store.state.mode == "Preview"}>
             <sl-button-group id="editHeader" label="Alignment">
               <sl-button size="small" onclick={() => save(store)}>Save</sl-button>
-              <sl-button size="small" onclick={() => store.setMode("View")}>Cancel</sl-button>
+              <sl-button size="small" onclick={cancel}>Cancel</sl-button>
               <sl-button size="small" onclick={() => store.setMode("Preview")}>Preview</sl-button>
               <sl-button size="small" onclick={() => store.setMode("Edit")}>Edit</sl-button>
             </sl-button-group>
           </Match>
           <Match when={true}>
-            <sl-icon-button src={homeIcon} onclick={() => home(store)}></sl-icon-button>
-            <sl-icon-button src={reloadIcon} onclick={() => reload(store)}></sl-icon-button>
-            <sl-icon-button id="editIcon" src={editIcon} onclick={() => edit(store)}></sl-icon-button>
+            <sl-icon-button src={homeIcon} onclick={home}></sl-icon-button>
+            <sl-icon-button src={reloadIcon} onclick={reload}></sl-icon-button>
+            <sl-icon-button src={editIcon} onclick={edit}></sl-icon-button>
             <sl-icon-button src={terminalIcon} onclick={terminal}></sl-icon-button>
             <sl-icon-button src={questionIcon} onclick={help}></sl-icon-button>
           </Match>
@@ -63,52 +62,47 @@ export function Header() {
       </sl-dialog>
   </>;
 
-function addressBarChange(e, store) {
-  if(e.keyCode === 13){
-      const location = document.querySelector("#addressBar")?.value
-      store.setLocation(location);
+  function addressBarChange(e) {
+    if(e.keyCode === 13){
+        const location = document.querySelector("#addressBar")?.value
+        store.setLocation(location);
+    }
   }
-}
 
-function edit(store) {
-  store.setMode("Edit")
-}
+  function cancel() {
+    store.setBodyContent(store.state.locationContent)
+    store.setMode("View")
+  }
 
-function reload(store) {
-  store.setMode("View")
-  console.log("reload...")
-}
+  function edit() {
+    store.setMode("Edit")
+  }
 
-function help() {
-  document.querySelector('#help-dialog').show();
-}
+  function reload() {
+    loadLocation(store.state.location)
+    store.setMode("View")
+  }
 
-function terminal() {
-  document.querySelector('#terminal-dialog').show();
-  setTimeout(() => {
-    term.focus();
-  }, 200);
-}
+  function help() {
+    document.querySelector('#help-dialog').show();
+  }
 
-async function run() {
-//  const res = await runBend(props.editorContent)
-//  props.setResults(res)
-}
+  function terminal() {
+    document.querySelector('#terminal-dialog').show();
+    setTimeout(() => {
+      term.focus();
+    }, 200);
+  }
 
-async function home(store) {
-  store.setMode("View")
-  store.setLocation("home")
-}
+  async function home() {
+    store.setLocation("home")
+    reload()
+  }
 
-async function save(store) {
-  const content = store.state.editorContent
-  const location = store.state.location
-  const res = await runBend('Ligature.addStatement "pages" `' + location + '` `md-content` ' + JSON.stringify(content));
-  store.setMode("View")
-  console.log("saving ", location , content, res)
-}
-
-function preview() {
-  store.setMode("View")
-}
+  async function save() {
+    const content = store.state.editorContent
+    const location = store.state.location
+    const res = await runBend('Ligature.addStatements "pages" [`' + location + '` `md-content` ' + JSON.stringify(content) + ']');
+    store.setMode("View")
+  }
 }
