@@ -1,3 +1,4 @@
+import { History } from './History';
 import { initializeRepl } from '@ligature/ligature-components/src/repl/repl.ts';
 import '@shoelace-style/shoelace/dist/themes/light.css';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
@@ -12,6 +13,7 @@ import terminalIcon from '../icons/terminal.svg';
 import questionIcon from '../icons/question.svg';
 import editIcon from '../icons/journal-code.svg';
 import homeIcon from '../icons/house-heart.svg';
+import historyIcon from '../icons/clock-history.svg';
 
 import { runBend } from '../lib/ligature-client';
 import { Match, Switch, createEffect, useContext } from 'solid-js';
@@ -32,7 +34,7 @@ export function Header() {
   })
   return <>
       <div id='header'>
-        <sl-input id="addressBar" disabled={store.state.editMode} onkeydown={(e) => addressBarChange(e)} defaultValue="home"></sl-input>
+        <div class="status">{modeToStatus[store.state.mode]}: <a href="#" onclick={setAddress}>&lt;{store.state.location}&gt;</a></div>
         <Switch>
           <Match when={store.state.mode == "Edit" || store.state.mode == "Preview"}>
             <sl-button-group id="editHeader" label="Alignment">
@@ -48,17 +50,25 @@ export function Header() {
             <sl-icon-button src={editIcon} onclick={edit}></sl-icon-button>
             <sl-icon-button src={terminalIcon} onclick={terminal}></sl-icon-button>
             <sl-icon-button src={questionIcon} onclick={help}></sl-icon-button>
+            <sl-icon-button src={historyIcon} onclick={history}></sl-icon-button>
           </Match>
         </Switch>
-        <span class="status">{modeToStatus[store.state.mode]}: &lt;{store.state.location}&gt;</span>
       </div>
 
       <sl-dialog label='Terminal' id='terminal-dialog' style='--width: 95vw;'>
         <div id='terminal'></div>
       </sl-dialog>
 
-      <sl-dialog label='Help' id='help-dialog' style='--width: 95vw;'>
+      <sl-dialog label='Help' id='help-dialog' style='--width: 50vw;'>
         <p>Help!</p>
+      </sl-dialog>
+
+      <sl-dialog label='History' id='history-dialog' style='--width: 50vw;'>
+        <History></History>
+      </sl-dialog>
+
+      <sl-dialog label='Address' id='address-dialog' style='--width: 90vw;'>
+        <sl-input id="addressBar" disabled={store.state.editMode} onkeydown={(e) => addressBarChange(e)} defaultValue="home"></sl-input>
       </sl-dialog>
   </>;
 
@@ -66,6 +76,7 @@ export function Header() {
     if(e.keyCode === 13){
         const location = document.querySelector("#addressBar")?.value
         store.setLocation(location);
+        document.querySelector('#address-dialog').hide();
     }
   }
 
@@ -83,8 +94,19 @@ export function Header() {
     store.setMode("View")
   }
 
+  function history() {
+    document.querySelector('#history-dialog').show();
+  }
+
   function help() {
     document.querySelector('#help-dialog').show();
+  }
+
+  function setAddress() {
+    document.querySelector('#address-dialog').show();
+    setTimeout(() => {
+      document.querySelector('#addressBar').focus();
+    })
   }
 
   function terminal() {

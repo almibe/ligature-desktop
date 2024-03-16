@@ -1,10 +1,13 @@
+body {
+    font-family: SourceCodePro, monospace;
+}
+
 #results {
     font-family: SourceCodePro, monospace;
     margin: 2em;
 }
 
 .status {
-    float:right;
     padding-left:.8em;
     padding-top:.4em;
 }
