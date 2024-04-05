@@ -45,8 +45,10 @@ export async function loadLocation(location: string) {
             new Map([["location", "`" + location + "`"]])
         );
         const value = JSON.parse(res) //TODO eval this using Bend's interpreter
+        store.setLocationContent(value)
         store.setBodyContent(value)
     } else {
+        store.setLocationContent("Invalid request.")
         store.setBodyContent("Invalid request.")
     }
 }

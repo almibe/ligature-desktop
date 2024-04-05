@@ -132,8 +132,8 @@ export function Header() {
         ["location", "`" + location + "`"],
         ["content", JSON.stringify(content)]
       ]));
-    console.log(res)
     reload()
+    store.setLocationContent(content)
     store.setMode("View")
   }
 }
