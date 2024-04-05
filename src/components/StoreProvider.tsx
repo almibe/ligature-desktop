@@ -2,11 +2,10 @@ import { createContext, createEffect, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 import { runBend } from "../lib/ligature-client";
 
-export type Mode = "Edit" | "Preview" | "View";
+export type Mode = "Edit" | "View";
 
 export const modeToStatus = {
     "Edit": "Editting",
-    "Preview": "Preveiwing",
     "View": "Location",
 }
 

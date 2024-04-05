@@ -87,11 +87,6 @@ export function Body() {
         setRes(await marked.parse(store.state.bodyContent))
     })
     createEffect(() => {
-        if (store.state.mode == "Preview") {
-            store.setBodyContent(store.state.editorContent)
-        }
-    })
-    createEffect(() => {
         setTimeout(() => {
             const el = document.querySelector("#body");
             el.hidden = store.state.mode == "Edit";                

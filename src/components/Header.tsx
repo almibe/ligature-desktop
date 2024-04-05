@@ -40,7 +40,7 @@ export function Header() {
             <sl-button-group id="editHeader" label="Alignment">
               <sl-button size="small" onclick={() => save(store)}>Save</sl-button>
               <sl-button size="small" onclick={cancel}>Cancel</sl-button>
-              <sl-button size="small" onclick={() => reload()}>Preview</sl-button>
+              <sl-button size="small" onclick={() => preview()}>Preview</sl-button>
             </sl-button-group>
           </Match>
           <Match when={true}>
@@ -77,6 +77,10 @@ export function Header() {
         store.setLocation(location);
         document.querySelector('#address-dialog').hide();
     }
+  }
+
+  function preview() {
+    store.setBodyContent(store.state.editorContent)
   }
 
   function cancel() {
