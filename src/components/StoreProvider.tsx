@@ -39,19 +39,14 @@ export const StoreContext = createContext({
 export async function loadLocation(location: string) {
     const store = useContext(StoreContext);
     if (location.match(/^[a-zA-Z-_0-9]+$/)) {
-        const res = await runBend('Ligature.query "pages" `' + location + '` `md-content` ? | Array.map Statement.value');
-        if (res.startsWith('[')) {
-            const value = JSON.parse(res) //TODO eval this using Bend's interpreter
-            if (value.length != 0) {
-                store.setLocationContent(value[0])
-                store.setBodyContent(value[0])
-            } else {
-                store.setBodyContent("New page.")
-                store.setMode("Edit")
-            }
-        } else {
-            store.setBodyContent(res)
-        }
+        const res = await runBend(
+            'res = Ligature.match "pages" @location `entry` ?'
+            + '| Array.map Statement.value | Array.map Bend.readValue '
+            + '| Array.fold (\\left right -> when (Int.lt left.timestamp right.timestamp => right, true => left)) {timestamp = 0, mdContent = ""}, res.mdContent',
+            new Map([["location", "`" + location + "`"]])
+        );
+        const value = JSON.parse(res) //TODO eval this using Bend's interpreter
+        store.setBodyContent(value)
     } else {
         store.setBodyContent("Invalid request.")
     }

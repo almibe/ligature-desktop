@@ -1,4 +1,3 @@
-import { initializeEditor } from "@ligature/ligature-components/src/editor/ligature-editor"
 import { For, createEffect, createSignal, useContext } from "solid-js";
 import { StoreContext } from "./StoreProvider";
 import { runBend } from "../lib/ligature-client";
@@ -8,9 +7,12 @@ export function History() {
   const [versions, setVersions] = createSignal([]);
 
   createEffect(async () => {
-    const results = await runBend('Ligature.query "pages" `'+ store.state.location + '` `has-version` ? | Array.map Statement.value | Array.map Identifier.value')
-    setVersions(JSON.parse(results));
-  })
+    const results = await runBend('Ligature.match "pages" @location `entry` ?' + 
+      '| Array.map Statement.value | Array.map Identifier.value',
+      new Map([["location", "`" + store.state.location + "`"]]));
+    console.log("History:",results)  
+    //setVersions(JSON.parse(results));
+  });
 
   return <>
       <div class="content" id="history">

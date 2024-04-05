@@ -24,7 +24,7 @@ export function Header() {
   const store = useContext(StoreContext);
   setTimeout(() => {
     term = initializeRepl(document.querySelector('#terminal'), async (command) => {
-      return await runBend(command)
+      return await runBend(command, new Map())
     });
   });
   createEffect(() => {
@@ -36,12 +36,11 @@ export function Header() {
       <div id='header'>
         <div class="status">{modeToStatus[store.state.mode]}: <a href="#" onclick={setAddress}>&lt;{store.state.location}&gt;</a></div>
         <Switch>
-          <Match when={store.state.mode == "Edit" || store.state.mode == "Preview"}>
+          <Match when={store.state.mode == "Edit"}>
             <sl-button-group id="editHeader" label="Alignment">
               <sl-button size="small" onclick={() => save(store)}>Save</sl-button>
               <sl-button size="small" onclick={cancel}>Cancel</sl-button>
-              <sl-button size="small" onclick={() => store.setMode("Preview")}>Preview</sl-button>
-              <sl-button size="small" onclick={() => store.setMode("Edit")}>Edit</sl-button>
+              <sl-button size="small" onclick={() => reload()}>Preview</sl-button>
             </sl-button-group>
           </Match>
           <Match when={true}>
@@ -124,7 +123,13 @@ export function Header() {
   async function save() {
     const content = store.state.editorContent
     const location = store.state.location
-    const res = await runBend('Ligature.addStatements "pages" [`' + location + '` `md-content` ' + JSON.stringify(content) + ']');
+    const res = await runBend('Ligature.addStatements "pages" [@location `entry` (Bend.writeValue { timestamp = DateTime.ticks (), mdContent = @content } )]',
+      new Map([
+        ["location", "`" + location + "`"],
+        ["content", JSON.stringify(content)]
+      ]));
+    console.log(res)
+    reload()
     store.setMode("View")
   }
 }
