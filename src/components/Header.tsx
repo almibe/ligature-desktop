@@ -15,7 +15,7 @@ import editIcon from '../icons/journal-code.svg';
 import homeIcon from '../icons/house-heart.svg';
 import historyIcon from '../icons/clock-history.svg';
 
-import { runWander } from '../lib/ligature-client';
+import { runBend } from '../lib/ligature-client';
 import { Match, Switch, createEffect, useContext } from 'solid-js';
 import { StoreContext, loadLocation, modeToStatus } from './StoreProvider';
 
@@ -24,7 +24,7 @@ export function Header() {
   const store = useContext(StoreContext);
   setTimeout(() => {
     term = initializeRepl(document.querySelector('#terminal'), async (command) => {
-      return await runWander(command, new Map())
+      return await runBend(command, new Map())
     });
   });
   createEffect(() => {
@@ -127,7 +127,7 @@ export function Header() {
   async function save() {
     const content = store.state.editorContent
     const location = store.state.location
-    const res = await runWander('Ligature.addStatements "pages" [@location `entry` (Wander.writeValue { timestamp = DateTime.ticks (), mdContent = @content } )]',
+    const res = await runBend('Ligature.addStatements "pages" [@location `entry` (Bend.writeValue { timestamp = DateTime.ticks (), mdContent = @content } )]',
       new Map([
         ["location", "`" + location + "`"],
         ["content", JSON.stringify(content)]

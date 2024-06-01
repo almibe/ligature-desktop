@@ -1,11 +1,11 @@
 import { marked } from "marked";
 import { createEffect, createSignal, useContext } from "solid-js";
 import { StoreContext } from "./StoreProvider";
-import { runWander } from "../lib/ligature-client";
+import { runBend } from "../lib/ligature-client";
 
 const walkTokens = async (token: any) => {
-    if (token.type === 'code' && token.lang === 'wander-run') {
-        let result = await runWander(token.text, new Map([]))
+    if (token.type === 'code' && token.lang === 'bend-run') {
+        let result = await runBend(token.text, new Map([]))
         if (result.startsWith("\"")) {
             result = JSON.parse(result)
             marked.use({ renderer, walkTokens });
@@ -38,7 +38,7 @@ const renderer = {
             + '</code></pre>\n';
         }
 
-        if (lang == "wander-run") {
+        if (lang == "bend-run") {
             return '<div>'
             + (escaped ? code : escape(code, true))
             + '</div>\n';
