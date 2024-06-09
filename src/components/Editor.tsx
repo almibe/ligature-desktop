@@ -1,19 +1,10 @@
 import { initializeEditor } from "@ligature/ligature-components/src/editor/ligature-editor"
-import { createEffect, useContext } from "solid-js";
+import { useContext } from "solid-js";
 import { StoreContext } from "./StoreProvider";
 
 export function Editor() {
   let editor = null;
   const store = useContext(StoreContext);
-
-  createEffect(() => {
-    if (store.state.mode == "Edit") {
-      editor.setText(store.state.bodyContent)
-      document.querySelector("#editorWrapper").hidden = false
-    } else {
-      document.querySelector("#editorWrapper").hidden = true
-    }
-  })
 
   if (editor == null) {
     setTimeout(() => {

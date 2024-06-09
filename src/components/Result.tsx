@@ -79,18 +79,12 @@ export function escape(html: string, encode?: boolean) {
   return html;
 }
 
-export function Body() {
+export function Result() {
     marked.use({ renderer, walkTokens, async: true });
     const [res, setRes] = createSignal("")
     const store = useContext(StoreContext);
     createEffect(async () => {
         setRes(await marked.parse(store.state.bodyContent))
-    })
-    createEffect(() => {
-        setTimeout(() => {
-            const el = document.querySelector("#body");
-            el.hidden = store.state.mode == "Edit";                
-        });
     })
     return <>
         <div onclick={checkLink} id="body" innerHTML={res()}></div>
