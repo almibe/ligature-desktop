@@ -1,5 +1,6 @@
 import { createContext } from "solid-js";
 import { createStore } from "solid-js/store";
+import { runBend } from "../lib/ligature-client";
 
 const [state, setState] = createStore({
     editorContent: "",
@@ -12,6 +13,10 @@ export const StoreContext = createContext({
     },
     setEditorContent: (editorContent: string) => {
         setState({editorContent})
+    },
+    run: async () => {
+        let resultContent = await runBend(state.editorContent)
+        setState({resultContent})
     }
 });
 

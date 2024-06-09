@@ -9,7 +9,6 @@ import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import playIcon from '../icons/play.svg';
 import questionIcon from '../icons/question.svg';
 
-import { runBend } from '../lib/ligature-client';
 import { useContext } from 'solid-js';
 import { StoreContext } from './StoreProvider';
 
@@ -30,16 +29,8 @@ export function Header() {
       </sl-dialog>
   </>;
 
-  function addressBarChange(e) {
-    if(e.keyCode === 13){
-        const location = document.querySelector("#addressBar")?.value
-        store.setLocation(location);
-        document.querySelector('#address-dialog').hide();
-    }
-  }
-
-  function run() {
-    console.log("run")
+  async function run() {
+    store.run()
   }
 
   function help() {

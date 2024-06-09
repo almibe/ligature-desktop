@@ -12,7 +12,7 @@ export function Editor() {
         editor = initializeEditor({
           element,
           onRun: async (script) => {
-            //do nothing
+            store.run()
           },
           onChange: (script) => {
             store.setEditorContent(script)

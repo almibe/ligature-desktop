@@ -2,3 +2,8 @@ html, body, #root {
     overflow: hidden;
     height: 100%;
 }
+
+#editorWrapper {
+    resize: vertical;
+    overflow: auto;
+}
