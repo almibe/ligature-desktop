@@ -1,29 +1,23 @@
-import { createContext } from "solid-js";
-import { createStore } from "solid-js/store";
-import { runBend } from "../lib/ligature-client";
+import { runWander } from "../lib/ligature-client";
 
-const [state, setState] = createStore({
-    editorContent: "",
-    resultContent: "",
-})
-export const StoreContext = createContext({
-    state,
-    setBodyContent: (resultContent: string) => {
-        setState({resultContent})
-    },
-    setEditorContent: (editorContent: string) => {
-        setState({editorContent})
-    },
-    run: async () => {
-        let resultContent = await runBend(state.editorContent)
-        setState({resultContent})
+export type State = {
+    editorContent: string,
+    resultContent: string
+}
+
+export function createStore(): State {
+    return {
+        editorContent: "",
+        resultContent: "",
     }
-});
+}
 
-export function StoreProvider(props) {    
-    return (
-        <StoreContext.Provider>
-            {props.children}
-        </StoreContext.Provider>
-    )
+export async function run(state: State): Promise<State> {
+    console.log("in run", state.editorContent)
+    let resultContent = await runWander(state.editorContent)
+    console.log("result", resultContent)
+    return {
+        editorContent: state.editorContent,
+        resultContent
+    }
 }
