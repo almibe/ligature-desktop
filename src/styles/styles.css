@@ -1,5 +1,6 @@
 body {
     font-family: SourceCodePro, monospace;
+    height: 100%;
 }
 
 #results {
@@ -10,4 +11,27 @@ body {
 .status {
     padding-left:.8em;
     padding-top:.4em;
+}
+
+#split-panel {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 300px 10px 1fr;
+}
+
+.gutter {
+    grid-row: 1/-1;
+    cursor: col-resize;
+    grid-column: 2;
+}
+
+.gutter {
+    background-color: #eee;
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    cursor: col-resize;
 }
