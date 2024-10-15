@@ -1,24 +1,14 @@
 import "@shoelace-style/shoelace/dist/themes/light.css"
 import '@shoelace-style/shoelace/dist/components/split-panel/split-panel'
 import { render } from "solid-js/web";
-import { Files } from "./Files";
-import { Editor } from "./Editor";
+import { Editor } from "./Editor.tsx";
+import { appDataDir } from '@tauri-apps/api/path';
+import { readDir } from "@tauri-apps/plugin-fs";
 
-const App = () => {
-  return <sl-split-panel id="content">
-  <div
-    slot="start"
-    style="background: var(--sl-color-neutral-50); display: flex; align-items: center; justify-content: center; overflow: hidden;"
-  >
-    <Files></Files>
-  </div>
-  <div
-    slot="end"
-    style="background: var(--sl-color-neutral-50); display: flex; align-items: center; justify-content: center; overflow: hidden;"
-  >
-    <Editor></Editor>
-  </div>
-</sl-split-panel>;
-};
+const appDataDirPath = await appDataDir();
+console.log("appDataDirPath", appDataDirPath)
+console.log("read - ", readDir(appDataDirPath))
+
+const App = () => { return <Editor></Editor> };
 
 render(App, document.querySelector("#main"));

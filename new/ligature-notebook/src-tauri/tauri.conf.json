@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "ligature-notebook",
+        "title": "Ligature Notebook",
         "width": 800,
         "height": 600
       }
