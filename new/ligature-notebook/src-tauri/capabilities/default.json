@@ -9,7 +9,11 @@
     "core:default",
     "shell:allow-open",
     {
-      "identifier": "fs:read-dirs",
+      "identifier": "fs:write-all",
+      "allow": [{ "path": "$APPDATA" }, { "path": "$APPDATA/**" }]
+    },
+    {
+      "identifier": "fs:read-all",
       "allow": [{ "path": "$APPDATA" }, { "path": "$APPDATA/**" }]
     }
   ]
