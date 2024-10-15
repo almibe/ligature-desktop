@@ -1,21 +1,22 @@
 import "@shoelace-style/shoelace/dist/themes/light.css"
 import '@shoelace-style/shoelace/dist/components/split-panel/split-panel'
-import { createSignal, onCleanup } from "solid-js";
 import { render } from "solid-js/web";
+import { Files } from "./Files";
+import { Editor } from "./Editor";
 
 const App = () => {
-  return <sl-split-panel>
+  return <sl-split-panel id="content">
   <div
     slot="start"
-    style="height: 200px; background: var(--sl-color-neutral-50); display: flex; align-items: center; justify-content: center; overflow: hidden;"
+    style="background: var(--sl-color-neutral-50); display: flex; align-items: center; justify-content: center; overflow: hidden;"
   >
-    Start
+    <Files></Files>
   </div>
   <div
     slot="end"
-    style="height: 200px; background: var(--sl-color-neutral-50); display: flex; align-items: center; justify-content: center; overflow: hidden;"
+    style="background: var(--sl-color-neutral-50); display: flex; align-items: center; justify-content: center; overflow: hidden;"
   >
-    End
+    <Editor></Editor>
   </div>
 </sl-split-panel>;
 };
