@@ -4,6 +4,6 @@ See https://tauri.app/v1/guides/getting-started/prerequisites for setting up a d
 Once this has been setup run the following.
 
 ```
-pnpm install
-pnpm tauri dev
+npm install
+npm run tauri dev
 ```
