@@ -6,3 +6,7 @@ html, body {
 #content, #main {
   height: 100%;
 }
+
+.cell {
+  padding: 20px;
+}
