@@ -1,9 +1,8 @@
 <script lang="ts">
     import { get, writable } from "svelte/store";
-    import '@shoelace-style/shoelace/dist/components/radio/radio'
-    import '@shoelace-style/shoelace/dist/components/radio-group/radio-group'
     import { marked } from "marked";
     import { run, type Entry } from "@ligature/ligature";
+    import { updateSource, updateType } from "./Store";
 
     const editMode = writable(false)
     export let source: string;
@@ -37,6 +36,8 @@
         } else {
             editSaveIcon = editIcon
             editSaveAlt = editText
+            updateSource(id, source)
+            updateType(id, type)
         }
     }
 

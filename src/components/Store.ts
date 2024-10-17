@@ -32,6 +32,7 @@ export function addCell() {
 }
 
 export function openDocument() {
+    throw "TODO"
 }
 
 export function saveDocument() {
@@ -39,11 +40,23 @@ export function saveDocument() {
 }
 
 export function updateType(id: number, type: "markdown" | "wander") {
-    throw "TODO"
+    cells.update((cells) => {
+        let res = cells.find((cell) => cell.id == id)
+        if (res != undefined) {
+            res.type = type
+        }
+        return cells
+    })
 }
 
 export function updateSource(id: number, source: string) {
-    throw "TODO"
+    cells.update((cells) => {
+        let res = cells.find((cell) => cell.id == id)
+        if (res != undefined) {
+            res.source = source
+        }
+        return cells
+    })
 }
 
 export function moveUp(id: number) {
