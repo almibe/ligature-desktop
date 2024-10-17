@@ -2,7 +2,7 @@
     import { get, writable } from "svelte/store";
     import { marked } from "marked";
     import { run, type Entry } from "@ligature/ligature";
-    import { updateSource, updateType } from "./Store";
+    import { moveDown, moveUp, updateSource, updateType } from "./Store";
 
     const editMode = writable(false)
     export let source: string;
@@ -58,8 +58,8 @@
 
 <div class="cell" style="border-style: solid; margin: 5px; border-width: 1px;">
     <sl-button variant="text" size="small" onclick={callEdit}><img src={editSaveIcon} alt={editSaveAlt} /></sl-button>
-    <sl-button variant="text" size="small"><img src="/icons/arrow-up.svg" alt="Move Cell Up" /></sl-button>
-    <sl-button variant="text" size="small"><img src="/icons/arrow-down.svg" alt="Move Cell Down" /></sl-button>
+    <sl-button variant="text" size="small" onclick={() => {moveUp(id)}}><img src="/icons/arrow-up.svg" alt="Move Cell Up" /></sl-button>
+    <sl-button variant="text" size="small" onclick={() => {moveDown(id)}}><img src="/icons/arrow-down.svg" alt="Move Cell Down" /></sl-button>
     <sl-button variant="text" size="small"><img src="/icons/journal-plus.svg" alt="Append New Cell" /></sl-button>
     <sl-button variant="text" size="small"><img src="/icons/journal-minus.svg" alt="Remove Cell" /></sl-button>
     {#if $editMode}

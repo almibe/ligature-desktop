@@ -1,9 +1,11 @@
-import { get, writable } from "svelte/store"
-import { open } from '@tauri-apps/plugin-dialog';
+import { get, writable } from 'svelte/store'
+import { open, save } from '@tauri-apps/plugin-dialog';
+import { exists, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
+import { open as openFile } from '@tauri-apps/plugin-fs';
 
 export type CellModel = { 
     id: number, 
-    type: "text" | "wander",
+    type: 'markdown' | 'wander',
     output: string,
     source: string 
 }
@@ -17,7 +19,8 @@ function nextId(): number {
 }
 
 export function newDocument() {
-    throw "TODO"
+    cells.set([])
+    id.set(0)
 }
 
 export function addCell() {
@@ -25,28 +28,45 @@ export function addCell() {
         ...cells,
         {
             id: nextId(),
-            type: "markdown",
-            output: "text",
-            source: "# New Cell"
+            type: 'markdown',
+            output: 'text',
+            source: '# New Cell'
         }
     ])
 }
 
 export async function openDocument() {
     // Open a dialog
-    const file = await open({
+    const path = await open({
         multiple: false,
         directory: false,
     });
-    console.log(file);
-    // Prints file path or URI
+    console.log(path);
+    console.log(await exists(path))
+    const text = await readTextFile(path);
+    console.log(text)
+    let newCells = JSON.parse(text)
+    cells.set(newCells.cells)
+    id.set(0)
 }
 
-export function saveDocument() {
-   console.log(JSON.stringify(get(cells)))
+export async function saveDocument() {
+    const doc = { cells: get(cells) }
+    const path = await save({
+        filters: [
+            {
+                name: '.wander',
+                extensions: ['wander']
+            }
+        ]
+    })
+    console.log(path)
+    if (path != null | path != undefined) {
+        await writeTextFile(path, JSON.stringify(doc))
+    }
 }
 
-export function updateType(id: number, type: "markdown" | "wander") {
+export function updateType(id: number, type: 'markdown' | 'wander') {
     cells.update((cells) => {
         let res = cells.find((cell) => cell.id == id)
         if (res != undefined) {
@@ -67,17 +87,39 @@ export function updateSource(id: number, source: string) {
 }
 
 export function moveUp(id: number) {
-    throw "TODO"
+    cells.update((cells) => {
+        let res = cells.find((cell) => cell.id == id)
+        if (res != undefined) {
+            const index = cells.indexOf(res)
+            if (index > 0) {
+                [cells[index-1], cells[index]] = [cells[index], cells[index-1]]
+            }
+        }
+        return cells
+    })
+}
+
+export function moveDown(id: number) {
+    cells.update((cells) => {
+        let res = cells.find((cell) => cell.id == id)
+        if (res != undefined) {
+            const index = cells.indexOf(res)
+            if (index+1 < cells.length) {
+                [cells[index+1], cells[index]] = [cells[index], cells[index+1]]
+            }
+        }
+        return cells
+    })
 }
 
 export function appendAfter(id: number) {
-    throw "TODO"
+    throw 'TODO'
 }
 
 export function removeCell(id: number) {
-    throw "TODO"
+    throw 'TODO'
 }
 
 export function getCells() {
-    throw "TODO"
+    throw 'TODO'
 }
