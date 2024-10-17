@@ -113,11 +113,35 @@ export function moveDown(id: number) {
 }
 
 export function appendAfter(id: number) {
-    throw 'TODO'
+    cells.update((cells) => {
+        let res = cells.find((cell) => cell.id == id)
+        if (res != undefined) {
+            const index = cells.indexOf(res)
+
+            const newCell = {
+                    id: nextId(),
+                    type: 'markdown',
+                    output: 'text',
+                    source: '# New Cell'
+                }
+            cells.splice(index+1, 0, newCell)
+            return cells
+        }
+        return cells
+    })
 }
 
 export function removeCell(id: number) {
-    throw 'TODO'
+    cells.update((cells) => {
+        let res = cells.find((cell) => cell.id == id)
+        if (res != undefined) {
+            const index = cells.indexOf(res)
+            cells.splice(index, 1)
+            return cells
+        } else {
+            return cells
+        }
+    })
 }
 
 export function getCells() {
