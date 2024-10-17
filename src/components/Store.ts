@@ -1,4 +1,5 @@
 import { get, writable } from "svelte/store"
+import { open } from '@tauri-apps/plugin-dialog';
 
 export type CellModel = { 
     id: number, 
@@ -31,8 +32,14 @@ export function addCell() {
     ])
 }
 
-export function openDocument() {
-    throw "TODO"
+export async function openDocument() {
+    // Open a dialog
+    const file = await open({
+        multiple: false,
+        directory: false,
+    });
+    console.log(file);
+    // Prints file path or URI
 }
 
 export function saveDocument() {

@@ -56,7 +56,7 @@
     }
 </script>
 
-<div class="cell">
+<div class="cell" style="border-style: solid; margin: 5px; border-width: 1px;">
     <sl-button variant="text" size="small" onclick={callEdit}><img src={editSaveIcon} alt={editSaveAlt} /></sl-button>
     <sl-button variant="text" size="small"><img src="/icons/arrow-up.svg" alt="Move Cell Up" /></sl-button>
     <sl-button variant="text" size="small"><img src="/icons/arrow-down.svg" alt="Move Cell Down" /></sl-button>
