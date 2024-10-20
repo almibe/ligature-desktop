@@ -6,7 +6,7 @@ import { open as openFile } from '@tauri-apps/plugin-fs';
 export type CellModel = { 
     id: number, 
     type: 'markdown' | 'wander',
-    output: string,
+    output: 'text' | 'table' | 'graph',
     source: string 
 }
 
