@@ -14,7 +14,8 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
-    "@ligature/ligature": "file:../ligature-fs/src/LigatureFable/package",
+    "@ligature/ligature": "^0.8.0",
+    "@ligature/ligature-components": "^0.8.0",
     "@shoelace-style/shoelace": "^2.17.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.0.0",

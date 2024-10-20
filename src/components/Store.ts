@@ -1,4 +1,4 @@
-import { get, writable } from 'svelte/store'
+import { get, readonly, writable } from 'svelte/store'
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { exists, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { open as openFile } from '@tauri-apps/plugin-fs';
@@ -10,7 +10,8 @@ export type CellModel = {
     source: string 
 }
 
-export const cells = writable([]) //TODO export read only version
+const internalCells = writable([])
+export const cells = readonly(internalCells)
 const id = writable(0)
 
 function nextId(): number {
@@ -19,12 +20,12 @@ function nextId(): number {
 }
 
 export function newDocument() {
-    cells.set([])
+    internalCells.set([])
     id.set(0)
 }
 
 export function addCell() {
-    cells.update((cells) => [
+    internalCells.update((cells) => [
         ...cells,
         {
             id: nextId(),
@@ -46,12 +47,12 @@ export async function openDocument() {
     const text = await readTextFile(path);
     console.log(text)
     let newCells = JSON.parse(text)
-    cells.set(newCells.cells)
+    internalCells.set(newCells.cells)
     id.set(0)
 }
 
 export async function saveDocument() {
-    const doc = { cells: get(cells) }
+    const doc = { cells: get(internalCells) }
     const path = await save({
         filters: [
             {
@@ -67,7 +68,7 @@ export async function saveDocument() {
 }
 
 export function updateType(id: number, type: 'markdown' | 'wander') {
-    cells.update((cells) => {
+    internalCells.update((cells) => {
         let res = cells.find((cell) => cell.id == id)
         if (res != undefined) {
             res.type = type
@@ -77,7 +78,7 @@ export function updateType(id: number, type: 'markdown' | 'wander') {
 }
 
 export function updateSource(id: number, source: string) {
-    cells.update((cells) => {
+    internalCells.update((cells) => {
         let res = cells.find((cell) => cell.id == id)
         if (res != undefined) {
             res.source = source
@@ -87,7 +88,7 @@ export function updateSource(id: number, source: string) {
 }
 
 export function moveUp(id: number) {
-    cells.update((cells) => {
+    internalCells.update((cells) => {
         let res = cells.find((cell) => cell.id == id)
         if (res != undefined) {
             const index = cells.indexOf(res)
@@ -100,7 +101,7 @@ export function moveUp(id: number) {
 }
 
 export function moveDown(id: number) {
-    cells.update((cells) => {
+    internalCells.update((cells) => {
         let res = cells.find((cell) => cell.id == id)
         if (res != undefined) {
             const index = cells.indexOf(res)
@@ -113,7 +114,7 @@ export function moveDown(id: number) {
 }
 
 export function appendAfter(id: number) {
-    cells.update((cells) => {
+    internalCells.update((cells) => {
         let res = cells.find((cell) => cell.id == id)
         if (res != undefined) {
             const index = cells.indexOf(res)
@@ -132,7 +133,7 @@ export function appendAfter(id: number) {
 }
 
 export function removeCell(id: number) {
-    cells.update((cells) => {
+    internalCells.update((cells) => {
         let res = cells.find((cell) => cell.id == id)
         if (res != undefined) {
             const index = cells.indexOf(res)
@@ -142,8 +143,4 @@ export function removeCell(id: number) {
             return cells
         }
     })
-}
-
-export function getCells() {
-    throw 'TODO'
 }
