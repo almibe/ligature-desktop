@@ -2,7 +2,7 @@
     import "@shoelace-style/shoelace/dist/themes/light.css"
     import '@shoelace-style/shoelace/dist/components/button/button'
     import '@shoelace-style/shoelace/dist/components/button-group/button-group'
-    import Cell from './Cell.svelte'
+    import Cell from './Cell'
     import { addCell, cells, newDocument, openDocument, saveDocument } from "./Store";
     import ViewCell from "./ViewCell.svelte";
 
