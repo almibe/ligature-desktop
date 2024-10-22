@@ -1,38 +1,35 @@
-<script lang="ts">
-    import "@shoelace-style/shoelace/dist/themes/light.css"
-    import '@shoelace-style/shoelace/dist/components/button/button'
-    import '@shoelace-style/shoelace/dist/components/button-group/button-group'
-    import Cell from './Cell'
-    import { addCell, cells, newDocument, openDocument, saveDocument } from "./Store";
-    import ViewCell from "./ViewCell.svelte";
+import "@shoelace-style/shoelace/dist/themes/light.css"
+import '@shoelace-style/shoelace/dist/components/button/button'
+import '@shoelace-style/shoelace/dist/components/button-group/button-group'
+import { addCell, cells, newDocument, openDocument, saveDocument } from "./Store";
+import { createSignal, Match, Switch } from "solid-js";
+import { NotebookView } from "./NotebookView";
+import { NotebookEdit } from "./NotebookEdit";
 
-    let inEditMode = true
-    $: viewEditLabel = inEditMode ? "View" : "Edit"
-</script>
+let [inEditMode, setInEditMode] = createSignal(true)
 
-<div style="height:100%; width: 100%">
-    <div style="height:100%; width: 100%">
-        <sl-button-group>
-            <sl-button size="small" onclick={addCell}><img src="/icons/plus-lg.svg" alt="Add" /></sl-button>
-            <sl-button size="small" onclick={() => {inEditMode = !inEditMode}}>{viewEditLabel}</sl-button>
-            <sl-button size="small" onclick={newDocument}>New</sl-button>
-            <sl-button size="small" onclick={saveDocument}>Save</sl-button>
-            <sl-button size="small" onclick={openDocument}>Open</sl-button>
-        </sl-button-group>
-        <div>
-            {#if inEditMode}
-                {#each $cells as cell}
-                    <Cell id={cell.id} output={cell.output} source={cell.source} type={cell.type}></Cell>
-                {/each}
-            {:else}
-                {#each $cells as cell}
-                    <ViewCell output={cell.output} source={cell.source} type={cell.type}></ViewCell>
-                {/each}
-            {/if}
+let [viewEditLabel, setViewEditLabel] = createSignal("View")
+
+export function Editor() {
+    return <div style="height:100%; width: 100%">
+        <div style="height:100%; width: 100%">
+            <sl-button-group>
+                <sl-button size="small" onclick={addCell}><img src="../../static/icons/plus-lg.svg" alt="Add" /></sl-button>
+                <sl-button size="small" onclick={() => {setInEditMode(!inEditMode())}}>{viewEditLabel}</sl-button>
+                <sl-button size="small" onclick={newDocument}>New</sl-button>
+                <sl-button size="small" onclick={saveDocument}>Save</sl-button>
+                <sl-button size="small" onclick={openDocument}>Open</sl-button>
+            </sl-button-group>
+            <div>
+                <Switch>
+                    <Match when={inEditMode()}>
+                        <NotebookEdit></NotebookEdit>
+                    </Match>
+                    <Match when={!inEditMode()}>
+                        <NotebookView></NotebookView>
+                    </Match>
+                </Switch>
+            </div>
         </div>
     </div>
-</div>
-
-<style>
-
-</style>
+}
