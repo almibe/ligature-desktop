@@ -1,14 +1,20 @@
 import "@shoelace-style/shoelace/dist/themes/light.css"
 import '@shoelace-style/shoelace/dist/components/button/button'
 import '@shoelace-style/shoelace/dist/components/button-group/button-group'
-import { addCell, cells, newDocument, openDocument, saveDocument } from "./Store";
+import { addCell, newDocument, openDocument, saveDocument } from "./Store";
 import { createSignal, Match, Switch } from "solid-js";
 import { NotebookView } from "./NotebookView";
 import { NotebookEdit } from "./NotebookEdit";
 
 let [inEditMode, setInEditMode] = createSignal(true)
 
-let [viewEditLabel, setViewEditLabel] = createSignal("View")
+let viewEditLabel = () => {
+    if (inEditMode()) {
+        return "View"
+    } else {
+        return "Edit"
+    }
+}
 
 export function Editor() {
     return <div style="height:100%; width: 100%">

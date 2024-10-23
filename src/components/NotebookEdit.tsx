@@ -6,7 +6,7 @@ export function NotebookEdit() {
     return <>
         <For each={store.cells}>
             {(cell, index) =>
-                <EditCell id={cell.id} output={cell.output} source={cell.source} type={cell.type}></EditCell>
+                <EditCell id={index()}></EditCell>
         }
         </For></>
 }

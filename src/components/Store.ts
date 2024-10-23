@@ -29,110 +29,69 @@ export function addCell() {
 }
 
 export async function openDocument() {
-    // // Open a dialog
-    // const path = await open({
-    //     multiple: false,
-    //     directory: false,
-    // });
-    // console.log(path);
-    // console.log(await exists(path))
-    // const text = await readTextFile(path);
-    // console.log(text)
-    // let newCells = JSON.parse(text)
-    // internalCells.set(newCells.cells)
-    // id.set(0)
+    // Open a dialog
+    const path = await open({
+        multiple: false,
+        directory: false,
+    });
+    const text = await readTextFile(path);
+    let newCells = JSON.parse(text)
+    setStore("cells", newCells.cells)
 }
 
 export async function saveDocument() {
-    // const doc = { cells: get(internalCells) }
-    // const path = await save({
-    //     filters: [
-    //         {
-    //             name: '.wander',
-    //             extensions: ['wander']
-    //         }
-    //     ]
-    // })
-    // console.log(path)
-    // if (path != null | path != undefined) {
-    //     await writeTextFile(path, JSON.stringify(doc))
-    // }
+    const doc = { cells: store.cells }
+    const path = await save({
+        filters: [
+            {
+                name: '.wander',
+                extensions: ['wander']
+            }
+        ]
+    })
+    if (path != null | path != undefined) {
+        await writeTextFile(path, JSON.stringify(doc))
+    }
 }
 
 export function updateType(id: number, type: 'markdown' | 'wander') {
-    // internalCells.update((cells) => {
-    //     let res = cells.find((cell) => cell.id == id)
-    //     if (res != undefined) {
-    //         res.type = type
-    //     }
-    //     return cells
-    // })
+    setStore("cells", id, { type: type })
 }
 
 export function updateSource(id: number, source: string) {
-    // internalCells.update((cells) => {
-    //     let res = cells.find((cell) => cell.id == id)
-    //     if (res != undefined) {
-    //         res.source = source
-    //     }
-    //     return cells
-    // })
+    setStore("cells", id, { source: source })
 }
 
-export function moveUp(id: number) {
-    // internalCells.update((cells) => {
-    //     let res = cells.find((cell) => cell.id == id)
-    //     if (res != undefined) {
-    //         const index = cells.indexOf(res)
-    //         if (index > 0) {
-    //             [cells[index-1], cells[index]] = [cells[index], cells[index-1]]
-    //         }
-    //     }
-    //     return cells
-    // })
+export function moveUp(index: number) {
+    if (index > 0) {
+        const cells = store.cells
+        const newCells = cells.slice(0, index-1).concat([cells[index]], [cells[index-1]], cells.slice(index+1, cells.length))
+        setStore("cells", newCells)
+    }
 }
 
-export function moveDown(id: number) {
-    // internalCells.update((cells) => {
-    //     let res = cells.find((cell) => cell.id == id)
-    //     if (res != undefined) {
-    //         const index = cells.indexOf(res)
-    //         if (index+1 < cells.length) {
-    //             [cells[index+1], cells[index]] = [cells[index], cells[index+1]]
-    //         }
-    //     }
-    //     return cells
-    // })
+export function moveDown(index: number) {
+    if (index+1 < store.cells.length) {
+        const cells = store.cells
+        const newCells = cells.slice(0, index).concat([cells[index+1]], [cells[index]], cells.slice(index+2, cells.length))
+        setStore("cells", newCells)
+    }
 }
 
-export function appendAfter(id: number) {
-    // internalCells.update((cells) => {
-    //     let res = cells.find((cell) => cell.id == id)
-    //     if (res != undefined) {
-    //         const index = cells.indexOf(res)
+export function appendAfter(index: number) {
+    const newCell = {
+        type: 'markdown',
+        output: 'text',
+        source: '# New Cell'
+    }
 
-    //         const newCell = {
-    //                 id: nextId(),
-    //                 type: 'markdown',
-    //                 output: 'text',
-    //                 source: '# New Cell'
-    //             }
-    //         cells.splice(index+1, 0, newCell)
-    //         return cells
-    //     }
-    //     return cells
-    // })
+    setStore("cells", store.cells.slice(0, index+1).concat([newCell], store.cells.slice(index+1, store.cells.length)))
 }
 
-export function removeCell(id: number) {
-    // internalCells.update((cells) => {
-    //     let res = cells.find((cell) => cell.id == id)
-    //     if (res != undefined) {
-    //         const index = cells.indexOf(res)
-    //         cells.splice(index, 1)
-    //         return cells
-    //     } else {
-    //         return cells
-    //     }
-    // })
+export function removeCell(index: number) {
+    setStore("cells", store.cells.slice(0, index).concat(store.cells.slice(index+1, store.cells.length)))
+}
+
+export function lookupCell(id: number) {
+    return store.cells[id]
 }

@@ -1,11 +1,6 @@
-import { appendAfter, moveDown, moveUp, removeCell, updateSource, updateType } from "./Store";
+import { appendAfter, lookupCell, moveDown, moveUp, removeCell, updateSource, updateType } from "./Store";
 import { ViewCell } from "./ViewCell";
 import { Match, Switch, createSignal } from "solid-js";
-
-// export let source: string;
-// export let id: number;
-// export let output: string;
-// export let type: "markdown" | "wander";
 
 const editIcon = "../../static/icons/pencil.svg"
 const editText = "Edit"
@@ -13,34 +8,11 @@ const editText = "Edit"
 const saveIcon = "../../static/icons/save.svg"
 const saveText = "Save"
 
-function selectionChange() {
-    // if (markdownButton.checked) {
-    //     type = "markdown"
-    // } else {
-    //     type = "wander"
-    // }
-}
+export function EditCell(props: {id: number }) {
 
-
-export function EditCell(props: {id: string }) {
-
-    function callEdit(editMode, setEditMode, id) {
-        const mode = setEditMode(!editMode())
-    
-        if (!mode) {
-            console.log("save!", markdownRadio.checked)
-
-            updateSource(id, text.value)
-            if (markdownRadio.checked) {
-                updateType(id, "markdown")
-            } else {
-                updateType(id, "wander")
-            }
-        }
-    }
-    
     let text
     let markdownRadio
+    let wanderRadio
     const [editMode, setEditMode] = createSignal(false)
     const editSaveIcon = () => {
         if (editMode()) {
@@ -57,8 +29,29 @@ export function EditCell(props: {id: string }) {
         }
     }
 
+    function callEdit() {
+        const isEditMode = setEditMode(!editMode())
+    
+        if (!isEditMode) {
+            updateSource(props.id, text.value)
+            if (markdownRadio.checked) {
+                updateType(props.id, "markdown")
+            } else {
+                updateType(props.id, "wander")
+            }
+        } else {
+            const cell = lookupCell(props.id)
+            text.value = cell.source
+            if (cell.type == "wander") {
+                wanderRadio.checked = true
+            } else {
+                markdownRadio.checked = true
+            }
+        }
+    }    
+
     return <div class="cell" style="border-style: solid; margin: 5px; border-width: 1px;">
-        <sl-button variant="text" size="small" onclick={() => callEdit(editMode, setEditMode)}><img src={editSaveIcon()} alt={editSaveAlt()} /></sl-button>
+        <sl-button variant="text" size="small" onclick={() => callEdit()}><img src={editSaveIcon()} alt={editSaveAlt()} /></sl-button>
         <sl-button variant="text" size="small" onclick={() => {moveUp(props.id)}}><img src="../../static/icons/arrow-up.svg" alt="Move Cell Up" /></sl-button>
         <sl-button variant="text" size="small" onclick={() => {moveDown(props.id)}}><img src="../../static/icons/arrow-down.svg" alt="Move Cell Down" /></sl-button>
         <sl-button variant="text" size="small" onclick={() => {appendAfter(props.id)}}><img src="../../static/icons/journal-plus.svg" alt="Append New Cell" /></sl-button>
@@ -69,14 +62,14 @@ export function EditCell(props: {id: string }) {
                     <div>
                         <input ref={markdownRadio} type="radio" name={"cellType" + props.id} value="markdown" checked />
                         <label for={"cellType" + props.id}>MarkDown</label>
-                        <input type="radio" name={"cellType" + props.id} value="wander" />
+                        <input ref={wanderRadio} type="radio" name={"cellType" + props.id} value="wander" />
                         <label for={"cellType" + props.id}>Wander</label>
                     </div>
                     <textarea ref={text}></textarea>
                 </div>
             </Match>
             <Match when={!editMode()}>
-                <ViewCell></ViewCell>
+                <ViewCell id={props.id}></ViewCell>
             </Match>
         </Switch>
     </div>
