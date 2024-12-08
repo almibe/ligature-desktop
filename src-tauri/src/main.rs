@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    ligature_notebook_lib::run()
+    ligature_desktop_lib::run()
 }

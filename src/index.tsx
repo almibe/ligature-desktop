@@ -1,5 +1,5 @@
 import './main.css'
 import { render } from 'solid-js/web';
-import { Editor } from './components/Editor';
+import { Application } from './components/Application';
 
-render(Editor, document.querySelector("#root"));
+render(Application, document.querySelector("#root"));

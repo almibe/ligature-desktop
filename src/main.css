@@ -2,15 +2,11 @@ html, body {
     margin: 0;
     height: 100%
 }
-  
-#content, #main {
+
+#content, #main, #root {
     height: 100%;
 }
   
-.cell {
-    padding: 20px;
-}
-
 body {
     font-family: SourceCodePro, monospace;
     height: 100%;
@@ -18,24 +14,6 @@ body {
 
 #results {
     font-family: SourceCodePro, monospace;
-    margin: 2em;
-}
-
-.status {
-    padding-left:.8em;
-    padding-top:.4em;
-}
-
-#split-panel {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 300px 10px 1fr;
-}
-
-.gutter {
-    grid-row: 1/-1;
-    cursor: col-resize;
-    grid-column: 2;
 }
 
 .gutter {
@@ -44,7 +22,7 @@ body {
     background-position: 50%;
 }
 
-.gutter.gutter-horizontal {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
-    cursor: col-resize;
+.gutter.gutter-vertical {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+    cursor: row-resize;
 }
