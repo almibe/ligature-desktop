@@ -1,10 +1,11 @@
-import { onMount } from "solid-js"
+import { createSignal, onMount } from "solid-js"
 import { showEditor } from "@ligature/ligature-components/src/editor/editor"
 import { run as runScript } from "@ligature/ligature"
 import { EditorView } from "codemirror";
 import Split from 'split-grid'
 
 export function Application() {
+    let [resultText, setResultText] = createSignal("")
     let editor: EditorView = null;
     onMount(() => {
         Split({
@@ -13,11 +14,12 @@ export function Application() {
                 element: document.querySelector('.gutter-row-1'),
             }]
         })
-        editor = showEditor("#editor")
+        editor = showEditor(document.querySelector("#editor"), "")
     })
 
     function run() {
-        console.log(runScript(editor.state.doc.toString()))
+        let result = runScript(editor.state.doc.toString())
+        setResultText(JSON.stringify(result))
     }
     
     return <div style="height:100%; width: 100%">
@@ -29,8 +31,8 @@ export function Application() {
                 <div id="editor"></div>
             </div>
             <div class="gutter-row gutter-row-1"></div>
-            <div id="results" style="height:100%; width: 100%">
-                Results
+            <div id="results" style="overflow: auto">
+                {resultText}
             </div>
         </div>
     </div>
