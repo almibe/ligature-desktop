@@ -1,11 +1,13 @@
 import { createSignal, onMount } from "solid-js"
 import { showEditor } from "@ligature/ligature-components/src/editor/editor"
-import { run as runScript } from "@ligature/ligature"
+import { readValue } from "@ligature/ligature"
+import { runWander } from "../lib/ligature-client"
 import { EditorView } from "codemirror";
+import { showText } from "@ligature/ligature-components/src/text/text"
+import { showGraph } from "@ligature/ligature-components/src/graph/graph"
 import Split from 'split-grid'
 
 export function Application() {
-    let [resultText, setResultText] = createSignal("")
     let editor: EditorView = null;
     onMount(() => {
         Split({
@@ -17,9 +19,11 @@ export function Application() {
         editor = showEditor(document.querySelector("#editor"), "")
     })
 
-    function run() {
-        let result = runScript(editor.state.doc.toString())
-        setResultText(JSON.stringify(result))
+    async function run() {
+        let result = await runWander(editor.state.doc.toString())
+        let value = readValue(result)
+        showText(document.querySelector("#results"), value)
+        //showGraph(document.querySelector("#results"), value)
     }
     
     return <div style="height:100%; width: 100%">
@@ -32,7 +36,6 @@ export function Application() {
             </div>
             <div class="gutter-row gutter-row-1"></div>
             <div id="results" style="overflow: auto">
-                {resultText}
             </div>
         </div>
     </div>

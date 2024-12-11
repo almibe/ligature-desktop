@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "ligature-notebook",
+  "productName": "ligature-desktop",
   "version": "0.1.0",
-  "identifier": "dev.ligature.notebook",
+  "identifier": "dev.ligature.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "ligature-notebook",
+        "title": "Ligature Desktop",
         "width": 800,
         "height": 600
       }
