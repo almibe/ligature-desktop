@@ -20,6 +20,11 @@ body {
 
 #results {
     font-family: SourceCodePro, monospace;
+    padding: 1em;
+}
+
+.table {
+    padding: 1em;
 }
 
 .grid {
