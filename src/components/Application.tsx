@@ -4,6 +4,7 @@ import { EditorView } from "codemirror";
 import { run as runScript, Element, Literal, Variable, Quote, Triple, Result, Error, Network, NoResult } from "@ligature/ligature"
 import { TabulatorFull as Tabulator } from 'tabulator-tables'
 import  "tabulator-tables/dist/css/tabulator.min.css"
+
 import Split from 'split-grid'
 
 function networkToTableData(network: Triple[]): any[] {
@@ -12,18 +13,20 @@ function networkToTableData(network: Triple[]): any[] {
     network.forEach(([e,a,v]) => {
         let res = results.find((i:any) => i.element == e.value)
         if (res == undefined) {
-            const newEntry = {element: triple.first.symbol}
-            newEntry[triple.role.symbol] = [triple.second.symbol]
+            const newEntry = {element: e.value}
+            newEntry[a.value] = [v.value]
             results.push(newEntry)
-            roles.add(triple.role.symbol)
+            roles.add(a.value)
         } else {
-            if (res[triple.role.symbol] != undefined) {
-                res[triple.role.symbol].push(triple.second.symbol)
+            if (res[a.value] != undefined) {
+                res[a.value].push(v.value)
             } else {
-                res[triple.role.symbol] = [triple.second.symbol]
+                res[a.value] = [v.value]
             }
         }
     })
+    return results
+}
 
 function printNetwork(n: Array<Triple>): string {
     let res = "{\n"
