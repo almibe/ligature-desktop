@@ -5,6 +5,7 @@
   import '@shoelace-style/shoelace/dist/shoelace.js'
   import '@shoelace-style/shoelace/dist/components/split-panel/split-panel.js'
   import '@shoelace-style/shoelace/dist/themes/light.css'
+  import SideBar from '../components/SideBar.svelte';
 
   onMount(() => {
     let initalScript = 
@@ -20,25 +21,34 @@
   })
 </script>
 
-<main class="container">
-
-  <sl-split-panel position="25">
-    <div
-      slot="start"
-      style=""
-    >
-      <div id="sidebar">Sidebar</div>
-    </div>
-    <div
-      slot="end"
-      style=""
-    >
+<sl-split-panel position="25" class="main">
+  <div
+    slot="start"
+    style=""
+  >
+    <SideBar></SideBar>
+  </div>
+  <div
+    slot="end"
+    style=""
+  >
+    <sl-split-panel class="main" position="65" vertical>
+      <div
+        slot="start"
+        style=""
+      >
       <div><button id="runButton">Run</button></div>
       <div id="editor"></div>
-      <div id="results"></div>
     </div>
-  </sl-split-panel>
-</main>
+      <div
+        slot="end"
+        style=""
+      >
+        <div id="results"></div>
+      </div>
+    </sl-split-panel>
+    </div>
+</sl-split-panel>
 
 <style>
 </style>
