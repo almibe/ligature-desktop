@@ -1,0 +1,43 @@
+html, body {
+    margin: 0;
+    height: 100%
+}
+
+#content, #main, #root {
+    height: 100%;
+}
+ 
+button {
+    background-color: white;
+    border-radius: .25em;
+    border-width: 1px;
+}
+
+body {
+    font-family: SourceCodePro, monospace;
+    height: 100%;
+}
+
+#results {
+    font-family: SourceCodePro, monospace;
+    padding: 1em;
+}
+
+.table {
+    padding: 1em;
+}
+
+.grid {
+    display: grid;
+    grid-template-rows: 1fr 10px 1fr;
+}
+
+.gutter-row {
+    grid-column: 1/-1;
+    cursor: row-resize;
+    background-color: lightgray;
+}
+
+.gutter-row-1 {
+    grid-row: 2;
+}
