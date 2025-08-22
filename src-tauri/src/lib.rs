@@ -34,6 +34,7 @@ fn open_file(name: &str, webview_window: tauri::WebviewWindow) -> () {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![start_up, open_file])
