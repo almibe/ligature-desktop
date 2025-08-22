@@ -11,11 +11,12 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "tauri": "tauri"
   },
-  "license": "MIT",
+  "license": "MPL-2.0",
   "dependencies": {
     "@ligature/ligature-components": "file:../ligature-components/packages/ligature-components",
     "@shoelace-style/shoelace": "^2.20.1",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2.3.3",
     "@tauri-apps/plugin-opener": "^2"
   },
   "devDependencies": {

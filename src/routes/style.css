@@ -23,6 +23,7 @@ main {
 #editor {
     width: 100%;
     height: calc(100% - 40px); /*TODO: don't hard code, will probably have to do this in JS or flexbox layout?*/
+    font-size: large;
 }
 
 button {
@@ -43,19 +44,4 @@ body {
 
 .table {
     padding: 1em;
-}
-
-.grid {
-    display: grid;
-    grid-template-rows: 1fr 10px 1fr;
-}
-
-.gutter-row {
-    grid-column: 1/-1;
-    cursor: row-resize;
-    background-color: lightgray;
-}
-
-.gutter-row-1 {
-    grid-row: 2;
 }
