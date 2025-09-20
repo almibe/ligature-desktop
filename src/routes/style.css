@@ -8,7 +8,7 @@ main {
 }
 
 .main {
-    height: 100%
+    height: calc(100% - 40px);
 }
 
 #content, #main, #root {
@@ -22,7 +22,7 @@ main {
 
 #editor {
     width: 100%;
-    height: calc(100% - 40px); /*TODO: don't hard code, will probably have to do this in JS or flexbox layout?*/
+    height: 100%; /*TODO: don't hard code, will probably have to do this in JS or flexbox layout?*/
     font-size: large;
 }
 

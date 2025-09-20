@@ -13,7 +13,7 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
-    "@ligature/ligature-components": "file:../ligature-components/packages/ligature-components",
+    "@ligature/ligature-components": "^0.18.0",
     "@shoelace-style/shoelace": "^2.20.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.3.3",

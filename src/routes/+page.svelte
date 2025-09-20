@@ -10,7 +10,7 @@
   import { listen } from '@tauri-apps/api/event';
   import { event, window, path } from '@tauri-apps/api'
   import { save, open } from '@tauri-apps/plugin-dialog';
-
+  import { readTextFile, BaseDirectory  } from '@tauri-apps/plugin-fs';
   let fileName: string | null = $state(null)
 
   let editor: any | null = null;
@@ -43,7 +43,15 @@
       directory: false,
     });
     fileName = selectedFile
-    console.log(selectedFile);
+
+    console.log("Opening " +  selectedFile);
+
+    if (selectedFile != null) {
+      const script = await readTextFile(selectedFile, {
+        baseDir: BaseDirectory.AppConfig,
+      });
+      editor.setValue(script)
+    }
   }
 
   async function saveScript() {
